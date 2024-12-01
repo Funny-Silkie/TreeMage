@@ -1,18 +1,21 @@
-using TreeViewer.Components;
+using ElectronNET.API;
+using ElectronNET.API.Entities;
 
 namespace TreeViewer
 {
-    public class Program
+    internal class Program
     {
-        public static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+            builder.WebHost.UseElectron(args);
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
-                .AddInteractiveServerComponents();
+                            .AddInteractiveServerComponents();
 
-            var app = builder.Build();
+            WebApplication app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -27,8 +30,14 @@ namespace TreeViewer
             app.UseStaticFiles();
             app.UseAntiforgery();
 
-            app.MapRazorComponents<App>()
-                .AddInteractiveServerRenderMode();
+            app.MapRazorComponents<Components.App>()
+               .AddInteractiveServerRenderMode();
+
+            BrowserWindow window = Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions()
+            {
+            }).Result;
+
+            window.OnClosed += Electron.App.Quit;
 
             app.Run();
         }
