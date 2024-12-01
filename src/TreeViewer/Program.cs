@@ -1,5 +1,6 @@
 using ElectronNET.API;
 using ElectronNET.API.Entities;
+using Radzen;
 
 namespace TreeViewer
 {
@@ -14,6 +15,7 @@ namespace TreeViewer
             // Add services to the container.
             builder.Services.AddRazorComponents()
                             .AddInteractiveServerComponents();
+            builder.Services.AddRadzenComponents();
 
             WebApplication app = builder.Build();
 
