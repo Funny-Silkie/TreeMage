@@ -12,9 +12,26 @@ namespace TreeViewer.Window
         private BrowserWindow? window;
 
         /// <summary>
+        /// 対象のElectronウィンドウを取得します。
+        /// </summary>
+        private BrowserWindow Window
+        {
+            get
+            {
+                VerifyWindowState();
+                return window;
+            }
+        }
+
+        /// <summary>
+        /// インスタンスを取得します。
+        /// </summary>
+        public static MainWindow Instance { get; private set; } = new MainWindow();
+
+        /// <summary>
         /// <see cref="MainWindow"/>の新しいインスタンスを初期化します。
         /// </summary>
-        public MainWindow()
+        private MainWindow()
         {
         }
 
@@ -35,9 +52,10 @@ namespace TreeViewer.Window
         {
             window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions()
             {
+                Width = 960,
+                Height = 720,
                 Show = false,
             });
-
             window.OnReadyToShow += window.Show;
             window.OnClosed += Electron.App.Quit;
         }
@@ -51,31 +69,31 @@ namespace TreeViewer.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "ファイル",
+                    Label = "ファイル(&F)",
                     Accelerator = "Alt+F",
                     Submenu = [
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "新規作成",
+                            Label = "新規作成(&N)",
                             Accelerator = "Ctrl+N",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "開く",
+                            Label = "開く(&O)",
                             Accelerator = "Ctrl+O",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "保存",
+                            Label = "保存(&S)",
                             Accelerator = "Ctrl+S",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "名前を付けて保存",
+                            Label = "名前を付けて保存(&A)",
                             Accelerator = "Ctrl+Shift+S",
                         },
                         new MenuItem()
@@ -85,12 +103,109 @@ namespace TreeViewer.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "終了",
+                            Label = "インポート(&I)",
+                            Accelerator = "Ctrl+Shift+O",
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "エクスポート(&E)",
+                            Submenu = [
+                                new MenuItem()
+                                {
+                                    Type = MenuType.normal,
+                                    Label = "PNG",
+                                },
+                                new MenuItem()
+                                {
+                                    Type = MenuType.normal,
+                                    Label = "SVG",
+                                },
+                                new MenuItem()
+                                {
+                                    Type = MenuType.normal,
+                                    Label = "PDF",
+                                },
+                                new MenuItem()
+                                {
+                                    Type = MenuType.normal,
+                                    Label = "Adobe Illustrator",
+                                },
+                            ],
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.separator,
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "終了(&X)",
                             Accelerator = "Ctrl+W"
                         },
                     ],
                 },
+                new MenuItem()
+                {
+                    Type = MenuType.normal,
+                    Label = "編集(&E)",
+                    Submenu = [
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Undo(&U)",
+                            Accelerator = "Ctrl+Z",
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Redo(&R)",
+                            Accelerator = "Ctrl+Shift+Z",
+                        },
+                    ],
+                },
+                new MenuItem()
+                {
+                    Type = MenuType.normal,
+                    Label = "ツリー(&T)",
+                    Submenu = [
+                    ],
+                },
+#if DEBUG
+                new MenuItem()
+                {
+                    Label = "デバッグ(&D)",
+                    Submenu = [
+                        new MenuItem()
+                        {
+                            Role = MenuRole.toggledevtools,
+                            Accelerator = "F12",
+                        },
+                        new MenuItem()
+                        {
+                            Role = MenuRole.togglefullscreen,
+                        },
+                        new MenuItem()
+                        {
+                            Role = MenuRole.zoom,
+                        },
+                        new MenuItem()
+                        {
+                            Role = MenuRole.zoomin,
+                        },
+                        new MenuItem()
+                        {
+                            Role = MenuRole.zoomout,
+                        },
+                    ],
+                },
+#endif
             ]);
         }
+
+        /// <summary>
+        /// ウィンドウを閉じます。
+        /// </summary>
+        public void CloseWindow() => Window.Close();
     }
 }

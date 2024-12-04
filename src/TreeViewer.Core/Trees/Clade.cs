@@ -168,13 +168,41 @@ namespace TreeViewer.Core.Trees
         /// <returns>子要素以下の全<see cref="Clade"/>インスタンス</returns>
         public IEnumerable<Clade> GetDescendants()
         {
-            if (Children.Count == 0) yield break;
+            if (ChildrenInternal.Count == 0) yield break;
 
-            foreach (Clade currentChild in Children)
+            foreach (Clade currentChild in ChildrenInternal)
             {
                 yield return currentChild;
-                foreach (Clade currentDescendant in currentChild.Children) yield return currentDescendant;
+                foreach (Clade currentDescendant in currentChild.GetDescendants()) yield return currentDescendant;
             }
+        }
+
+        /// <summary>
+        /// ルートからの枝長の合計を取得します。
+        /// </summary>
+        /// <param name="nanDummy">枝長が<see cref="double.NaN"/>だった際に用いるダミーの値</param>
+        /// <returns>ルートからの枝長の合計</returns>
+        public double GetTotalBranchLength(double nanDummy = double.NaN)
+        {
+            double result = 0;
+            for (Clade clade = this; clade.Parent is not null; clade = clade.Parent) result += double.IsNaN(clade.BranchLength) ? nanDummy : clade.BranchLength;
+
+            return result;
+        }
+
+        /// <summary>
+        /// インスタンスと子要素以下の葉の数を取得します。
+        /// </summary>
+        /// <returns>インスタンスと子要素以下の葉の数</returns>
+        public int GetLeavesCount()
+        {
+            if (IsLeaf) return 1;
+
+            int result = 0;
+            foreach (Clade current in GetDescendants())
+                if (current.IsLeaf)
+                    result++;
+            return result;
         }
 
         /// <summary>

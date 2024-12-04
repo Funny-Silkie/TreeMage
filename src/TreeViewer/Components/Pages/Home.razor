@@ -1,7 +1,206 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@inject HomeViewModel ViewModel
 
-<PageTitle>Home</PageTitle>
+<RadzenLayout>
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="() => toggleExpanded = !toggleExpanded" />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar Responsive="false" @bind-Expanded="toggleExpanded" Style="width: 300px">
+        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch" Gap="1">
+            <RadzenPanel AllowCollapse="true">
+                <HeaderTemplate>
+                    <RadzenText TextStyle="TextStyle.H6">Layout</RadzenText>
+                </HeaderTemplate>
+                <ChildContent>
+                    <div>WIP</div>
+                </ChildContent>
+            </RadzenPanel>
+            <RadzenPanel AllowCollapse="true" Collapsed="true">
+                <HeaderTemplate>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="10">
+                        <RadzenCheckBox TValue="bool" Value="true" />
+                        <RadzenText TextStyle="TextStyle.H6">Leaves</RadzenText>
+                    </RadzenStack>
+                </HeaderTemplate>
+                <ChildContent>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenText>Font size:</RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch">
+                            <RadzenNumeric TValue="int" Min="1" Value="8" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </ChildContent>
+            </RadzenPanel>
+            <RadzenPanel AllowCollapse="true" Collapsed="true">
+                <HeaderTemplate>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="10">
+                        <RadzenCheckBox TValue="bool" Value="true" />
+                        <RadzenText TextStyle="TextStyle.H6">Scale bar</RadzenText>
+                    </RadzenStack>
+                </HeaderTemplate>
+                <ChildContent>
+                </ChildContent>
+            </RadzenPanel>
+        </RadzenStack>
+    </RadzenSidebar>
+    <RadzenBody>
+        @if (ViewModel.TargetTree.Value is not null)
+        {
+            Tree tree = ViewModel.TargetTree.Value;
+            Dictionary<Clade, int> indexTable = tree.GetAllLeaves().Select((x, i) => (x, i)).ToDictionary();
 
-<h1>Hello, world!</h1>
+            <svg width="100%" height="100%">
+                <style>
+                    text {
+                        font-family: Arial, Helvetica, sans-serif;
+                    }
 
-Welcome to your new app.
+                    .leaf {
+                        font-size: 20px;
+                    }
+
+                    .support {
+                        font-size: 15px;
+                    }
+
+                    .branch {
+                        fill: none;
+                        stroke: black;
+                        stroke-width: 1px;
+                    }
+
+                    .scalebar-line {
+                        fill: none;
+                        stroke: black;
+                        stroke-width: 5px;
+                    }
+
+                    .scalebar-text {
+                        font-size: 25px;
+                    }
+                </style>
+                <g transform="translate(50, 50)">
+                    @foreach (Clade current in tree.GetAllClades())
+                    {
+                        //
+                        // y1   +----current
+                        //      |
+                        // y2   |
+                        //   .Parent
+                        //      x1  x2
+
+                        double totalLength = current.GetTotalBranchLength();
+                        double y1 = CalcY1(current, indexTable);
+                        if (current.IsLeaf)
+                        {
+                            <svg x="@(totalLength * offsetCovar + 5)" y="@(y1 - textOffset)">
+                                <text class="leaf" y="@(textOffset + 8)">
+                                    @current.Taxon
+                                </text>
+                            </svg>
+                        }
+                        else
+                        {
+                            @if (!string.IsNullOrWhiteSpace(current.Supports))
+                            {
+                                <svg x="@(totalLength * offsetCovar + 5)" y="@(y1 - textOffset)">
+                                    <text class="support" y="@(textOffset + 5)">
+                                        @current.Supports
+                                    </text>
+                                </svg>
+                            }
+                        }
+                        double x1 = (totalLength - current.BranchLength) * offsetCovar;
+
+                        if (current.BranchLength > 0)
+                        {
+                            // 横棒
+                            <line class="branch" x1="@x1" y1="@y1" x2="@(totalLength * offsetCovar)" y2="@y1" />
+                        }
+                        Clade? parent = current.Parent;
+                        if (parent is not null)
+                        {
+                            if (parent.Children.Count > 1)
+                            {
+                                double y2 = CalcY2(current, y1, indexTable);
+                                if (y1 != y2)
+                                {
+                                    // 縦棒
+                                    <line class="branch" x1="@x1" y1="@y1" x2="@x1" y2="@y2" />
+                                }
+                            }
+                        }
+                    }
+                </g>
+
+                <g transform="translate(@(tree.GetAllLeaves().Select(x => x.GetTotalBranchLength()).Max() * offsetCovar / 2), @(tree.GetAllLeaves().Count() * textHeight + 60))">
+                    <text class="scalebar-text" x="@(offsetCovar / 2)" text-anchor="middle">1.0</text>
+                    <line class="scalebar-line" x1="0" y1="10" x2="@offsetCovar" y2="10" />
+                </g>
+            </svg>
+        }
+        else
+        {
+            <RadzenText>Load tree file</RadzenText>
+        }
+    </RadzenBody>
+</RadzenLayout>
+
+@code {
+    private bool toggleExpanded = true;
+    private const int offsetCovar = 30;
+    private const int textHeight = 30;
+    private const int textOffset = 30;
+
+    private double CalcY1(Clade clade, Dictionary<Clade, int> indexTable)
+    {
+        if (clade.IsLeaf) return indexTable[clade] * textHeight;
+        else
+        {
+            if (clade.Children.Count == 1) return CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable);
+            return (CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable) + CalcY2(clade.Children[^1], CalcY1(clade.Children[^1], indexTable), indexTable)) / 2;
+        }
+    }
+
+    private double CalcY2(Clade clade, double y1, Dictionary<Clade, int> indexTable)
+    {
+        IList<Clade> sisters = clade.Parent!.Children;
+        int indexOfClade = sisters.IndexOf(clade);
+        if (sisters.All(x => x.IsLeaf))
+        {
+            int halfCount = sisters.Count / 2;
+
+            if (sisters.Count % 2 == 1)
+            {
+                if (indexOfClade == halfCount) return y1;
+                if (indexOfClade < halfCount) return y1 + textHeight;
+                return y1 - textHeight;
+            }
+            else
+            {
+                if (indexOfClade < halfCount) return y1 + textHeight;
+                return y1 - textHeight;
+            }
+        }
+
+        if (indexOfClade == 0)
+        {
+            double otherY1 = CalcY1(sisters[^1], indexTable);
+            double length = (otherY1 - y1) / 2;
+            return y1 + length;
+        }
+        if (indexOfClade == sisters.Count - 1)
+        {
+            double otherY1 = CalcY1(sisters[0], indexTable);
+            double length = (y1 - otherY1) / 2;
+            return y1 - length;
+        }
+
+        return y1;
+    }
+}

@@ -1,5 +1,6 @@
 using ElectronNET.API;
 using Radzen;
+using TreeViewer.ViewModels;
 using TreeViewer.Window;
 
 namespace TreeViewer
@@ -16,6 +17,7 @@ namespace TreeViewer
             builder.Services.AddRazorComponents()
                             .AddInteractiveServerComponents();
             builder.Services.AddRadzenComponents();
+            builder.Services.AddTransient<HomeViewModel>();
 
             WebApplication app = builder.Build();
 
@@ -35,7 +37,7 @@ namespace TreeViewer
             app.MapRazorComponents<Components.App>()
                .AddInteractiveServerRenderMode();
 
-            var window = new MainWindow();
+            MainWindow window = MainWindow.Instance;
             window.InitMenubar();
             await window.CreateElectronWindow();
 
