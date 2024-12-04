@@ -2,3 +2,27 @@
 
 # IDE0290: プライマリ コンストラクターの使用
 dotnet_diagnostic.IDE0290.severity = none
+
+# CS8618: null 非許容のフィールドには、コンストラクターの終了時に null 以外の値が入っていなければなりません。'required' 修飾子を追加するか、Null 許容として宣言することを検討してください。
+dotnet_diagnostic.CS8618.severity = error
+
+# CS8602: null 参照の可能性があるものの逆参照です。
+dotnet_diagnostic.CS8602.severity = error
+
+# CS8600: Null リテラルまたは Null の可能性がある値を Null 非許容型に変換しています。
+dotnet_diagnostic.CS8600.severity = error
+
+# CS8625: null リテラルを null 非許容参照型に変換できません。
+dotnet_diagnostic.CS8625.severity = error
+
+# CS8604: Null 参照引数の可能性があります。
+dotnet_diagnostic.CS8604.severity = error
+
+# IDE0090: 'new(...)' を使用する
+dotnet_diagnostic.IDE0090.severity = none
+
+# IDE0061: ローカル関数に式本体を使用する
+dotnet_diagnostic.IDE0061.severity = none
+
+# IDE0046: 条件式に変換します
+dotnet_diagnostic.IDE0046.severity = none
