@@ -1,12 +1,12 @@
 using ElectronNET.API;
-using ElectronNET.API.Entities;
 using Radzen;
+using TreeViewer.Window;
 
 namespace TreeViewer
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static async Task Main(string[] args)
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -35,11 +35,9 @@ namespace TreeViewer
             app.MapRazorComponents<Components.App>()
                .AddInteractiveServerRenderMode();
 
-            BrowserWindow window = Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions()
-            {
-            }).Result;
-
-            window.OnClosed += Electron.App.Quit;
+            var window = new MainWindow();
+            window.InitMenubar();
+            await window.CreateElectronWindow();
 
             app.Run();
         }
