@@ -2,53 +2,26 @@
 {
     public class CladeTest
     {
-        //          2
-        //      +------leafA    1
-        // root-|   2         +---leafBA
-        //      +------cladeB-|    3
-        //                    +---------leafBB
-
         private readonly Clade root;
         private readonly Clade leafA;
         private readonly Clade cladeB;
-        private readonly Clade leafBA;
-        private readonly Clade leafBB;
+        private readonly Clade cladeBA;
+        private readonly Clade leafBAA;
+        private readonly Clade leafBAB;
+        private readonly Clade cladeBB;
+        private readonly Clade cladeBBA;
+        private readonly Clade leafBBAA;
+        private readonly Clade leafBBAB;
+        private readonly Clade leafBBB;
+        private readonly Clade leafC;
 
         public CladeTest()
         {
-            root = new Clade()
-            {
-                Supports = "80/100",
-                BranchLength = 0,
-            };
-            leafA = new Clade()
-            {
-                Taxon = "A",
-                BranchLength = 2,
-                Parent = root,
-            };
-            cladeB = new Clade()
-            {
-                Supports = "30/45",
-                BranchLength = 2,
-                Parent = root,
-            };
-            leafBA = new Clade()
-            {
-                Taxon = "BA",
-                BranchLength = 1,
-                Parent = cladeB,
-            };
-            leafBB = new Clade()
-            {
-                Taxon = "BB",
-                BranchLength = 3,
-                Parent = cladeB,
-            };
-
-            root.ChildrenInternal.AddRange(leafA, cladeB);
-            cladeB.ChildrenInternal.AddRange(leafBA, leafBB);
+            TreeTest.CreateDummyTree(out root, out leafA, out cladeB, out cladeBA, out leafBAA, out leafBAB, out cladeBB, out cladeBBA, out leafBBAA, out leafBBAB, out leafBBB, out leafC);
+            root.TreeInternal = null;
         }
+
+        private Clade[] GetAllClades() => [root, leafA, cladeB, cladeBA, leafBAA, leafBAB, cladeBB, cladeBBA, leafBBAA, leafBBAB, leafBBB, leafC];
 
         /// <summary>
         /// 二つの<see cref="Clade"/>の等価性を検証します。
@@ -99,19 +72,36 @@
                 Assert.True(root.IsRoot);
                 Assert.False(leafA.IsRoot);
                 Assert.False(cladeB.IsRoot);
-                Assert.False(leafBA.IsRoot);
-                Assert.False(leafBB.IsRoot);
+                Assert.False(cladeBA.IsRoot);
+                Assert.False(leafBAA.IsRoot);
+                Assert.False(leafBAB.IsRoot);
+                Assert.False(cladeBB.IsRoot);
+                Assert.False(cladeBBA.IsRoot);
+                Assert.False(leafBBAA.IsRoot);
+                Assert.False(leafBBAB.IsRoot);
+                Assert.False(leafBBB.IsRoot);
+                Assert.False(leafC.IsRoot);
             });
         }
 
         [Fact]
         public void IsLeaf_Get()
         {
-            Assert.False(root.IsLeaf);
-            Assert.True(leafA.IsLeaf);
-            Assert.False(cladeB.IsLeaf);
-            Assert.True(leafBA.IsLeaf);
-            Assert.True(leafBB.IsLeaf);
+            Assert.Multiple(() =>
+            {
+                Assert.False(root.IsLeaf);
+                Assert.True(leafA.IsLeaf);
+                Assert.False(cladeB.IsLeaf);
+                Assert.False(cladeBA.IsLeaf);
+                Assert.True(leafBAA.IsLeaf);
+                Assert.True(leafBAB.IsLeaf);
+                Assert.False(cladeBB.IsLeaf);
+                Assert.False(cladeBBA.IsLeaf);
+                Assert.True(leafBBAB.IsLeaf);
+                Assert.True(leafBBAA.IsLeaf);
+                Assert.True(leafBBB.IsLeaf);
+                Assert.True(leafC.IsLeaf);
+            });
         }
 
         [Fact]
@@ -122,8 +112,15 @@
                 Assert.Equal(root.ChildrenInternal, root.Children);
                 Assert.Equal(leafA.ChildrenInternal, leafA.Children);
                 Assert.Equal(cladeB.ChildrenInternal, cladeB.Children);
-                Assert.Equal(leafBA.ChildrenInternal, leafBA.Children);
-                Assert.Equal(leafBB.ChildrenInternal, leafBB.Children);
+                Assert.Equal(cladeBA.ChildrenInternal, cladeBA.Children);
+                Assert.Equal(leafBAA.ChildrenInternal, leafBAA.Children);
+                Assert.Equal(leafBAB.ChildrenInternal, leafBAB.Children);
+                Assert.Equal(cladeBB.ChildrenInternal, cladeBB.Children);
+                Assert.Equal(cladeBBA.ChildrenInternal, cladeBBA.Children);
+                Assert.Equal(leafBBAA.ChildrenInternal, leafBBAA.Children);
+                Assert.Equal(leafBBAB.ChildrenInternal, leafBBAB.Children);
+                Assert.Equal(leafBBB.ChildrenInternal, leafBBB.Children);
+                Assert.Equal(leafC.ChildrenInternal, leafC.Children);
             });
         }
 
@@ -135,8 +132,15 @@
                 Assert.Null(root.Tree);
                 Assert.Null(leafA.Tree);
                 Assert.Null(cladeB.Tree);
-                Assert.Null(leafBA.Tree);
-                Assert.Null(leafBB.Tree);
+                Assert.Null(cladeBA.Tree);
+                Assert.Null(leafBAA.Tree);
+                Assert.Null(leafBAB.Tree);
+                Assert.Null(cladeBB.Tree);
+                Assert.Null(cladeBBA.Tree);
+                Assert.Null(leafBBAA.Tree);
+                Assert.Null(leafBBAB.Tree);
+                Assert.Null(leafBBB.Tree);
+                Assert.Null(leafC.Tree);
             });
         }
 
@@ -149,7 +153,7 @@
         {
             _ = new Tree(root);
 
-            foreach (Clade? current in new[] { root, leafA, cladeB, leafBA, leafBB })
+            foreach (Clade current in GetAllClades())
             {
                 Clade cloned = current.Clone(true);
 
@@ -164,7 +168,7 @@
         {
             _ = new Tree(root);
 
-            foreach (Clade? current in new[] { root, leafA, cladeB, leafBA, leafBB })
+            foreach (Clade current in GetAllClades())
             {
                 Clade cloned = current.Clone(false);
 
@@ -178,7 +182,7 @@
         {
             _ = new Tree(root);
 
-            foreach (Clade? current in new[] { root, leafA, cladeB, leafBA, leafBB })
+            foreach (Clade current in GetAllClades())
             {
                 var cloned = (Clade)((ICloneable)current).Clone();
 
@@ -209,7 +213,7 @@
         {
             var child = new Clade()
             {
-                Taxon = "leafC",
+                Taxon = "leafD",
             };
             root.AddChild(child);
 
@@ -230,6 +234,7 @@
                 Assert.Null(leafA.Parent);
                 Assert.Null(cladeB.Parent);
                 Assert.Empty(root.ChildrenInternal);
+                Assert.Null(leafC.Parent);
             });
         }
 
@@ -249,12 +254,12 @@
         [Fact]
         public void RemoveChild_AsPositive_WithContainedClade()
         {
-            Assert.True(cladeB.RemoveChild(leafBA));
+            Assert.True(cladeB.RemoveChild(cladeBA));
 
             Assert.Multiple(() =>
             {
-                Assert.Null(leafBA.Parent);
-                Assert.Equal([leafBB], cladeB.ChildrenInternal);
+                Assert.Null(cladeBA.Parent);
+                Assert.Equal([cladeBB], cladeB.ChildrenInternal);
             });
         }
 
@@ -266,8 +271,15 @@
                 Assert.Same(root, root.FindRoot());
                 Assert.Same(root, leafA.FindRoot());
                 Assert.Same(root, cladeB.FindRoot());
-                Assert.Same(root, leafBA.FindRoot());
-                Assert.Same(root, leafBB.FindRoot());
+                Assert.Same(root, cladeBA.FindRoot());
+                Assert.Same(root, leafBAA.FindRoot());
+                Assert.Same(root, leafBAB.FindRoot());
+                Assert.Same(root, cladeBB.FindRoot());
+                Assert.Same(root, cladeBBA.FindRoot());
+                Assert.Same(root, leafBBAA.FindRoot());
+                Assert.Same(root, leafBBAB.FindRoot());
+                Assert.Same(root, leafBBB.FindRoot());
+                Assert.Same(root, leafC.FindRoot());
             });
         }
 
@@ -276,11 +288,16 @@
         {
             Assert.Multiple(() =>
             {
-                Assert.Equal([leafA, cladeB, leafBA, leafBB], root.GetDescendants());
+                Assert.Equal([leafA, cladeB, cladeBA, leafBAA, leafBAB, cladeBB, cladeBBA, leafBBAA, leafBBAB, leafBBB, leafC], root.GetDescendants());
                 Assert.Empty(leafA.GetDescendants());
-                Assert.Equal([leafBA, leafBB], cladeB.GetDescendants());
-                Assert.Empty(leafBA.GetDescendants());
-                Assert.Empty(leafBB.GetDescendants());
+                Assert.Equal([cladeBA, leafBAA, leafBAB, cladeBB, cladeBBA, leafBBAA, leafBBAB, leafBBB], cladeB.GetDescendants());
+                Assert.Equal([leafBAA, leafBAB], cladeBA.GetDescendants());
+                Assert.Empty(leafBAA.GetDescendants());
+                Assert.Empty(leafBAB.GetDescendants());
+                Assert.Equal([cladeBBA, leafBBAA, leafBBAB, leafBBB], cladeBB.GetDescendants());
+                Assert.Equal([leafBBAA, leafBBAB], cladeBBA.GetDescendants());
+                Assert.Empty(leafBBB.GetDescendants());
+                Assert.Empty(leafC.GetDescendants());
             });
         }
 
@@ -289,11 +306,18 @@
         {
             Assert.Multiple(() =>
             {
-                Assert.Equal(3, root.GetLeavesCount());
+                Assert.Equal(7, root.GetLeavesCount());
                 Assert.Equal(1, leafA.GetLeavesCount());
-                Assert.Equal(2, cladeB.GetLeavesCount());
-                Assert.Equal(1, leafBA.GetLeavesCount());
-                Assert.Equal(1, leafBB.GetLeavesCount());
+                Assert.Equal(5, cladeB.GetLeavesCount());
+                Assert.Equal(2, cladeBA.GetLeavesCount());
+                Assert.Equal(1, leafBAA.GetLeavesCount());
+                Assert.Equal(1, leafBAB.GetLeavesCount());
+                Assert.Equal(3, cladeBB.GetLeavesCount());
+                Assert.Equal(2, cladeBBA.GetLeavesCount());
+                Assert.Equal(1, leafBBAA.GetLeavesCount());
+                Assert.Equal(1, leafBBAB.GetLeavesCount());
+                Assert.Equal(1, leafBBB.GetLeavesCount());
+                Assert.Equal(1, leafC.GetLeavesCount());
             });
         }
 
@@ -305,8 +329,15 @@
                 Assert.Equal(0, root.GetTotalBranchLength());
                 Assert.Equal(2, leafA.GetTotalBranchLength());
                 Assert.Equal(2, cladeB.GetTotalBranchLength());
-                Assert.Equal(3, leafBA.GetTotalBranchLength());
-                Assert.Equal(5, leafBB.GetTotalBranchLength());
+                Assert.Equal(3, cladeBA.GetTotalBranchLength());
+                Assert.Equal(8, leafBAA.GetTotalBranchLength());
+                Assert.Equal(6, leafBAB.GetTotalBranchLength());
+                Assert.Equal(4, cladeBB.GetTotalBranchLength());
+                Assert.Equal(5, cladeBBA.GetTotalBranchLength());
+                Assert.Equal(7, leafBBAA.GetTotalBranchLength());
+                Assert.Equal(6, leafBBAB.GetTotalBranchLength());
+                Assert.Equal(7, leafBBB.GetTotalBranchLength());
+                Assert.Equal(1, leafC.GetTotalBranchLength());
             });
         }
 
@@ -317,8 +348,8 @@
 
             Assert.Multiple(() =>
             {
-                Assert.Equal(4, leafBB.GetTotalBranchLength(1));
-                Assert.Equal(double.NaN, leafBB.GetTotalBranchLength());
+                Assert.Equal(3, cladeBB.GetTotalBranchLength(1));
+                Assert.Equal(double.NaN, cladeBB.GetTotalBranchLength());
             });
         }
 

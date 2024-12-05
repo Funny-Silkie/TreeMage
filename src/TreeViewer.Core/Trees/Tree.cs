@@ -31,8 +31,8 @@
         {
             //          2                              5
             //      +------leafA    1         +---------------leafBAA
-            // root-|   2         +---cladeBA-|     3
-            //      |             |           +---------leafBAB  2
+            // root-|             +---cladeBA-|     3
+            //      |   2         |           +---------leafBAB  2
             //      +------cladeB-|                1          +------leafBBAA
             //      |             |   2          +---cladeBBA-| 1
             //      | 1           +------cladeBB-|    3       +---leafBBAB
