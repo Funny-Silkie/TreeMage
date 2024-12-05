@@ -1,4 +1,6 @@
-﻿namespace TreeViewer.Core.Trees
+﻿using TreeViewer.Core.Trees.Parsers;
+
+namespace TreeViewer.Core.Trees
 {
     public class TreeTest
     {
@@ -21,7 +23,7 @@
             tree = CreateDummyTree(out root, out leafA, out cladeB, out cladeBA, out leafBAA, out leafBAB, out cladeBB, out cladeBBA, out leafBBAA, out leafBBAB, out leafBBB, out leafC);
         }
 
-        /// <inheritdoc cref="CreateDummyTree(out Clade, out Clade, out Clade, out Clade, out Clade)"/>
+        /// <inheritdoc cref="CreateDummyTree(out Clade, out Clade, out Clade, out Clade, out Clade, out Clade, out Clade, out Clade, out Clade, out Clade, out Clade, out Clade)"/>
         public static Tree CreateDummyTree()
         {
             return CreateDummyTree(out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _, out _);
@@ -47,7 +49,7 @@
         /// <code>
         ///          2                              5
         ///      +------leafA    1         +---------------leafBAA
-        /// root-|80/100       +---cladeBA-|20/30
+        /// root-|             +---cladeBA-|20/30
         ///      |             |           +---------leafBAB
         ///      |   2         |                 3            2
         ///      +------cladeB-|30/45           1          +------leafBBAA
@@ -70,11 +72,7 @@
                                            out Clade leafBBB,
                                            out Clade leafC)
         {
-            root = new Clade()
-            {
-                Supports = "80/100",
-                BranchLength = 0,
-            };
+            root = new Clade();
 
             leafA = new Clade()
             {
@@ -206,7 +204,24 @@
 
         #endregion Ctors
 
-        #region Methods
+        #region Static Methods
+
+        [Fact]
+        public async Task ReadAsync()
+        {
+            using var reader = new StringReader("(A:2,((BAA:5,BAB:3)20/30:1,((BBAA:2,BBAB:1)85/95:1,BBB:3)100/100:2)30/45:2,C:1);");
+            Tree[] trees = await Tree.ReadAsync(reader, TreeFormat.Newick);
+
+            Assert.Multiple(() =>
+            {
+                Assert.Single(trees);
+                CladeTest.CompareClades(CreateDummyTree().Root, trees[0].Root);
+            });
+        }
+
+        #endregion Static Methods
+
+        #region Instance Methods
 
         [Fact]
         public void Clone()
@@ -270,6 +285,15 @@
             });
         }
 
-        #endregion Methods
+        [Fact]
+        public async Task WriteAsync()
+        {
+            using var writer = new StringWriter();
+            await tree.WriteAsync(writer, TreeFormat.Newick);
+
+            Assert.Equal("(A:2,((BAA:5,BAB:3)20/30:1,((BBAA:2,BBAB:1)85/95:1,BBB:3)100/100:2)30/45:2,C:1);", writer.ToString());
+        }
+
+        #endregion Instance Methods
     }
 }
