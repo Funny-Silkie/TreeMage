@@ -141,7 +141,8 @@ namespace TreeViewer.Window
                         {
                             Type = MenuType.normal,
                             Label = "終了(&X)",
-                            Accelerator = "Ctrl+W"
+                            Click = CloseWindow,
+                            Accelerator = "Ctrl+W",
                         },
                     ],
                 },
