@@ -16,14 +16,24 @@ namespace TreeViewer.ViewModels
         public ReactivePropertySlim<Tree?> TargetTree { get; }
 
         /// <summary>
-        /// 系統名を表示するかどうかを表す値のプロパティを取得します。
+        /// X軸方向の拡大率のプロパティを取得します。
         /// </summary>
-        public ReactivePropertySlim<bool> ShowLeaveLabels { get; }
+        public ReactivePropertySlim<int> XScale { get; }
+
+        /// <summary>
+        /// Y軸方向の拡大率のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<int> YScale { get; }
 
         /// <summary>
         /// 枝の太さのプロパティを取得します。
         /// </summary>
         public ReactivePropertySlim<int> BranchThickness { get; }
+
+        /// <summary>
+        /// 系統名を表示するかどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<bool> ShowLeaveLabels { get; }
 
         /// <summary>
         /// 系統名のフォントサイズのプロパティを取得します。
@@ -87,6 +97,8 @@ namespace TreeViewer.ViewModels
         {
             TargetTree = new ReactivePropertySlim<Tree?>(Tree.CreateSample()).AddTo(Disposables);
 
+            XScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
+            YScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
             BranchThickness = new ReactivePropertySlim<int>(1).AddTo(Disposables);
 
             ShowLeaveLabels = new ReactivePropertySlim<bool>(true).AddTo(Disposables);

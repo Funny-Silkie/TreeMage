@@ -28,9 +28,13 @@
                 <ChildContent>
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
                         <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
+                            <RadzenText Style="@sidebarFormLabelStyle">Scale X:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Scale Y:</RadzenText>
                             <RadzenText Style="@sidebarFormLabelStyle">Branch thickness:</RadzenText>
                         </RadzenStack>
                         <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenSlider TValue="int" Min="1" Max="300" @bind-Value="ViewModel.XScale.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenSlider TValue="int" Min="1" Max="300" @bind-Value="ViewModel.YScale.Value" Style="@sidebarFormValueStyle" />
                             <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.BranchThickness.Value" Style="@sidebarFormValueStyle" />
                         </RadzenStack>
                     </RadzenStack>
@@ -127,8 +131,14 @@
         {
             Tree tree = ViewModel.TargetTree.Value;
             Dictionary<Clade, int> indexTable = tree.GetAllLeaves().Select((x, i) => (x, i)).ToDictionary();
+            Clade[] allLeaves = tree.GetAllLeaves().ToArray();
+            double svgWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * ViewModel.XScale.Value + 100;
+            if (ViewModel.ShowLeaveLabels.Value) svgWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * ViewModel.LeaveLabelsFontSize.Value / 1.25;
 
-            <svg width="100%" height="100%">
+            double svgHeight = allLeaves.Length * ViewModel.YScale.Value + 100;
+            if (ViewModel.ShowScaleBar.Value) svgHeight += ViewModel.ScaleBarFontSize.Value;
+
+            <svg width="@svgWidth" height="@svgHeight">
                 <style>
                     text {
                         font-family: Arial, Helvetica, sans-serif;
@@ -179,8 +189,8 @@
                             // 系統名
                             if (ViewModel.ShowLeaveLabels.Value)
                             {
-                                <svg x="@(totalLength * offsetCovar + 5)" y="@(y1 - textOffset)">
-                                    <text class="leaf" y="@(textOffset + ViewModel.LeaveLabelsFontSize.Value / 2.5)">
+                                <svg x="@(totalLength * ViewModel.XScale.Value + 5)" y="@(y1 - ViewModel.YScale.Value)">
+                                    <text class="leaf" y="@(ViewModel.YScale.Value + ViewModel.LeaveLabelsFontSize.Value / 2.5)">
                                         @current.Taxon
                                     </text>
                                 </svg>
@@ -194,22 +204,22 @@
                                 string nodeValue = SelectShowValue(current, ViewModel.NodeValueType.Value);
                                 if (nodeValue.Length > 0)
                                 {
-                                    double y = y1 + ViewModel.NodeValueFontSize.Value / 2.5 - textOffset;
+                                    double y = y1 + ViewModel.NodeValueFontSize.Value / 2.5 - ViewModel.YScale.Value;
                                     if (current.Children.Count % 2 == 1) y += ViewModel.BranchThickness.Value / 2 + 3 + ViewModel.NodeValueFontSize.Value / 2.5;
 
-                                    <svg x="@(totalLength * offsetCovar + 5)" y="@y">
-                                        <text class="node-value" y="@textOffset">
+                                    <svg x="@(totalLength * ViewModel.XScale.Value + 5)" y="@y">
+                                        <text class="node-value" y="@ViewModel.YScale.Value">
                                             @nodeValue
                                         </text>
                                     </svg>
                                 }
                             }
                         }
-                        double x1 = (totalLength - current.BranchLength) * offsetCovar;
+                        double x1 = (totalLength - current.BranchLength) * ViewModel.XScale.Value;
 
                         if (current.BranchLength > 0)
                         {
-                            double x2 = totalLength * offsetCovar;
+                            double x2 = totalLength * ViewModel.XScale.Value;
 
                             // 横棒
                             {
@@ -224,8 +234,8 @@
                                 if (branchValue.Length > 0)
                                 {
                                     double xOffset = branchValue.Length * 2 * ViewModel.BranchValueFontSize.Value / 2.5;
-                                    <svg x="@((x1 + x2) / 2 - xOffset)" y="@(y1 - ViewModel.BranchValueFontSize.Value / 2.5 - ViewModel.BranchThickness.Value / 2 - textOffset)">
-                                        <text class="branch-value" x="@xOffset" y="@textOffset" text-anchor="middle">
+                                    <svg x="@((x1 + x2) / 2 - xOffset)" y="@(y1 - ViewModel.BranchValueFontSize.Value / 2.5 - ViewModel.BranchThickness.Value / 2 - ViewModel.YScale.Value)">
+                                        <text class="branch-value" x="@xOffset" y="@ViewModel.YScale.Value" text-anchor="middle">
                                             @branchValue
                                         </text>
                                     </svg>
@@ -251,8 +261,8 @@
 
                 @if (ViewModel.ShowScaleBar.Value && ViewModel.ScaleBarValue.Value > 0)
                 {
-                    double scaleBarWidth = ViewModel.ScaleBarValue.Value * offsetCovar;
-                    <g transform="translate(@(tree.GetAllLeaves().Select(x => x.GetTotalBranchLength()).Max() * offsetCovar / 2.5), @(tree.GetAllLeaves().Count() * textHeight + 30 + ViewModel.ScaleBarFontSize.Value))">
+                    double scaleBarWidth = ViewModel.ScaleBarValue.Value * ViewModel.XScale.Value;
+                    <g transform="translate(@(tree.GetAllLeaves().Select(x => x.GetTotalBranchLength()).Max() * ViewModel.XScale.Value / 2.5), @(allLeaves.Length * ViewModel.YScale.Value + 30 + ViewModel.ScaleBarFontSize.Value))">
                         <text class="scalebar-text" x="@(scaleBarWidth / 2)" text-anchor="middle">@ViewModel.ScaleBarValue.Value</text>
                         <line class="scalebar-line" x1="0" y1="10" x2="@scaleBarWidth" y2="10" />
                     </g>
@@ -274,13 +284,9 @@
     private const string sidebarFormLabelStyle = "width: 150px; height: 23px";
     private const string sidebarFormValueStyle = "width: 100px; height: 30px";
 
-    private const int offsetCovar = 30;
-    private const int textHeight = 30;
-    private const int textOffset = 30;
-
     private double CalcY1(Clade clade, Dictionary<Clade, int> indexTable)
     {
-        if (clade.IsLeaf) return indexTable[clade] * textHeight;
+        if (clade.IsLeaf) return indexTable[clade] * ViewModel.YScale.Value;
         else
         {
             if (clade.Children.Count == 1) return CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable);
@@ -299,13 +305,13 @@
             if (sisters.Count % 2 == 1)
             {
                 if (indexOfClade == halfCount) return y1;
-                if (indexOfClade < halfCount) return y1 + textHeight;
-                return y1 - textHeight;
+                if (indexOfClade < halfCount) return y1 + ViewModel.YScale.Value;
+                return y1 - ViewModel.YScale.Value;
             }
             else
             {
-                if (indexOfClade < halfCount) return y1 + textHeight;
-                return y1 - textHeight;
+                if (indexOfClade < halfCount) return y1 + ViewModel.YScale.Value;
+                return y1 - ViewModel.YScale.Value;
             }
         }
 
