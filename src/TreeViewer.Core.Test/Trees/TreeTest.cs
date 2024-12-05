@@ -2,11 +2,11 @@
 {
     public class TreeTest
     {
-        //            2
-        //      1 +------leafA    1
-        // root---|   2         +---leafBA
-        //        +------cladeB-|    3
-        //                      +---------leafBB
+        //          2
+        //      +------leafA    1
+        // root-|   2         +---leafBA
+        //      +------cladeB-|    3
+        //                    +---------leafBB
 
         private readonly Clade root;
         private readonly Clade leafA;
@@ -20,7 +20,7 @@
             root = new Clade()
             {
                 Supports = "80/100",
-                BranchLength = 1,
+                BranchLength = 0,
             };
             leafA = new Clade()
             {

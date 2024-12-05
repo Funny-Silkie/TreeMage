@@ -1,7 +1,349 @@
 ﻿@page "/"
+@rendermode InteractiveServer
+@inject HomeViewModel ViewModel
 
-<PageTitle>Home</PageTitle>
+<RadzenLayout>
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="() => toggleExpanded = !toggleExpanded" />
+        </RadzenStack>
+    </RadzenHeader>
+    <RadzenSidebar Responsive="false" @bind-Expanded="toggleExpanded" Style="width: 300px">
+        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch" Gap="1">
+            <RadzenPanel AllowCollapse="true">
+                <HeaderTemplate>
+                    <RadzenText TextStyle="TextStyle.H6">Layout</RadzenText>
+                </HeaderTemplate>
+                <ChildContent>
+                    <div>WIP</div>
+                </ChildContent>
+            </RadzenPanel>
+            @* Tree *@
+            <RadzenPanel AllowCollapse="true" Collapsed="defaultCollapsed">
+                <HeaderTemplate>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="10">
+                        <RadzenText TextStyle="TextStyle.H6">Tree</RadzenText>
+                    </RadzenStack>
+                </HeaderTemplate>
+                <ChildContent>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
+                            <RadzenText Style="@sidebarFormLabelStyle">Scale X:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Scale Y:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Branch thickness:</RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenSlider TValue="int" Min="1" Max="300" @bind-Value="ViewModel.XScale.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenSlider TValue="int" Min="1" Max="300" @bind-Value="ViewModel.YScale.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.BranchThickness.Value" Style="@sidebarFormValueStyle" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </ChildContent>
+            </RadzenPanel>
+            @* Leaves *@
+            <RadzenPanel AllowCollapse="true" Collapsed="defaultCollapsed">
+                <HeaderTemplate>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="10">
+                        <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.ShowLeaveLabels.Value" />
+                        <RadzenText TextStyle="TextStyle.H6">Leaves</RadzenText>
+                    </RadzenStack>
+                </HeaderTemplate>
+                <ChildContent>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch" Style="padding-top: 3px">
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.LeaveLabelsFontSize.Value" Style="@sidebarFormValueStyle" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </ChildContent>
+            </RadzenPanel>
+            @* Node values *@
+            <RadzenPanel AllowCollapse="true" Collapsed="defaultCollapsed">
+                <HeaderTemplate>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch" Gap="10">
+                        <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.ShowNodeValues.Value" />
+                        <RadzenText TextStyle="TextStyle.H6">Node values</RadzenText>
+                    </RadzenStack>
+                </HeaderTemplate>
+                <ChildContent>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
+                            <RadzenText Style="@sidebarFormLabelStyle">Value:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenDropDown TValue="CladeValueType" Data="Enum.GetValues<CladeValueType>()" @bind-Value="ViewModel.NodeValueType.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.NodeValueFontSize.Value" Style="@sidebarFormValueStyle" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </ChildContent>
+            </RadzenPanel>
+            @* Branch values *@
+            <RadzenPanel AllowCollapse="true" Collapsed="defaultCollapsed">
+                <HeaderTemplate>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch" Gap="10">
+                        <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.ShowBranchValues.Value" />
+                        <RadzenText TextStyle="TextStyle.H6">Branch values</RadzenText>
+                    </RadzenStack>
+                </HeaderTemplate>
+                <ChildContent>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
+                            <RadzenText Style="@sidebarFormLabelStyle">Value:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenDropDown TValue="CladeValueType" Data="Enum.GetValues<CladeValueType>()" @bind-Value="ViewModel.BranchValueType.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.BranchValueFontSize.Value" Style="@sidebarFormValueStyle" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </ChildContent>
+            </RadzenPanel>
+            @* Scale bar *@
+            <RadzenPanel AllowCollapse="true" Collapsed="defaultCollapsed">
+                <HeaderTemplate>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="10">
+                        <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.ShowScaleBar.Value" />
+                        <RadzenText TextStyle="TextStyle.H6">Scale bar</RadzenText>
+                    </RadzenStack>
+                </HeaderTemplate>
+                <ChildContent>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
+                            <RadzenText Style="@sidebarFormLabelStyle">Value:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Bar thickness:</RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenNumeric TValue="double" Min="0" Step="0.1" @bind-Value="ViewModel.ScaleBarValue.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.ScaleBarFontSize.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.ScaleBarThickness.Value" Style="@sidebarFormValueStyle" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </ChildContent>
+            </RadzenPanel>
+        </RadzenStack>
+    </RadzenSidebar>
+    <RadzenBody>
+        @if (ViewModel.TargetTree.Value is not null)
+        {
+            Tree tree = ViewModel.TargetTree.Value;
+            Dictionary<Clade, int> indexTable = tree.GetAllLeaves().Select((x, i) => (x, i)).ToDictionary();
+            Clade[] allLeaves = tree.GetAllLeaves().ToArray();
+            double svgWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * ViewModel.XScale.Value + 100;
+            if (ViewModel.ShowLeaveLabels.Value) svgWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * ViewModel.LeaveLabelsFontSize.Value / 1.25;
 
-<h1>Hello, world!</h1>
+            double svgHeight = allLeaves.Length * ViewModel.YScale.Value + 100;
+            if (ViewModel.ShowScaleBar.Value) svgHeight += ViewModel.ScaleBarFontSize.Value;
 
-Welcome to your new app.
+            <svg width="@svgWidth" height="@svgHeight">
+                <style>
+                    text {
+                        font-family: Arial, Helvetica, sans-serif;
+                    }
+
+                    .leaf {
+                        font-size: @(ViewModel.LeaveLabelsFontSize.Value + "px");
+                    }
+
+                    .node-value {
+                        font-size: @(ViewModel.NodeValueFontSize.Value + "px");
+                    }
+
+                    .branch-value {
+                        font-size: @(ViewModel.BranchValueFontSize.Value + "px");
+                    }
+
+                    .branch {
+                        fill: none;
+                        stroke: black;
+                        stroke-width: @(ViewModel.BranchThickness.Value + "px");
+                    }
+
+                    .scalebar-line {
+                        fill: none;
+                        stroke: black;
+                        stroke-width: @(ViewModel.ScaleBarThickness.Value + "px");
+                    }
+
+                    .scalebar-text {
+                        font-size: @(ViewModel.ScaleBarFontSize.Value + "px");
+                    }
+                </style>
+                <g transform="translate(50, 50)">
+                    @foreach (Clade current in tree.GetAllClades())
+                    {
+                        //
+                        // y1   +----current
+                        //      |
+                        // y2   |
+                        //   .Parent
+                        //      x1  x2
+
+                        double totalLength = current.GetTotalBranchLength();
+                        double y1 = CalcY1(current, indexTable);
+                        if (current.IsLeaf)
+                        {
+                            // 系統名
+                            if (ViewModel.ShowLeaveLabels.Value)
+                            {
+                                <svg x="@(totalLength * ViewModel.XScale.Value + 5)" y="@(y1 - ViewModel.YScale.Value)">
+                                    <text class="leaf" y="@(ViewModel.YScale.Value + ViewModel.LeaveLabelsFontSize.Value / 2.5)">
+                                        @current.Taxon
+                                    </text>
+                                </svg>
+                            }
+                        }
+                        else
+                        {
+                            // 結節点の値
+                            @if (ViewModel.ShowNodeValues.Value)
+                            {
+                                string nodeValue = SelectShowValue(current, ViewModel.NodeValueType.Value);
+                                if (nodeValue.Length > 0)
+                                {
+                                    double y = y1 + ViewModel.NodeValueFontSize.Value / 2.5 - ViewModel.YScale.Value;
+                                    if (current.Children.Count % 2 == 1) y += ViewModel.BranchThickness.Value / 2 + 3 + ViewModel.NodeValueFontSize.Value / 2.5;
+
+                                    <svg x="@(totalLength * ViewModel.XScale.Value + 5)" y="@y">
+                                        <text class="node-value" y="@ViewModel.YScale.Value">
+                                            @nodeValue
+                                        </text>
+                                    </svg>
+                                }
+                            }
+                        }
+                        double x1 = (totalLength - current.BranchLength) * ViewModel.XScale.Value;
+
+                        if (current.BranchLength > 0)
+                        {
+                            double x2 = totalLength * ViewModel.XScale.Value;
+
+                            // 横棒
+                            {
+                                double x2Offset = current.IsLeaf ? 0 : ViewModel.BranchThickness.Value / 2;
+                                <line class="branch" x1="@(x1 - ViewModel.BranchThickness.Value / 2)" y1="@y1" x2="@(x2 +x2Offset)" y2="@y1" />
+                            }
+
+                            // 二分岐の値
+                            if (ViewModel.ShowBranchValues.Value)
+                            {
+                                string branchValue = SelectShowValue(current, ViewModel.BranchValueType.Value);
+                                if (branchValue.Length > 0)
+                                {
+                                    double xOffset = branchValue.Length * 2 * ViewModel.BranchValueFontSize.Value / 2.5;
+                                    <svg x="@((x1 + x2) / 2 - xOffset)" y="@(y1 - ViewModel.BranchValueFontSize.Value / 2.5 - ViewModel.BranchThickness.Value / 2 - ViewModel.YScale.Value)">
+                                        <text class="branch-value" x="@xOffset" y="@ViewModel.YScale.Value" text-anchor="middle">
+                                            @branchValue
+                                        </text>
+                                    </svg>
+                                }
+                            }
+
+                        }
+                        Clade? parent = current.Parent;
+                        if (parent is not null)
+                        {
+                            if (parent.Children.Count > 1)
+                            {
+                                double y2 = CalcY2(current, y1, indexTable);
+                                if (y1 != y2)
+                                {
+                                    // 縦棒
+                                    <line class="branch" x1="@x1" y1="@y1" x2="@x1" y2="@y2" />
+                                }
+                            }
+                        }
+                    }
+                </g>
+
+                @if (ViewModel.ShowScaleBar.Value && ViewModel.ScaleBarValue.Value > 0)
+                {
+                    double scaleBarWidth = ViewModel.ScaleBarValue.Value * ViewModel.XScale.Value;
+                    <g transform="translate(@(tree.GetAllLeaves().Select(x => x.GetTotalBranchLength()).Max() * ViewModel.XScale.Value / 2.5), @(allLeaves.Length * ViewModel.YScale.Value + 30 + ViewModel.ScaleBarFontSize.Value))">
+                        <text class="scalebar-text" x="@(scaleBarWidth / 2)" text-anchor="middle">@ViewModel.ScaleBarValue.Value</text>
+                        <line class="scalebar-line" x1="0" y1="10" x2="@scaleBarWidth" y2="10" />
+                    </g>
+                }
+            </svg>
+        }
+        else
+        {
+            <RadzenText>Load tree file</RadzenText>
+        }
+    </RadzenBody>
+</RadzenLayout>
+
+@code {
+    private bool toggleExpanded = true;
+
+    private const bool defaultCollapsed = false;
+
+    private const string sidebarFormLabelStyle = "width: 150px; height: 23px";
+    private const string sidebarFormValueStyle = "width: 100px; height: 30px";
+
+    private double CalcY1(Clade clade, Dictionary<Clade, int> indexTable)
+    {
+        if (clade.IsLeaf) return indexTable[clade] * ViewModel.YScale.Value;
+        else
+        {
+            if (clade.Children.Count == 1) return CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable);
+            return (CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable) + CalcY2(clade.Children[^1], CalcY1(clade.Children[^1], indexTable), indexTable)) / 2;
+        }
+    }
+
+    private double CalcY2(Clade clade, double y1, Dictionary<Clade, int> indexTable)
+    {
+        IList<Clade> sisters = clade.Parent!.Children;
+        int indexOfClade = sisters.IndexOf(clade);
+        if (sisters.All(x => x.IsLeaf))
+        {
+            int halfCount = sisters.Count / 2;
+
+            if (sisters.Count % 2 == 1)
+            {
+                if (indexOfClade == halfCount) return y1;
+                if (indexOfClade < halfCount) return y1 + ViewModel.YScale.Value;
+                return y1 - ViewModel.YScale.Value;
+            }
+            else
+            {
+                if (indexOfClade < halfCount) return y1 + ViewModel.YScale.Value;
+                return y1 - ViewModel.YScale.Value;
+            }
+        }
+
+        if (indexOfClade == 0)
+        {
+            double otherY1 = CalcY1(sisters[^1], indexTable);
+            double length = (otherY1 - y1) / 2;
+            return y1 + length;
+        }
+        if (indexOfClade == sisters.Count - 1)
+        {
+            double otherY1 = CalcY1(sisters[0], indexTable);
+            double length = (y1 - otherY1) / 2;
+            return y1 - length;
+        }
+
+        return y1;
+    }
+
+    private string SelectShowValue(Clade clade, CladeValueType valueType)
+    {
+        switch (valueType)
+        {
+            case CladeValueType.Supports:
+                string supports = clade.Supports ?? string.Empty;
+                return supports.Trim();
+            case CladeValueType.BranchLength:
+                double branchLength = clade.BranchLength;
+                if (double.IsNaN(branchLength)) return string.Empty;
+                return branchLength.ToString();
+
+            default: return string.Empty;
+        }
+    }
+}

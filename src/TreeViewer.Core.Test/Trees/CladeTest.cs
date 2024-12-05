@@ -2,11 +2,11 @@
 {
     public class CladeTest
     {
-        //            2
-        //      1 +------leafA    1
-        // root---|   2         +---leafBA
-        //        +------cladeB-|    3
-        //                      +---------leafBB
+        //          2
+        //      +------leafA    1
+        // root-|   2         +---leafBA
+        //      +------cladeB-|    3
+        //                    +---------leafBB
 
         private readonly Clade root;
         private readonly Clade leafA;
@@ -19,7 +19,7 @@
             root = new Clade()
             {
                 Supports = "80/100",
-                BranchLength = 1,
+                BranchLength = 0,
             };
             leafA = new Clade()
             {
@@ -281,6 +281,44 @@
                 Assert.Equal([leafBA, leafBB], cladeB.GetDescendants());
                 Assert.Empty(leafBA.GetDescendants());
                 Assert.Empty(leafBB.GetDescendants());
+            });
+        }
+
+        [Fact]
+        public void GetLeavesCount()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(3, root.GetLeavesCount());
+                Assert.Equal(1, leafA.GetLeavesCount());
+                Assert.Equal(2, cladeB.GetLeavesCount());
+                Assert.Equal(1, leafBA.GetLeavesCount());
+                Assert.Equal(1, leafBB.GetLeavesCount());
+            });
+        }
+
+        [Fact]
+        public void GetTotalBranchLength()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(0, root.GetTotalBranchLength());
+                Assert.Equal(2, leafA.GetTotalBranchLength());
+                Assert.Equal(2, cladeB.GetTotalBranchLength());
+                Assert.Equal(3, leafBA.GetTotalBranchLength());
+                Assert.Equal(5, leafBB.GetTotalBranchLength());
+            });
+        }
+
+        [Fact]
+        public void GetTotalBranchLength_OnNaNLength()
+        {
+            cladeB.BranchLength = double.NaN;
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(4, leafBB.GetTotalBranchLength(1));
+                Assert.Equal(double.NaN, leafBB.GetTotalBranchLength());
             });
         }
 

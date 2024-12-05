@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="ElectronNET.API" Version="23.6.2" />
     <PackageReference Include="Radzen.Blazor" Version="5.6.10" />
+    <PackageReference Include="ReactiveProperty.Blazor" Version="9.6.0" />
   </ItemGroup>
 
   <ItemGroup>
