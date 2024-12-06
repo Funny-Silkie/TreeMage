@@ -34,6 +34,10 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public ReactivePropertySlim<Tree?> TargetTree { get; }
 
+        #region Sidebar
+
+        #region Tree
+
         /// <summary>
         /// X軸方向の拡大率のプロパティを取得します。
         /// </summary>
@@ -49,15 +53,23 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public ReactivePropertySlim<int> BranchThickness { get; }
 
+        #endregion Tree
+
+        #region LeafLavels
+
         /// <summary>
         /// 系統名を表示するかどうかを表す値のプロパティを取得します。
         /// </summary>
-        public ReactivePropertySlim<bool> ShowLeaveLabels { get; }
+        public ReactivePropertySlim<bool> ShowLeafLabels { get; }
 
         /// <summary>
         /// 系統名のフォントサイズのプロパティを取得します。
         /// </summary>
-        public ReactivePropertySlim<int> LeaveLabelsFontSize { get; }
+        public ReactivePropertySlim<int> LeafLabelsFontSize { get; }
+
+        #endregion LeafLavels
+
+        #region NodeValues
 
         /// <summary>
         /// 結節点の値を表示するかどうかを表す値のプロパティを取得します。
@@ -74,6 +86,10 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public ReactivePropertySlim<int> NodeValueFontSize { get; }
 
+        #endregion NodeValues
+
+        #region BranchValues
+
         /// <summary>
         /// 二分岐の値を表示するかどうかを表す値のプロパティを取得します。
         /// </summary>
@@ -88,6 +104,29 @@ namespace TreeViewer.ViewModels
         /// 二分岐の値のフォントサイズのプロパティを取得します。
         /// </summary>
         public ReactivePropertySlim<int> BranchValueFontSize { get; }
+
+        #endregion BranchValues
+
+        #region BranchDecorations
+
+        /// <summary>
+        /// 二分岐の装飾を表示するかどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<bool> ShowBranchDecorations { get; }
+
+        /// <summary>
+        /// 枝の装飾情報一覧を取得します。
+        /// </summary>
+        public ReactiveCollection<BranchDecorationViewModel> BranchDecorations { get; }
+
+        /// <summary>
+        /// 装飾の追加コマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand AddBranchDecorationCommand { get; }
+
+        #endregion BranchDecorations
+
+        #region Scalebar
 
         /// <summary>
         /// スケールバーを表示するかどうかを表す値のプロパティを取得します。
@@ -109,6 +148,10 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public ReactivePropertySlim<int> ScaleBarThickness { get; }
 
+        #endregion Scalebar
+
+        #endregion Sidebar
+
         /// <summary>
         /// <see cref="HomeViewModel"/>の新しいインスタンスを初期化します。
         /// </summary>
@@ -127,8 +170,8 @@ namespace TreeViewer.ViewModels
             YScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
             BranchThickness = new ReactivePropertySlim<int>(1).AddTo(Disposables);
 
-            ShowLeaveLabels = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
-            LeaveLabelsFontSize = new ReactivePropertySlim<int>(20).AddTo(Disposables);
+            ShowLeafLabels = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
+            LeafLabelsFontSize = new ReactivePropertySlim<int>(20).AddTo(Disposables);
 
             ShowNodeValues = new ReactivePropertySlim<bool>(false).AddTo(Disposables);
             NodeValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).AddTo(Disposables);
@@ -137,6 +180,11 @@ namespace TreeViewer.ViewModels
             ShowBranchValues = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
             BranchValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).AddTo(Disposables);
             BranchValueFontSize = new ReactivePropertySlim<int>(15).AddTo(Disposables);
+
+            ShowBranchDecorations = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
+            BranchDecorations = new ReactiveCollection<BranchDecorationViewModel>().AddTo(Disposables);
+            AddBranchDecorationCommand = new AsyncReactiveCommand().WithSubscribe(AddNewBranchDecoration)
+                                                                   .AddTo(Disposables);
 
             ShowScaleBar = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
             ScaleBarValue = new ReactivePropertySlim<double>(0.1).AddTo(Disposables);
@@ -190,6 +238,15 @@ namespace TreeViewer.ViewModels
 
             using var writer = new StreamWriter(path);
             await tree.WriteAsync(writer, format);
+        }
+
+        /// <summary>
+        /// 枝の装飾を追加します。
+        /// </summary>
+        private async Task AddNewBranchDecoration()
+        {
+            BranchDecorations.AddOnScheduler(new BranchDecorationViewModel(this));
+            await Task.CompletedTask;
         }
     }
 }
