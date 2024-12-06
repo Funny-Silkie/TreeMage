@@ -166,6 +166,31 @@ namespace TreeViewer.Window
                                 new MenuItem()
                                 {
                                     Type = MenuType.normal,
+                                    Label = "Tree(&T)",
+                                    Submenu = [
+                                        new MenuItem()
+                                        {
+                                            Type = MenuType.normal,
+                                            Label = "Newick(&W)",
+                                            Click = () => Export(TreeFormat.Newick).Wait(),
+                                        },
+                                        //new MenuItem()
+                                        //{
+                                        //    Type = MenuType.normal,
+                                        //    Label = "Nexus(&X)",
+                                        //    Click = () => Export(TreeFormat.).Wait(),
+                                        //},
+                                        //new MenuItem()
+                                        //{
+                                        //    Type = MenuType.normal,
+                                        //    Label = "PhyloXML(&P)",
+                                        //    Click = () => Export(TreeFormat.).Wait(),
+                                        //},
+                                    ],
+                                },
+                                new MenuItem()
+                                {
+                                    Type = MenuType.normal,
                                     Label = "PNG",
                                 },
                                 new MenuItem()
@@ -269,6 +294,18 @@ namespace TreeViewer.Window
             if (pathes.Length != 1) return;
 
             await ViewModel.ImportTree(pathes[0], format);
+        }
+
+        /// <summary>
+        /// エクスポート処理を行います。
+        /// </summary>
+        /// <param name="format">出力する系統樹のフォーマット</param>
+        public async Task Export(TreeFormat format)
+        {
+            string path = await Electron.Dialog.ShowSaveDialogAsync(window, new SaveDialogOptions());
+            if (path.Length == 0) return;
+
+            await ViewModel.ExportCurrentTree(path, format);
         }
 
         /// <summary>

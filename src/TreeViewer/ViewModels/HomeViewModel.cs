@@ -146,6 +146,10 @@ namespace TreeViewer.ViewModels
             TreeIndex.Subscribe(OnTreeIndexChanged);
         }
 
+        /// <summary>
+        /// <see cref="TreeIndex"/>が変更されたときに実行されます。
+        /// </summary>
+        /// <param name="value">変更後の値</param>
         private void OnTreeIndexChanged(int value)
         {
             value--;
@@ -172,6 +176,20 @@ namespace TreeViewer.ViewModels
                 OnPropertyChanged(nameof(TargetTree));
             }
             else OnPropertyChanged(nameof(MaxTreeIndex));
+        }
+
+        /// <summary>
+        /// 表示している系統樹を出力します。
+        /// </summary>
+        /// <param name="path">出力する系統樹ファイルのパス</param>
+        /// <param name="format">出力する系統樹のフォーマット</param>
+        public async Task ExportCurrentTree(string path, TreeFormat format)
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            using var writer = new StreamWriter(path);
+            await tree.WriteAsync(writer, format);
         }
     }
 }
