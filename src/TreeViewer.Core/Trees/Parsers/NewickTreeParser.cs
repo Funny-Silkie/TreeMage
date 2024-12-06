@@ -139,13 +139,13 @@
                     case CladeSeparatorToken:
                         if (nestLevel > 0) continue;
 
-                        result.ChildrenInternal.Add(ReadClade(text[indexOfChildBegin..i].Trim()));
+                        result.AddChild(ReadClade(text[indexOfChildBegin..i].Trim()));
                         indexOfChildBegin = i + 1;
                         continue;
                 }
             }
 
-            if (indexOfChildBegin < text.Length - 1) result.ChildrenInternal.Add(ReadClade(text[indexOfChildBegin..].TrimStart()));
+            if (indexOfChildBegin < text.Length - 1) result.AddChild(ReadClade(text[indexOfChildBegin..].TrimStart()));
             return result;
         }
 
