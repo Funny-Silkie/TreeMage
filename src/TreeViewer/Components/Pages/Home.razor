@@ -1,6 +1,7 @@
-﻿@page "/"
+@page "/"
 @rendermode InteractiveServer
 @inject HomeViewModel ViewModel
+@inject IJSRuntime Js
 
 <RadzenLayout>
     <RadzenHeader>
@@ -350,6 +351,8 @@
     private Dictionary<Clade, double> y1Map = [];
     private Dictionary<Clade, double> y2Map = [];
 
+    private IJSObjectReference? module;
+
     private double CalcY1(Clade clade, Dictionary<Clade, int> indexTable)
     {
         if (y1Map.TryGetValue(clade, out double result)) return result;
@@ -434,5 +437,11 @@
         await base.OnInitializedAsync();
 
         ViewModel.PropertyChanged += (x, y) => InvokeAsync(StateHasChanged);
+    }
+
+    /// <inheritdoc/>
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) module = await Js.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/Home.razor.js");
     }
 }
