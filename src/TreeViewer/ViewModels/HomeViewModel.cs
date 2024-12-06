@@ -1,7 +1,9 @@
 ﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using TreeViewer.Core.Trees;
+using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
+using TreeViewer.Window;
 
 namespace TreeViewer.ViewModels
 {
@@ -10,6 +12,23 @@ namespace TreeViewer.ViewModels
     /// </summary>
     public class HomeViewModel : ViewModelBase
     {
+        private readonly MainWindow window;
+
+        /// <summary>
+        /// 読み込まれた系統樹一覧を取得します。
+        /// </summary>
+        private ReactiveCollection<Tree> Trees { get; }
+
+        /// <summary>
+        /// 対象の系統樹のインデックスのプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<int> TreeIndex { get; }
+
+        /// <summary>
+        /// <see cref="TreeIndex"/>の最大値のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<int> MaxTreeIndex { get; }
+
         /// <summary>
         /// 対象の樹形を取得します。
         /// </summary>
@@ -95,9 +114,16 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public HomeViewModel()
         {
-            TargetTree = new ReactivePropertySlim<Tree?>(Tree.CreateSample()).AddTo(Disposables);
+            window = MainWindow.Instance;
+            window.SetViewModel(this);
 
-            XScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
+            Trees = new ReactiveCollection<Tree>().AddTo(Disposables);
+            TreeIndex = new ReactivePropertySlim<int>(1).AddTo(Disposables);
+            MaxTreeIndex = new ReactivePropertySlim<int>().AddTo(Disposables);
+            Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
+            TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
+
+            XScale = new ReactivePropertySlim<int>(300).AddTo(Disposables);
             YScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
             BranchThickness = new ReactivePropertySlim<int>(1).AddTo(Disposables);
 
@@ -113,9 +139,39 @@ namespace TreeViewer.ViewModels
             BranchValueFontSize = new ReactivePropertySlim<int>(15).AddTo(Disposables);
 
             ShowScaleBar = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
-            ScaleBarValue = new ReactivePropertySlim<double>(1).AddTo(Disposables);
+            ScaleBarValue = new ReactivePropertySlim<double>(0.1).AddTo(Disposables);
             ScaleBarFontSize = new ReactivePropertySlim<int>(25).AddTo(Disposables);
             ScaleBarThickness = new ReactivePropertySlim<int>(5).AddTo(Disposables);
+
+            TreeIndex.Subscribe(OnTreeIndexChanged);
+        }
+
+        private void OnTreeIndexChanged(int value)
+        {
+            value--;
+            if ((uint)value >= (uint)Trees.Count) return;
+            TargetTree.Value = Trees[value];
+        }
+
+        /// <summary>
+        /// 系統樹を読み込みます。
+        /// </summary>
+        /// <param name="path">読み込む系統樹ファイルのパス</param>
+        /// <param name="format">読み込む系統樹のフォーマット</param>
+        public async Task ImportTree(string path, TreeFormat format)
+        {
+            using var reader = new StreamReader(path);
+            Tree[] trees = await Tree.ReadAsync(reader, format);
+            if (trees.Length == 0) return;
+
+            Trees.AddRangeOnScheduler(trees);
+
+            if (Trees.Count == 0)
+            {
+                TargetTree.Value = trees[0];
+                OnPropertyChanged(nameof(TargetTree));
+            }
+            else OnPropertyChanged(nameof(MaxTreeIndex));
         }
     }
 }

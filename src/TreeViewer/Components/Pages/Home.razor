@@ -4,8 +4,10 @@
 
 <RadzenLayout>
     <RadzenHeader>
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
             <RadzenSidebarToggle Click="() => toggleExpanded = !toggleExpanded" />
+            <RadzenText>Tree No.</RadzenText>
+            <RadzenNumeric TValue="int" Min="1" Max="Math.Max(ViewModel.MaxTreeIndex.Value, 1)" @bind-Value="ViewModel.TreeIndex.Value" Disabled="@(ViewModel.MaxTreeIndex.Value == 0)" Style="width: 50px" />
         </RadzenStack>
     </RadzenHeader>
     <RadzenSidebar Responsive="false" @bind-Expanded="toggleExpanded" Style="width: 300px">
@@ -33,7 +35,7 @@
                             <RadzenText Style="@sidebarFormLabelStyle">Branch thickness:</RadzenText>
                         </RadzenStack>
                         <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                            <RadzenSlider TValue="int" Min="1" Max="300" @bind-Value="ViewModel.XScale.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenSlider TValue="int" Min="10" Max="3000" Step="10" @bind-Value="ViewModel.XScale.Value" Style="@sidebarFormValueStyle" />
                             <RadzenSlider TValue="int" Min="1" Max="300" @bind-Value="ViewModel.YScale.Value" Style="@sidebarFormValueStyle" />
                             <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.BranchThickness.Value" Style="@sidebarFormValueStyle" />
                         </RadzenStack>
@@ -129,6 +131,9 @@
     <RadzenBody>
         @if (ViewModel.TargetTree.Value is not null)
         {
+            y1Map.Clear();
+            y2Map.Clear();
+
             Tree tree = ViewModel.TargetTree.Value;
             Dictionary<Clade, int> indexTable = tree.GetAllLeaves().Select((x, i) => (x, i)).ToDictionary();
             Clade[] allLeaves = tree.GetAllLeaves().ToArray();
@@ -259,10 +264,11 @@
                     }
                 </g>
 
+                // Scale bar
                 @if (ViewModel.ShowScaleBar.Value && ViewModel.ScaleBarValue.Value > 0)
                 {
                     double scaleBarWidth = ViewModel.ScaleBarValue.Value * ViewModel.XScale.Value;
-                    <g transform="translate(@(tree.GetAllLeaves().Select(x => x.GetTotalBranchLength()).Max() * ViewModel.XScale.Value / 2.5), @(allLeaves.Length * ViewModel.YScale.Value + 30 + ViewModel.ScaleBarFontSize.Value))">
+                    <g transform="translate(50, @(allLeaves.Length * ViewModel.YScale.Value + 30 + ViewModel.ScaleBarFontSize.Value))">
                         <text class="scalebar-text" x="@(scaleBarWidth / 2)" text-anchor="middle">@ViewModel.ScaleBarValue.Value</text>
                         <line class="scalebar-line" x1="0" y1="10" x2="@scaleBarWidth" y2="10" />
                     </g>
@@ -284,18 +290,27 @@
     private const string sidebarFormLabelStyle = "width: 150px; height: 23px";
     private const string sidebarFormValueStyle = "width: 100px; height: 30px";
 
+    private Dictionary<Clade, double> y1Map = [];
+    private Dictionary<Clade, double> y2Map = [];
+
     private double CalcY1(Clade clade, Dictionary<Clade, int> indexTable)
     {
-        if (clade.IsLeaf) return indexTable[clade] * ViewModel.YScale.Value;
+        if (y1Map.TryGetValue(clade, out double result)) return result;
+
+        if (clade.IsLeaf) result = indexTable[clade] * ViewModel.YScale.Value;
         else
         {
-            if (clade.Children.Count == 1) return CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable);
-            return (CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable) + CalcY2(clade.Children[^1], CalcY1(clade.Children[^1], indexTable), indexTable)) / 2;
+            if (clade.Children.Count == 1) result = CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable);
+            result = (CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable) + CalcY2(clade.Children[^1], CalcY1(clade.Children[^1], indexTable), indexTable)) / 2;
         }
+        y1Map.Add(clade, result);
+        return result;
     }
 
     private double CalcY2(Clade clade, double y1, Dictionary<Clade, int> indexTable)
     {
+        if (y2Map.TryGetValue(clade, out double result)) return result;
+
         IList<Clade> sisters = clade.Parent!.Children;
         int indexOfClade = sisters.IndexOf(clade);
         if (sisters.All(x => x.IsLeaf))
@@ -306,29 +321,38 @@
             {
                 if (indexOfClade == halfCount) return y1;
                 if (indexOfClade < halfCount) return y1 + ViewModel.YScale.Value;
-                return y1 - ViewModel.YScale.Value;
+                result = y1 - ViewModel.YScale.Value;
             }
             else
             {
                 if (indexOfClade < halfCount) return y1 + ViewModel.YScale.Value;
-                return y1 - ViewModel.YScale.Value;
+                result = y1 - ViewModel.YScale.Value;
             }
+
+            y2Map.Add(clade, result);
+            return result;
         }
 
         if (indexOfClade == 0)
         {
             double otherY1 = CalcY1(sisters[^1], indexTable);
             double length = (otherY1 - y1) / 2;
-            return y1 + length;
+            result = y1 + length;
+            y2Map.Add(clade, result);
+            return result;
         }
         if (indexOfClade == sisters.Count - 1)
         {
             double otherY1 = CalcY1(sisters[0], indexTable);
             double length = (y1 - otherY1) / 2;
-            return y1 - length;
+            result = y1 - length;
+            y2Map.Add(clade, result);
+            return result;
         }
 
-        return y1;
+        result = y1;
+        y2Map.Add(clade, result);
+        return result;
     }
 
     private string SelectShowValue(Clade clade, CladeValueType valueType)
@@ -345,5 +369,13 @@
 
             default: return string.Empty;
         }
+    }
+
+    /// <inheritdoc/>
+    protected async override Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        ViewModel.PropertyChanged += (x, y) => InvokeAsync(StateHasChanged);
     }
 }
