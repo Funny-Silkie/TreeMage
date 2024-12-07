@@ -1,5 +1,6 @@
 ﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using System.Text.RegularExpressions;
 using TreeViewer.Core.Trees;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
@@ -78,6 +79,35 @@ namespace TreeViewer.ViewModels
         public ReactivePropertySlim<int> BranchThickness { get; }
 
         #endregion Tree
+
+        #region Search
+
+        /// <summary>
+        /// 検索ワードのプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<string> SearchQuery { get; }
+
+        /// <summary>
+        /// 検索対象を表す値のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<TreeSearchTarget> SearchTarget { get; }
+
+        /// <summary>
+        /// 大文字・小文字を無視して検索を行うかどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<bool> SearchOnIgnoreCase { get; }
+
+        /// <summary>
+        /// 検索に正規表現を使うかどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<bool> SearchWithRegex { get; }
+
+        /// <summary>
+        /// 検索コマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand SearchCommand { get; }
+
+        #endregion Search
 
         #region LeafLavels
 
@@ -202,6 +232,13 @@ namespace TreeViewer.ViewModels
             YScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
             BranchThickness = new ReactivePropertySlim<int>(1).AddTo(Disposables);
 
+            SearchQuery = new ReactivePropertySlim<string>(string.Empty).AddTo(Disposables);
+            SearchTarget = new ReactivePropertySlim<TreeSearchTarget>().AddTo(Disposables);
+            SearchOnIgnoreCase = new ReactivePropertySlim<bool>(false).AddTo(Disposables);
+            SearchWithRegex = new ReactivePropertySlim<bool>().AddTo(Disposables);
+            SearchCommand = new AsyncReactiveCommand().WithSubscribe(Search)
+                                                      .AddTo(Disposables);
+
             ShowLeafLabels = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
             LeafLabelsFontSize = new ReactivePropertySlim<int>(20).AddTo(Disposables);
 
@@ -277,6 +314,68 @@ namespace TreeViewer.ViewModels
             FocusedSvgElementIdList.Clear();
 
             OnPropertyChanged(nameof(FocusedSvgElementIdList));
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 検索を実行します。
+        /// </summary>
+        private async Task Search()
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            string query = SearchQuery.Value;
+            if (string.IsNullOrEmpty(query)) return;
+
+            Func<Clade, string?> cladeConverter;
+            switch (SearchTarget.Value)
+            {
+                case TreeSearchTarget.Taxon:
+                    cladeConverter = x => x.Taxon;
+                    break;
+
+                case TreeSearchTarget.Supports:
+                    cladeConverter = x => x.Supports;
+                    break;
+
+                default: return;
+            }
+
+            Predicate<string> cladeSelection;
+            if (SearchWithRegex.Value)
+            {
+                Regex regex;
+                var option = RegexOptions.None;
+                if (SearchOnIgnoreCase.Value) option |= RegexOptions.IgnoreCase;
+                try
+                {
+                    regex = new Regex(query, option);
+                }
+                catch
+                {
+                    return;
+                }
+                cladeSelection = x => regex.IsMatch(x);
+            }
+            else
+            {
+                StringComparison stringComparison = SearchOnIgnoreCase.Value ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                cladeSelection = x => x.Contains(query, stringComparison);
+            }
+
+            FocusedSvgElementIdList.Clear();
+
+            foreach (Clade current in tree.GetAllClades())
+            {
+                string? target = cladeConverter.Invoke(current);
+                if (string.IsNullOrEmpty(target) || !cladeSelection.Invoke(target)) continue;
+
+                FocusedSvgElementIdList.Add(current.GetId("branch"));
+            }
+
+            OnPropertyChanged(nameof(FocusedSvgElementIdList));
+
             await Task.CompletedTask;
         }
 

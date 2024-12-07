@@ -42,6 +42,32 @@
                     </RadzenStack>
                 </ChildContent>
             </RadzenPanel>
+            @* Search *@
+            <RadzenPanel AllowCollapse="true" Collapsed="defaultCollapsed">
+                <HeaderTemplate>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="10">
+                        <RadzenText TextStyle="TextStyle.H6">Search</RadzenText>
+                    </RadzenStack>
+                </HeaderTemplate>
+                <ChildContent>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                        <RadzenTextBox @bind-Value="ViewModel.SearchQuery.Value" Style="width: 220px; height: 30px" />
+                        <RadzenButton Icon="search" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="ViewModel.SearchCommand.ToDelegate()" />
+                    </RadzenStack>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch" Style="padding-top: 3px">
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenText Style="@sidebarFormLabelStyle">Target:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Ignore case:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Use regex:</RadzenText>
+                        </RadzenStack>
+                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                            <RadzenDropDown Data="Enum.GetValues<TreeSearchTarget>()" @bind-Value="ViewModel.SearchTarget.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.SearchOnIgnoreCase.Value" Style="margin-top: 2px; margin-bottom: 2px" />
+                            <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.SearchWithRegex.Value" Style="margin-top: 2px; margin-bottom: 2px" />
+                        </RadzenStack>
+                    </RadzenStack>
+                </ChildContent>
+            </RadzenPanel>
             @* Leaves *@
             <RadzenPanel AllowCollapse="true" Collapsed="defaultCollapsed">
                 <HeaderTemplate>
