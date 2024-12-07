@@ -1,7 +1,6 @@
 @page "/"
 @rendermode InteractiveServer
 @inject HomeViewModel ViewModel
-@inject IJSRuntime Js
 
 <RadzenLayout>
     <RadzenHeader>
@@ -113,7 +112,7 @@
                     </RadzenStack>
                 </HeaderTemplate>
                 <ChildContent>
-                    <RadzenButton Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="x => ViewModel.AddBranchDecorationCommand.ExecuteAsync()" />
+                    <RadzenButton Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="ViewModel.AddBranchDecorationCommand.ToDelegate()" />
                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch">
                         @foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations)
                         {
@@ -179,9 +178,10 @@
             if (ViewModel.ShowScaleBar.Value) svgHeight += ViewModel.ScaleBarFontSize.Value;
 
             <svg width="@svgWidth" height="@svgHeight">
-                <style>
+                <style type="text/css">
                     text {
                         font-family: Arial, Helvetica, sans-serif;
+                        user-select: none;
                     }
 
                     .leaf {
@@ -210,6 +210,10 @@
 
                     .scalebar-text {
                         font-size: @(ViewModel.ScaleBarFontSize.Value + "px");
+                    }
+
+                    .clickable-branch {
+                        fill: none;
                     }
                 </style>
                 <g transform="translate(50, 50)">
@@ -257,9 +261,10 @@
                         }
                         double x1 = (totalLength - current.BranchLength) * ViewModel.XScale.Value;
 
+                        double x2;
                         if (current.BranchLength > 0)
                         {
-                            double x2 = totalLength * ViewModel.XScale.Value;
+                            x2 = totalLength * ViewModel.XScale.Value;
 
                             // 横棒
                             {
@@ -306,18 +311,35 @@
                                 }
                             }
                         }
+                        else x2 = x1;
+
                         Clade? parent = current.Parent;
+                        double y2 = y1;
                         if (parent is not null)
                         {
                             if (parent.Children.Count > 1)
                             {
-                                double y2 = CalcY2(current, y1, indexTable);
+                                y2 = CalcY2(current, y1, indexTable);
+                                // 縦棒
                                 if (y1 != y2)
                                 {
-                                    // 縦棒
                                     <line class="branch" x1="@x1" y1="@y1" x2="@x1" y2="@y2" />
                                 }
                             }
+                        }
+
+                        // 枝クリックエリア
+                        {
+                            string path = $"M {x2} {y1}";
+                            if (x1 != x2) path += $"H {x1}";
+                            if (y1 != y2) path += $"V {y2}";
+
+                            string id = current.GetId("branch");
+                            string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
+
+                            <path id="@id" class="clickable-branch" d="@path"
+                                  style="stroke: @strokeColor; stroke-width: @(ViewModel.BranchThickness.Value + 4)"
+                                  onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
                         }
                     }
                 </g>
@@ -351,8 +373,6 @@
     private Dictionary<Clade, double> y1Map = [];
     private Dictionary<Clade, double> y2Map = [];
 
-    private IJSObjectReference? module;
-
     private double CalcY1(Clade clade, Dictionary<Clade, int> indexTable)
     {
         if (y1Map.TryGetValue(clade, out double result)) return result;
@@ -371,46 +391,30 @@
     {
         if (y2Map.TryGetValue(clade, out double result)) return result;
 
-        IList<Clade> sisters = clade.Parent!.Children;
-        int indexOfClade = sisters.IndexOf(clade);
-        if (sisters.All(x => x.IsLeaf))
+        double CalcY2Internal()
         {
-            int halfCount = sisters.Count / 2;
+            IList<Clade> sisters = clade.Parent!.Children;
+            int indexOfClade = sisters.IndexOf(clade);
+            (int halfCount, int countRem) = Math.DivRem(sisters.Count, 2);
 
-            if (sisters.Count % 2 == 1)
+            if (countRem == 1 && indexOfClade == halfCount) return y1;
+            if (indexOfClade < halfCount)
             {
-                if (indexOfClade == halfCount) return y1;
-                if (indexOfClade < halfCount) return y1 + ViewModel.YScale.Value;
-                result = y1 - ViewModel.YScale.Value;
+                double otherY1 = CalcY1(sisters[indexOfClade + 1], indexTable);
+                double length = otherY1 - y1;
+                if (countRem == 0 && indexOfClade + 1 == halfCount) length /= 2;
+                return y1 + length;
             }
             else
             {
-                if (indexOfClade < halfCount) return y1 + ViewModel.YScale.Value;
-                result = y1 - ViewModel.YScale.Value;
+                double otherY1 = CalcY1(sisters[indexOfClade - 1], indexTable);
+                double length = y1 - otherY1;
+                if (countRem == 0 && indexOfClade == halfCount) length /= 2;
+                return y1 - length;
             }
-
-            y2Map.Add(clade, result);
-            return result;
         }
 
-        if (indexOfClade == 0)
-        {
-            double otherY1 = CalcY1(sisters[^1], indexTable);
-            double length = (otherY1 - y1) / 2;
-            result = y1 + length;
-            y2Map.Add(clade, result);
-            return result;
-        }
-        if (indexOfClade == sisters.Count - 1)
-        {
-            double otherY1 = CalcY1(sisters[0], indexTable);
-            double length = (y1 - otherY1) / 2;
-            result = y1 - length;
-            y2Map.Add(clade, result);
-            return result;
-        }
-
-        result = y1;
+        result = CalcY2Internal();
         y2Map.Add(clade, result);
         return result;
     }
@@ -437,11 +441,5 @@
         await base.OnInitializedAsync();
 
         ViewModel.PropertyChanged += (x, y) => InvokeAsync(StateHasChanged);
-    }
-
-    /// <inheritdoc/>
-    protected async override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender) module = await Js.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/Home.razor.js");
     }
 }

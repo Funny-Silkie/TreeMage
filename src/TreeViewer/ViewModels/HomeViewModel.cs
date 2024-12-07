@@ -34,6 +34,16 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public ReactivePropertySlim<Tree?> TargetTree { get; }
 
+        /// <summary>
+        /// SVG要素のクリック時に実行されるコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<string> SvgElementClickedCommand { get; }
+
+        /// <summary>
+        /// 選択されているSVG要素のID一覧を取得します。
+        /// </summary>
+        public HashSet<string> FocusedSvgElementIdList { get; }
+
         #region Sidebar
 
         #region Tree
@@ -165,6 +175,9 @@ namespace TreeViewer.ViewModels
             MaxTreeIndex = new ReactivePropertySlim<int>().AddTo(Disposables);
             Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
             TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
+            SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
+                                                                         .AddTo(Disposables);
+            FocusedSvgElementIdList = new HashSet<string>(StringComparer.Ordinal);
 
             XScale = new ReactivePropertySlim<int>(300).AddTo(Disposables);
             YScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
@@ -203,6 +216,16 @@ namespace TreeViewer.ViewModels
             value--;
             if ((uint)value >= (uint)Trees.Count) return;
             TargetTree.Value = Trees[value];
+        }
+
+        private async Task OnSvgElementClicked(string id)
+        {
+            await Console.Out.WriteLineAsync($"Clicked: {id}");
+
+            FocusedSvgElementIdList.Clear();
+            FocusedSvgElementIdList.Add(id);
+
+            OnPropertyChanged(nameof(FocusedSvgElementIdList));
         }
 
         /// <summary>
