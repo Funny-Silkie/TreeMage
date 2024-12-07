@@ -38,6 +38,11 @@ namespace TreeViewer.ViewModels
         public ReactivePropertySlim<string> ShapeColor { get; }
 
         /// <summary>
+        /// 表示するどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<bool> Visible { get; }
+
+        /// <summary>
         /// 自身を削除するコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand DeleteSelfCommand { get; }
@@ -55,6 +60,7 @@ namespace TreeViewer.ViewModels
             DecorationType = new ReactivePropertySlim<BranchDecorationType>().AddTo(Disposables);
             ShapeSize = new ReactivePropertySlim<int>(5).AddTo(Disposables);
             ShapeColor = new ReactivePropertySlim<string>("#000000").AddTo(Disposables);
+            Visible = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
 
             DeleteSelfCommand = new AsyncReactiveCommand().WithSubscribe(DeleteSelf)
                                                           .AddTo(Disposables);
