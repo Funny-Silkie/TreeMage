@@ -39,10 +39,24 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public AsyncReactiveCommand<string> SvgElementClickedCommand { get; }
 
+        #region Focus
+
         /// <summary>
         /// 選択されているSVG要素のID一覧を取得します。
         /// </summary>
         public HashSet<string> FocusedSvgElementIdList { get; }
+
+        /// <summary>
+        /// 全てを選択するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand FocusAllCommand { get; }
+
+        /// <summary>
+        /// 全選択を解除するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand UnfocusAllCommand { get; }
+
+        #endregion Focus
 
         #region Sidebar
 
@@ -177,7 +191,12 @@ namespace TreeViewer.ViewModels
             TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
             SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
                                                                          .AddTo(Disposables);
+
             FocusedSvgElementIdList = new HashSet<string>(StringComparer.Ordinal);
+            FocusAllCommand = new AsyncReactiveCommand().WithSubscribe(FocusAll)
+                                                          .AddTo(Disposables);
+            UnfocusAllCommand = new AsyncReactiveCommand().WithSubscribe(UnfocusAll)
+                                                          .AddTo(Disposables);
 
             XScale = new ReactivePropertySlim<int>(300).AddTo(Disposables);
             YScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
@@ -215,17 +234,50 @@ namespace TreeViewer.ViewModels
         {
             value--;
             if ((uint)value >= (uint)Trees.Count) return;
+
+            FocusedSvgElementIdList.Clear();
             TargetTree.Value = Trees[value];
         }
 
+        /// <summary>
+        /// SVG要素がクリックされた際に実行されます。
+        /// </summary>
+        /// <param name="id">SVG要素のID</param>
         private async Task OnSvgElementClicked(string id)
         {
-            await Console.Out.WriteLineAsync($"Clicked: {id}");
-
             FocusedSvgElementIdList.Clear();
             FocusedSvgElementIdList.Add(id);
 
             OnPropertyChanged(nameof(FocusedSvgElementIdList));
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 全ての要素を選択します。
+        /// </summary>
+        private async Task FocusAll()
+        {
+            if (TargetTree.Value is null) return;
+
+            foreach (Clade current in TargetTree.Value.GetAllClades())
+            {
+                FocusedSvgElementIdList.Add(current.GetId("leaf"));
+                FocusedSvgElementIdList.Add(current.GetId("branch"));
+            }
+
+            OnPropertyChanged(nameof(FocusedSvgElementIdList));
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 全ての選択を解除します。
+        /// </summary>
+        private async Task UnfocusAll()
+        {
+            FocusedSvgElementIdList.Clear();
+
+            OnPropertyChanged(nameof(FocusedSvgElementIdList));
+            await Task.CompletedTask;
         }
 
         /// <summary>

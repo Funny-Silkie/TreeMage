@@ -215,6 +215,10 @@
                         font-size: @(ViewModel.ScaleBarFontSize.Value + "px");
                     }
 
+                    .clickable-leaf {
+                        stroke: none;
+                    }
+
                     .clickable-branch {
                         fill: none;
                     }
@@ -234,13 +238,22 @@
                         if (current.IsLeaf)
                         {
                             // 系統名
-                            if (ViewModel.ShowLeafLabels.Value)
+                            if (ViewModel.ShowLeafLabels.Value && !string.IsNullOrEmpty(current.Taxon))
                             {
-                                <svg x="@(totalLength * ViewModel.XScale.Value + 5)" y="@(y1 - ViewModel.YScale.Value)">
-                                    <text class="leaf" y="@(ViewModel.YScale.Value + ViewModel.LeafLabelsFontSize.Value / 2.5)">
-                                        @current.Taxon
-                                    </text>
-                                </svg>
+                                double x = totalLength * ViewModel.XScale.Value + 5;
+                                double y = (y1 + ViewModel.LeafLabelsFontSize.Value / 2.5);
+                                var svgText = new MarkupString($"<text class=\"leaf\" x=\"{x}\" y=\"{y}\">{current.Taxon}</text>");
+                                @svgText
+
+                                // クリックエリア
+                                string id = current.GetId("leaf");
+                                string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
+                                double width = current.Taxon.Length * ViewModel.LeafLabelsFontSize.Value / 2;
+                                double height = ViewModel.LeafLabelsFontSize.Value;
+
+                                <rect id="@id" class="clickable-leaf" x="@(x - 2)" y="@(y1 - ViewModel.LeafLabelsFontSize.Value / 2.5 - 2)" width="@width" height="@height"
+                                      style="fill: @fillColor" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+
                             }
                         }
                         else

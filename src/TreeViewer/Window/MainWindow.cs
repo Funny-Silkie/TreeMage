@@ -247,6 +247,20 @@ namespace TreeViewer.Window
                     Type = MenuType.normal,
                     Label = "ツリー(&T)",
                     Submenu = [
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Forcus all",
+                            Click = () => FocusAll().Wait(),
+                            Accelerator = "Ctrl+A",
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Unforcus all",
+                            Click = () => UnfocusAll().Wait(),
+                            Accelerator = "Esc",
+                        },
                     ],
                 },
 #if DEBUG
@@ -281,11 +295,15 @@ namespace TreeViewer.Window
             ]);
         }
 
+        #region Menu Operations
+
+        #region File
+
         /// <summary>
         /// インポート処理を行います。
         /// </summary>
         /// <param name="format">読み込む系統樹のフォーマット</param>
-        public async Task Import(TreeFormat format)
+        private async Task Import(TreeFormat format)
         {
             string[] pathes = await Electron.Dialog.ShowOpenDialogAsync(window, new OpenDialogOptions()
             {
@@ -300,7 +318,7 @@ namespace TreeViewer.Window
         /// エクスポート処理を行います。
         /// </summary>
         /// <param name="format">出力する系統樹のフォーマット</param>
-        public async Task Export(TreeFormat format)
+        private async Task Export(TreeFormat format)
         {
             string path = await Electron.Dialog.ShowSaveDialogAsync(window, new SaveDialogOptions());
             if (path.Length == 0) return;
@@ -312,5 +330,29 @@ namespace TreeViewer.Window
         /// ウィンドウを閉じます。
         /// </summary>
         public void CloseWindow() => Window.Close();
+
+        #endregion File
+
+        #region Tree
+
+        /// <summary>
+        /// 全要素を選択します。
+        /// </summary>
+        private async Task FocusAll()
+        {
+            await ViewModel.FocusAllCommand.ExecuteAsync();
+        }
+
+        /// <summary>
+        /// 選択を解除します。
+        /// </summary>
+        private async Task UnfocusAll()
+        {
+            await ViewModel.UnfocusAllCommand.ExecuteAsync();
+        }
+
+        #endregion Tree
+
+        #endregion Menu Operations
     }
 }
