@@ -16,6 +16,11 @@ namespace TreeViewer.ViewModels
         private readonly MainWindow window;
 
         /// <summary>
+        /// スタイル編集用のViewModelを取得します。
+        /// </summary>
+        public StyleSidebarViewModel StyleSidebarViewModel { get; }
+
+        /// <summary>
         /// 読み込まれた系統樹一覧を取得します。
         /// </summary>
         private ReactiveCollection<Tree> Trees { get; }
@@ -224,8 +229,8 @@ namespace TreeViewer.ViewModels
             window.SetViewModel(this);
 
             Trees = new ReactiveCollection<Tree>().AddTo(Disposables);
-            TreeIndex = new ReactivePropertySlim<int>(1).AddTo(Disposables);
-            TreeIndex.Subscribe(OnTreeIndexChanged);
+            TreeIndex = new ReactivePropertySlim<int>(1).WithSubscribe(OnTreeIndexChanged)
+                                                        .AddTo(Disposables);
             MaxTreeIndex = new ReactivePropertySlim<int>().AddTo(Disposables);
             Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
             TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
@@ -238,8 +243,8 @@ namespace TreeViewer.ViewModels
             UnfocusAllCommand = new AsyncReactiveCommand().WithSubscribe(UnfocusAll)
                                                           .AddTo(Disposables);
 
-            SelectionTarget = new ReactivePropertySlim<SelectionMode>(SelectionMode.Node).AddTo(Disposables);
-            SelectionTarget.Subscribe(OnSelectionTargetChanged);
+            SelectionTarget = new ReactivePropertySlim<SelectionMode>(SelectionMode.Node).WithSubscribe(OnSelectionTargetChanged)
+                                                                                         .AddTo(Disposables);
 
             XScale = new ReactivePropertySlim<int>(300).AddTo(Disposables);
             YScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
@@ -272,6 +277,8 @@ namespace TreeViewer.ViewModels
             ScaleBarValue = new ReactivePropertySlim<double>(0.1).AddTo(Disposables);
             ScaleBarFontSize = new ReactivePropertySlim<int>(25).AddTo(Disposables);
             ScaleBarThickness = new ReactivePropertySlim<int>(5).AddTo(Disposables);
+
+            StyleSidebarViewModel = new StyleSidebarViewModel(this);
         }
 
         /// <summary>
@@ -283,7 +290,7 @@ namespace TreeViewer.ViewModels
             value--;
             if ((uint)value >= (uint)Trees.Count) return;
 
-            FocusedSvgElementIdList.Clear();
+            UnfocusAll();
             TargetTree.Value = Trees[value];
         }
 
@@ -342,45 +349,30 @@ namespace TreeViewer.ViewModels
                 FocusedSvgElementIdList.Add(current.GetId(idSuffix));
             }
 
+            StyleSidebarViewModel.Update();
             OnPropertyChanged(nameof(FocusedSvgElementIdList));
         }
 
         /// <summary>
         /// 全ての要素を選択します。
         /// </summary>
-        private async Task FocusAll()
+        private void FocusAll()
         {
-            if (TargetTree.Value is null) return;
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
 
-            FocusedSvgElementIdList.Clear();
-            foreach (Clade current in TargetTree.Value.GetAllClades())
-            {
-                switch (SelectionTarget.Value)
-                {
-                    case SelectionMode.Node:
-                    case SelectionMode.Clade:
-                        FocusedSvgElementIdList.Add(current.GetId("branch"));
-                        break;
-
-                    case SelectionMode.Taxa:
-                        FocusedSvgElementIdList.Add(current.GetId("leaf"));
-                        break;
-                }
-            }
-
-            OnPropertyChanged(nameof(FocusedSvgElementIdList));
-            await Task.CompletedTask;
+            Focus(tree.GetAllClades());
         }
 
         /// <summary>
         /// 全ての選択を解除します。
         /// </summary>
-        private async Task UnfocusAll()
+        private void UnfocusAll()
         {
             FocusedSvgElementIdList.Clear();
 
+            StyleSidebarViewModel.Update();
             OnPropertyChanged(nameof(FocusedSvgElementIdList));
-            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -412,7 +404,7 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// 検索を実行します。
         /// </summary>
-        private async Task Search()
+        private void Search()
         {
             Tree? tree = TargetTree.Value;
             if (tree is null) return;
@@ -463,8 +455,6 @@ namespace TreeViewer.ViewModels
                                                   .Where(x => !string.IsNullOrEmpty(x.value) && cladeSelection.Invoke(x.value))
                                                   .Select(x => x.clade);
             Focus(targetClades);
-
-            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -509,6 +499,28 @@ namespace TreeViewer.ViewModels
         {
             BranchDecorations.AddOnScheduler(new BranchDecorationViewModel(this));
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// 色の更新を行います。
+        /// </summary>
+        /// <param name="color">更新する色</param>
+        public void SetColorToFocusedObject(string color)
+        {
+            foreach (Clade currentClade in FocusedSvgElementIdList.Select(CladeIdManager.FromId))
+                switch (SelectionTarget.Value)
+                {
+                    case SelectionMode.Node:
+                    case SelectionMode.Clade:
+                        currentClade.Style.BranchColor = color;
+                        break;
+
+                    case SelectionMode.Taxa:
+                        currentClade.Style.LeafColor = color;
+                        break;
+                }
+
+            OnPropertyChanged(nameof(TargetTree));
         }
     }
 }

@@ -55,8 +55,8 @@ namespace TreeViewer.ViewModels
         {
             this.homeViewModel = homeViewModel;
 
-            TargetRegexPattern = new ReactivePropertySlim<string>(string.Empty).AddTo(Disposables);
-            TargetRegexPattern.Subscribe(OnTargetRegexPatternChanged);
+            TargetRegexPattern = new ReactivePropertySlim<string>(string.Empty).WithSubscribe(OnTargetRegexPatternChanged)
+                                                                               .AddTo(Disposables);
             DecorationType = new ReactivePropertySlim<BranchDecorationType>().AddTo(Disposables);
             ShapeSize = new ReactivePropertySlim<int>(5).AddTo(Disposables);
             ShapeColor = new ReactivePropertySlim<string>("#000000").AddTo(Disposables);
