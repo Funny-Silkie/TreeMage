@@ -26,3 +26,6 @@ dotnet_diagnostic.IDE0061.severity = none
 
 # IDE0046: 条件式に変換します
 dotnet_diagnostic.IDE0046.severity = none
+
+# IDE0130: Namespace がフォルダー構造と一致しません
+dotnet_diagnostic.IDE0130.severity = none

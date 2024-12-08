@@ -1,4 +1,6 @@
-﻿namespace TreeViewer.Core.Trees
+﻿using TreeViewer.Core.Trees.Parsers;
+
+namespace TreeViewer.Core.Trees
 {
     /// <summary>
     /// 系統樹を表します。
@@ -26,13 +28,30 @@
             root.TreeInternal = this;
         }
 
+        /// <summary>
+        /// 対象の<see cref="TextReader"/>から系統樹を読み込みます。
+        /// </summary>
+        /// <param name="reader">使用する<see cref="TextReader"/>のインスタンス</param>
+        /// <param name="format">系統樹ファイルのフォーマット</param>
+        /// <returns>読み込まれた系統樹一覧</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="format"/>が無効</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="reader"/>が<see langword="null"/></exception>
+        /// <exception cref="TreeFormatException">系統樹のフォーマットが無効</exception>
+        /// <exception cref="IOException">I/Oエラーが発生</exception>
+        /// <exception cref="ObjectDisposedException"><paramref name="reader"/>が既に破棄されている</exception>
+        public static Task<Tree[]> ReadAsync(TextReader reader, TreeFormat format)
+        {
+            ITreeParser parser = ITreeParser.CreateFromTargetFormat(format);
+            return parser.ReadAsync(reader);
+        }
+
         [Obsolete]
         public static Tree CreateSample()
         {
             //          2                              5
             //      +------leafA    1         +---------------leafBAA
-            // root-|   2         +---cladeBA-|     3
-            //      |             |           +---------leafBAB  2
+            // root-|             +---cladeBA-|     3
+            //      |   2         |           +---------leafBAB  2
             //      +------cladeB-|                1          +------leafBBAA
             //      |             |   2          +---cladeBBA-| 1
             //      | 1           +------cladeBB-|    3       +---leafBBAB
@@ -162,6 +181,21 @@
         public void ClearAllSupports()
         {
             foreach (Clade currentClade in GetAllBipartitions()) currentClade.Supports = null;
+        }
+
+        /// <summary>
+        /// <see cref="TextWriter"/>を用いて系統樹を出力します。
+        /// </summary>
+        /// <param name="writer">使用する<see cref="TextWriter"/>のインスタンス</param>
+        /// <param name="format">系統樹ファイルのフォーマット</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="format"/>が無効</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="writer"/>が<see langword="null"/></exception>
+        /// <exception cref="IOException">I/Oエラーが発生</exception>
+        /// <exception cref="ObjectDisposedException"><paramref name="writer"/>が既に破棄されている</exception>
+        public Task WriteAsync(TextWriter writer, TreeFormat format)
+        {
+            ITreeParser parser = ITreeParser.CreateFromTargetFormat(format);
+            return parser.WriteAsync(writer, this);
         }
     }
 }
