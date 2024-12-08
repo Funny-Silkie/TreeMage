@@ -1,4 +1,4 @@
-﻿namespace TreeViewer.Data
+﻿namespace TreeViewer.Core.Trees
 {
     /// <summary>
     /// クレードの値の種類を表します。
