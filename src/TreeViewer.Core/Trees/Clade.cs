@@ -93,6 +93,7 @@ namespace TreeViewer.Core.Trees
                     Supports = Supports,
                     BranchLength = BranchLength,
                 };
+                result.Style.ApplyValues(Style);
 
                 foreach (Clade currentChild in ChildrenInternal) result.AddChild(currentChild.Clone(true));
 

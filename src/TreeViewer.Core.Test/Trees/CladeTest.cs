@@ -171,6 +171,7 @@ namespace TreeViewer.Core.Trees
         public void Clone_WithBoolAsCloneAll()
         {
             _ = new Tree(root);
+            Array.ForEach(GetAllClades(), x => x.Style.BranchColor = "red");
 
             foreach (Clade current in GetAllClades())
             {
