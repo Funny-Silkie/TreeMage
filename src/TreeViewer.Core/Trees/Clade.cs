@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using TreeViewer.Core.Styles;
 
 namespace TreeViewer.Core.Trees
 {
@@ -41,6 +42,11 @@ namespace TreeViewer.Core.Trees
         /// 親要素を取得します。
         /// </summary>
         public Clade? Parent { get; internal set; }
+
+        /// <summary>
+        /// スタイルを取得します。
+        /// </summary>
+        public CladeStyle Style { get; } = new CladeStyle();
 
         /// <summary>
         /// 子要素一覧を取得します。

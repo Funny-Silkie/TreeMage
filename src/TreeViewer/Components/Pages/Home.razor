@@ -8,6 +8,20 @@
             <RadzenSidebarToggle Click="() => toggleExpanded = !toggleExpanded" />
             <RadzenText>Tree No.</RadzenText>
             <RadzenNumeric TValue="int" Min="1" Max="Math.Max(ViewModel.MaxTreeIndex.Value, 1)" @bind-Value="ViewModel.TreeIndex.Value" Disabled="@(ViewModel.MaxTreeIndex.Value == 0)" Style="width: 50px" />
+            <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" Gap="0">
+                <RadzenStack>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                        <RadzenRadioButtonList TValue="SelectionMode" @bind-Value="ViewModel.SelectionTarget.Value">
+                            <Items>
+                                <RadzenRadioButtonListItem Text="Node" Value="SelectionMode.Node" />
+                                <RadzenRadioButtonListItem Text="Clade" Value="SelectionMode.Clade" />
+                                <RadzenRadioButtonListItem Text="Taxa" Value="SelectionMode.Taxa" />
+                            </Items>
+                        </RadzenRadioButtonList>
+                    </RadzenStack>
+                </RadzenStack>
+                <RadzenText>Selection Mode</RadzenText>
+            </RadzenStack>
         </RadzenStack>
     </RadzenHeader>
     <RadzenSidebar Responsive="false" @bind-Expanded="toggleExpanded" Style="width: 300px">
@@ -142,26 +156,33 @@
                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch">
                         @foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations)
                         {
-                            <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
-                                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
-                                        <RadzenText Style="@sidebarFormLabelStyle">Pattern:</RadzenText>
-                                        <RadzenText Style="@sidebarFormLabelStyle">Shape:</RadzenText>
-                                        <RadzenText Style="@sidebarFormLabelStyle">Size:</RadzenText>
-                                        <RadzenText Style="@sidebarFormLabelStyle">Color:</RadzenText>
-                                    </RadzenStack>
+                            <RadzenPanel class="rz-border-radius" AllowCollapse="true" Style="background-color: whitesmoke">
+                                <HeaderTemplate>
+                                    <RadzenText Style="font-size: 1.1rem">@currentViewModel.TargetRegexPattern.Value</RadzenText>
+                                </HeaderTemplate>
+                                <ChildContent>
                                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                                        <RadzenTextBox @bind-Value="currentViewModel.TargetRegexPattern.Value" Style="@sidebarFormValueStyle" />
-                                        <RadzenDropDown TValue="BranchDecorationType" Data="Enum.GetValues<BranchDecorationType>()" @bind-Value="currentViewModel.DecorationType.Value" Style="@sidebarFormValueStyle" />
-                                        <RadzenNumeric TValue="int" Min="1" @bind-Value="currentViewModel.ShapeSize.Value" Style="@sidebarFormValueStyle" />
-                                        <RadzenColorPicker @bind-Value="currentViewModel.ShapeColor.Value" Style="@sidebarFormValueStyle" />
+                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
+                                            <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
+                                                <RadzenText Style="@sidebarFormLabelStyle">Pattern:</RadzenText>
+                                                <RadzenText Style="@sidebarFormLabelStyle">Shape:</RadzenText>
+                                                <RadzenText Style="@sidebarFormLabelStyle">Size:</RadzenText>
+                                                <RadzenText Style="@sidebarFormLabelStyle">Color:</RadzenText>
+                                            </RadzenStack>
+                                            <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                                                <RadzenTextBox @bind-Value="currentViewModel.TargetRegexPattern.Value" Style="@sidebarFormValueStyle" />
+                                                <RadzenDropDown TValue="BranchDecorationType" Data="Enum.GetValues<BranchDecorationType>()" @bind-Value="currentViewModel.DecorationType.Value" Style="@sidebarFormValueStyle" />
+                                                <RadzenNumeric TValue="int" Min="1" @bind-Value="currentViewModel.ShapeSize.Value" Style="@sidebarFormValueStyle" />
+                                                <RadzenColorPicker @bind-Value="currentViewModel.ShapeColor.Value" Style="@sidebarFormValueStyle" />
+                                            </RadzenStack>
+                                        </RadzenStack>
+                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                                            <RadzenButton Icon="@(currentViewModel.Visible.Value ? "visibility" : "visibility_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="x => currentViewModel.Visible.Value = !currentViewModel.Visible.Value" />
+                                            <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" Click="currentViewModel.DeleteSelfCommand.ToDelegate()" />
+                                        </RadzenStack>
                                     </RadzenStack>
-                                </RadzenStack>
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
-                                    <RadzenButton Icon="@(currentViewModel.Visible.Value ? "visibility" : "visibility_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="x => currentViewModel.Visible.Value = !currentViewModel.Visible.Value" />
-                                    <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" Click="currentViewModel.DeleteSelfCommand.ToDelegate()" />
-                                </RadzenStack>
-                            </RadzenStack>
+                                </ChildContent>
+                            </RadzenPanel>
                         }
                     </RadzenStack>
                 </ChildContent>
@@ -192,215 +213,218 @@
         </RadzenStack>
     </RadzenSidebar>
     <RadzenBody>
-        @if (ViewModel.TargetTree.Value is not null)
-        {
-            y1Map.Clear();
-            y2Map.Clear();
+        <RadzenSplitter Orientation="Orientation.Horizontal">
+            <RadzenSplitterPane Size="calc(100% - 300px)" Style="overflow: scroll">
+                @if (ViewModel.TargetTree.Value is not null)
+                {
+                    y1Map.Clear();
+                    y2Map.Clear();
 
-            Tree tree = ViewModel.TargetTree.Value;
-            Dictionary<Clade, int> indexTable = tree.GetAllLeaves().Select((x, i) => (x, i)).ToDictionary();
-            Clade[] allLeaves = tree.GetAllLeaves().ToArray();
-            double svgWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * ViewModel.XScale.Value + 100;
-            if (ViewModel.ShowLeafLabels.Value) svgWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * ViewModel.LeafLabelsFontSize.Value / 1.25;
+                    Tree tree = ViewModel.TargetTree.Value;
+                    Dictionary<Clade, int> indexTable = tree.GetAllLeaves().Select((x, i) => (x, i)).ToDictionary();
+                    Clade[] allLeaves = tree.GetAllLeaves().ToArray();
+                    double svgWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * ViewModel.XScale.Value + 100;
+                    if (ViewModel.ShowLeafLabels.Value) svgWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * ViewModel.LeafLabelsFontSize.Value / 1.25;
 
-            double svgHeight = allLeaves.Length * ViewModel.YScale.Value + 100;
-            if (ViewModel.ShowScaleBar.Value) svgHeight += ViewModel.ScaleBarFontSize.Value;
+                    double svgHeight = allLeaves.Length * ViewModel.YScale.Value + 100;
+                    if (ViewModel.ShowScaleBar.Value) svgHeight += ViewModel.ScaleBarFontSize.Value;
 
-            <svg width="@svgWidth" height="@svgHeight">
-                <style type="text/css">
-                    text {
-                        font-family: Arial, Helvetica, sans-serif;
-                        user-select: none;
-                    }
-
-                    .leaf {
-                        font-size: @(ViewModel.LeafLabelsFontSize.Value + "px");
-                    }
-
-                    .node-value {
-                        font-size: @(ViewModel.NodeValueFontSize.Value + "px");
-                    }
-
-                    .branch-value {
-                        font-size: @(ViewModel.BranchValueFontSize.Value + "px");
-                    }
-
-                    .branch {
-                        fill: none;
-                        stroke: black;
-                        stroke-width: @(ViewModel.BranchThickness.Value + "px");
-                    }
-
-                    .scalebar-line {
-                        fill: none;
-                        stroke: black;
-                        stroke-width: @(ViewModel.ScaleBarThickness.Value + "px");
-                    }
-
-                    .scalebar-text {
-                        font-size: @(ViewModel.ScaleBarFontSize.Value + "px");
-                    }
-
-                    .clickable-leaf {
-                        stroke: none;
-                    }
-
-                    .clickable-branch {
-                        fill: none;
-                    }
-                </style>
-                <g transform="translate(50, 50)">
-                    @foreach (Clade current in tree.GetAllClades())
-                    {
-                        //
-                        // y1   +----current
-                        //      |
-                        // y2   |
-                        //   .Parent
-                        //      x1  x2
-
-                        double totalLength = current.GetTotalBranchLength();
-                        double y1 = CalcY1(current, indexTable);
-                        if (current.IsLeaf)
-                        {
-                            // 系統名
-                            if (ViewModel.ShowLeafLabels.Value && !string.IsNullOrEmpty(current.Taxon))
-                            {
-                                double x = totalLength * ViewModel.XScale.Value + 5;
-                                double y = (y1 + ViewModel.LeafLabelsFontSize.Value / 2.5);
-                                var svgText = new MarkupString($"<text class=\"leaf\" x=\"{x}\" y=\"{y}\">{current.Taxon}</text>");
-                                @svgText
-
-                                // クリックエリア
-                                string id = current.GetId("leaf");
-                                string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
-                                double width = current.Taxon.Length * ViewModel.LeafLabelsFontSize.Value / 2;
-                                double height = ViewModel.LeafLabelsFontSize.Value;
-
-                                <rect id="@id" class="clickable-leaf" x="@(x - 2)" y="@(y1 - ViewModel.LeafLabelsFontSize.Value / 2.5 - 2)" width="@width" height="@height"
-                                      style="fill: @fillColor" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
-
+                    <svg width="@svgWidth" height="@svgHeight">
+                        <style type="text/css">
+                            text {
+                                font-family: Arial, Helvetica, sans-serif;
+                                user-select: none;
                             }
-                        }
-                        else
-                        {
-                            // 結節点の値
-                            @if (ViewModel.ShowNodeValues.Value)
+
+                            .leaf {
+                                font-size: @(ViewModel.LeafLabelsFontSize.Value + "px");
+                            }
+
+                            .node-value {
+                                font-size: @(ViewModel.NodeValueFontSize.Value + "px");
+                            }
+
+                            .branch-value {
+                                font-size: @(ViewModel.BranchValueFontSize.Value + "px");
+                            }
+
+                            .branch {
+                                fill: none;
+                                stroke-width: @(ViewModel.BranchThickness.Value + "px");
+                            }
+
+                            .scalebar-line {
+                                fill: none;
+                                stroke: black;
+                                stroke-width: @(ViewModel.ScaleBarThickness.Value + "px");
+                            }
+
+                            .scalebar-text {
+                                font-size: @(ViewModel.ScaleBarFontSize.Value + "px");
+                            }
+
+                            .clickable-leaf {
+                                stroke: none;
+                            }
+
+                            .clickable-branch {
+                                fill: none;
+                            }
+                        </style>
+                        <rect width="100%" height="100%" style="fill: transparent; stroke: none" onclick="@ViewModel.UnfocusAllCommand.ToDelegate()" />
+                        <g transform="translate(50, 50)">
+                            @foreach (Clade current in tree.GetAllClades())
                             {
-                                string nodeValue = SelectShowValue(current, ViewModel.NodeValueType.Value);
-                                if (nodeValue.Length > 0)
+                                //
+                                // y1   +----current
+                                //      |
+                                // y2   |
+                                //   .Parent
+                                //      x1  x2
+
+                                double totalLength = current.GetTotalBranchLength();
+                                double y1 = CalcY1(current, indexTable);
+                                if (current.IsLeaf)
                                 {
-                                    double y = y1 + ViewModel.NodeValueFontSize.Value / 2.5 - ViewModel.YScale.Value;
-                                    if (current.Children.Count % 2 == 1) y += ViewModel.BranchThickness.Value / 2 + 3 + ViewModel.NodeValueFontSize.Value / 2.5;
-
-                                    <svg x="@(totalLength * ViewModel.XScale.Value + 5)" y="@y">
-                                        <text class="node-value" y="@ViewModel.YScale.Value">
-                                            @nodeValue
-                                        </text>
-                                    </svg>
-                                }
-                            }
-                        }
-                        double x1 = (totalLength - current.BranchLength) * ViewModel.XScale.Value;
-
-                        double x2;
-                        if (current.BranchLength > 0)
-                        {
-                            x2 = totalLength * ViewModel.XScale.Value;
-
-                            // 横棒
-                            {
-                                double x2Offset = current.IsLeaf ? 0 : ViewModel.BranchThickness.Value / 2;
-                                <line class="branch" x1="@(x1 - ViewModel.BranchThickness.Value / 2)" y1="@y1" x2="@(x2 + x2Offset)" y2="@y1" />
-                            }
-
-                            if (ViewModel.ShowBranchDecorations.Value && !string.IsNullOrEmpty(current.Supports))
-                                foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations.Where(x => x.Visible.Value && x.Regex is not null && x.Regex.IsMatch(current.Supports)))
-                                {
-                                    int size = currentViewModel.ShapeSize.Value;
-                                    string color = currentViewModel.ShapeColor.Value;
-
-                                    switch (currentViewModel.DecorationType.Value)
+                                    // 系統名
+                                    if (ViewModel.ShowLeafLabels.Value && !string.IsNullOrEmpty(current.Taxon))
                                     {
-                                        case BranchDecorationType.ClosedCircle:
-                                            <circle cx="@((x1 + x2) / 2)" cy="@y1" r="@size" style="stroke: none; fill: @color" />
-                                            break;
-                                        case BranchDecorationType.OpenCircle:
-                                            <circle cx="@((x1 + x2) / 2)" cy="@y1" r="@size" style="stroke: @color; fill: white" />
-                                            break;
-                                        case BranchDecorationType.ClosedRectangle:
-                                            <rect x="@((x1 + x2) / 2 - size)" y="@(y1 - size)" width="@(size * 2)" height="@(size * 2)" style="stroke: none; fill: @color" />
-                                            break;
-                                        case BranchDecorationType.OpenedRectangle:
-                                            <rect x="@((x1 + x2) / 2 - size)" y="@(y1 - size)" width="@(size * 2)" height="@(size * 2)" style="stroke: @color; stroke-width: @(size / 5 + 1); fill: white" />
-                                            break;
+                                        double x = totalLength * ViewModel.XScale.Value + 5;
+                                        double y = (y1 + ViewModel.LeafLabelsFontSize.Value / 2.5);
+                                        var svgText = new MarkupString($"<text class=\"leaf\" x=\"{x}\" y=\"{y}\" style=\"fill: {current.Style.LeafColor}\">{current.Taxon}</text>");
+                                        @svgText
+
+                                        // クリックエリア
+                                        string id = current.GetId("leaf");
+                                        string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
+                                        double width = current.Taxon.Length * ViewModel.LeafLabelsFontSize.Value / 2;
+                                        double height = ViewModel.LeafLabelsFontSize.Value;
+
+                                        <rect id="@id" class="clickable-leaf" x="@(x - 2)" y="@(y1 - ViewModel.LeafLabelsFontSize.Value / 2.5 - 2)" width="@width" height="@height"
+                                              style="fill: @fillColor" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+
+                                    }
+                                }
+                                else
+                                {
+                                    // 結節点の値
+                                    @if (ViewModel.ShowNodeValues.Value)
+                                    {
+                                        string nodeValue = SelectShowValue(current, ViewModel.NodeValueType.Value);
+                                        if (nodeValue.Length > 0)
+                                        {
+                                            double y = y1 + ViewModel.NodeValueFontSize.Value / 2.5 - ViewModel.YScale.Value;
+                                            if (current.Children.Count % 2 == 1) y += ViewModel.BranchThickness.Value / 2 + 3 + ViewModel.NodeValueFontSize.Value / 2.5;
+
+                                            <svg x="@(totalLength * ViewModel.XScale.Value + 5)" y="@y">
+                                                <text class="node-value" y="@ViewModel.YScale.Value">
+                                                    @nodeValue
+                                                </text>
+                                            </svg>
+                                        }
+                                    }
+                                }
+                                double x1 = (totalLength - current.BranchLength) * ViewModel.XScale.Value;
+
+                                double x2;
+                                if (current.BranchLength > 0)
+                                {
+                                    x2 = totalLength * ViewModel.XScale.Value;
+
+                                    // 横棒
+                                    {
+                                        double x2Offset = current.IsLeaf ? 0 : ViewModel.BranchThickness.Value / 2;
+                                        <line class="branch" x1="@(x1 - ViewModel.BranchThickness.Value / 2)" y1="@y1" x2="@(x2 + x2Offset)" y2="@y1" style="stroke: @current.Style.BranchColor" />
+                                    }
+
+                                    if (ViewModel.ShowBranchDecorations.Value && !string.IsNullOrEmpty(current.Supports))
+                                        foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations.Where(x => x.Visible.Value && x.Regex is not null && x.Regex.IsMatch(current.Supports)))
+                                        {
+                                            int size = currentViewModel.ShapeSize.Value;
+                                            string color = currentViewModel.ShapeColor.Value;
+
+                                            switch (currentViewModel.DecorationType.Value)
+                                            {
+                                                case BranchDecorationType.ClosedCircle:
+                                                    <circle cx="@((x1 + x2) / 2)" cy="@y1" r="@size" style="stroke: none; fill: @color" />
+                                                    break;
+                                                case BranchDecorationType.OpenCircle:
+                                                    <circle cx="@((x1 + x2) / 2)" cy="@y1" r="@size" style="stroke: @color; fill: white" />
+                                                    break;
+                                                case BranchDecorationType.ClosedRectangle:
+                                                    <rect x="@((x1 + x2) / 2 - size)" y="@(y1 - size)" width="@(size * 2)" height="@(size * 2)" style="stroke: none; fill: @color" />
+                                                    break;
+                                                case BranchDecorationType.OpenedRectangle:
+                                                    <rect x="@((x1 + x2) / 2 - size)" y="@(y1 - size)" width="@(size * 2)" height="@(size * 2)" style="stroke: @color; stroke-width: @(size / 5 + 1); fill: white" />
+                                                    break;
+                                            }
+                                        }
+
+
+                                    // 二分岐の値
+                                    if (ViewModel.ShowBranchValues.Value)
+                                    {
+                                        string branchValue = SelectShowValue(current, ViewModel.BranchValueType.Value);
+                                        if (branchValue.Length > 0)
+                                        {
+                                            double xOffset = branchValue.Length * 2 * ViewModel.BranchValueFontSize.Value / 2.5;
+                                            <svg x="@((x1 + x2) / 2 - xOffset)" y="@(y1 - ViewModel.BranchValueFontSize.Value / 2.5 - ViewModel.BranchThickness.Value / 2 - ViewModel.YScale.Value)">
+                                                <text class="branch-value" x="@xOffset" y="@ViewModel.YScale.Value" text-anchor="middle">
+                                                    @branchValue
+                                                </text>
+                                            </svg>
+                                        }
+                                    }
+                                }
+                                else x2 = x1;
+
+                                Clade? parent = current.Parent;
+                                double y2 = y1;
+                                if (parent is not null)
+                                {
+                                    if (parent.Children.Count > 1)
+                                    {
+                                        y2 = CalcY2(current, y1, indexTable);
+                                        // 縦棒
+                                        if (y1 != y2)
+                                        {
+                                            <line class="branch" x1="@x1" y1="@y1" x2="@x1" y2="@y2" style="stroke: @current.Style.BranchColor" />
+                                        }
                                     }
                                 }
 
-
-                            // 二分岐の値
-                            if (ViewModel.ShowBranchValues.Value)
-                            {
-                                string branchValue = SelectShowValue(current, ViewModel.BranchValueType.Value);
-                                if (branchValue.Length > 0)
+                                // 枝クリックエリア
                                 {
-                                    double xOffset = branchValue.Length * 2 * ViewModel.BranchValueFontSize.Value / 2.5;
-                                    <svg x="@((x1 + x2) / 2 - xOffset)" y="@(y1 - ViewModel.BranchValueFontSize.Value / 2.5 - ViewModel.BranchThickness.Value / 2 - ViewModel.YScale.Value)">
-                                        <text class="branch-value" x="@xOffset" y="@ViewModel.YScale.Value" text-anchor="middle">
-                                            @branchValue
-                                        </text>
-                                    </svg>
+                                    string path = $"M {x2} {y1}";
+                                    if (x1 != x2) path += $"H {x1}";
+                                    if (y1 != y2) path += $"V {y2}";
+
+                                    string id = current.GetId("branch");
+                                    string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
+
+                                    <path id="@id" class="clickable-branch" d="@path"
+                                          style="stroke: @strokeColor; stroke-width: @(ViewModel.BranchThickness.Value + 4)"
+                                          onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
                                 }
                             }
-                        }
-                        else x2 = x1;
+                        </g>
 
-                        Clade? parent = current.Parent;
-                        double y2 = y1;
-                        if (parent is not null)
+                        // Scale bar
+                        @if (ViewModel.ShowScaleBar.Value && ViewModel.ScaleBarValue.Value > 0)
                         {
-                            if (parent.Children.Count > 1)
-                            {
-                                y2 = CalcY2(current, y1, indexTable);
-                                // 縦棒
-                                if (y1 != y2)
-                                {
-                                    <line class="branch" x1="@x1" y1="@y1" x2="@x1" y2="@y2" />
-                                }
-                            }
+                            double scaleBarWidth = ViewModel.ScaleBarValue.Value * ViewModel.XScale.Value;
+                            <g transform="translate(50, @(allLeaves.Length * ViewModel.YScale.Value + 30 + ViewModel.ScaleBarFontSize.Value))">
+                                <text class="scalebar-text" x="@(scaleBarWidth / 2)" text-anchor="middle">@ViewModel.ScaleBarValue.Value</text>
+                                <line class="scalebar-line" x1="0" y1="10" x2="@scaleBarWidth" y2="10" />
+                            </g>
                         }
-
-                        // 枝クリックエリア
-                        {
-                            string path = $"M {x2} {y1}";
-                            if (x1 != x2) path += $"H {x1}";
-                            if (y1 != y2) path += $"V {y2}";
-
-                            string id = current.GetId("branch");
-                            string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
-
-                            <path id="@id" class="clickable-branch" d="@path"
-                                  style="stroke: @strokeColor; stroke-width: @(ViewModel.BranchThickness.Value + 4)"
-                                  onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
-                        }
-                    }
-                </g>
-
-                // Scale bar
-                @if (ViewModel.ShowScaleBar.Value && ViewModel.ScaleBarValue.Value > 0)
-                {
-                    double scaleBarWidth = ViewModel.ScaleBarValue.Value * ViewModel.XScale.Value;
-                    <g transform="translate(50, @(allLeaves.Length * ViewModel.YScale.Value + 30 + ViewModel.ScaleBarFontSize.Value))">
-                        <text class="scalebar-text" x="@(scaleBarWidth / 2)" text-anchor="middle">@ViewModel.ScaleBarValue.Value</text>
-                        <line class="scalebar-line" x1="0" y1="10" x2="@scaleBarWidth" y2="10" />
-                    </g>
+                    </svg>
                 }
-            </svg>
-        }
-        else
-        {
-            <RadzenText>Load tree file</RadzenText>
-        }
+            </RadzenSplitterPane>
+            <RadzenSplitterPane Size="300px">
+                <StyleSidebar ViewModel="ViewModel.StyleSidebarViewModel" />
+            </RadzenSplitterPane>
+        </RadzenSplitter>
     </RadzenBody>
 </RadzenLayout>
 
