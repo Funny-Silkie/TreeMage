@@ -159,6 +159,49 @@ namespace TreeViewer.Core.Trees
         }
 
         /// <summary>
+        /// 枝長を基に枝を並び替えます。
+        /// </summary>
+        /// <param name="descending">降順で並び替えるかどうかを表す値</param>
+        public void OrderByLength(bool descending = true)
+        {
+            OrderByLengthOfClade(Root, descending);
+
+            static void OrderByLengthOfClade(Clade clade, bool descending)
+            {
+                if (clade.IsLeaf) return;
+
+                clade.ChildrenInternal.Sort((x, y) =>
+                {
+                    double[] xArray = GetLengthList(x, descending);
+                    double[] yArray = GetLengthList(y, descending);
+
+                    for (int i = 0; i < Math.Min(xArray.Length, yArray.Length); i++)
+                    {
+                        double xCurrent = xArray[i];
+                        double yCurrent = yArray[i];
+                        int comp = xCurrent.CompareTo(yCurrent);
+                        if (comp != 0) return descending ? -comp : comp;
+                    }
+
+                    int result = xArray.Length.CompareTo(yArray.Length);
+                    return descending ? -result : result;
+                });
+
+                foreach (Clade child in clade.ChildrenInternal) OrderByLengthOfClade(child, descending);
+            }
+
+            static double[] GetLengthList(Clade clade, bool descending)
+            {
+                IEnumerable<double> lengthCollection = clade.GetDescendants()
+                                                            .Prepend(clade)
+                                                            .Where(x => x.IsLeaf)
+                                                            .Select(x => x.GetTotalBranchLength(0));
+                lengthCollection = descending ? lengthCollection.OrderDescending() : lengthCollection.Order();
+                return lengthCollection.ToArray();
+            }
+        }
+
+        /// <summary>
         /// <see cref="TextWriter"/>を用いて系統樹を出力します。
         /// </summary>
         /// <param name="writer">使用する<see cref="TextWriter"/>のインスタンス</param>

@@ -417,6 +417,22 @@ namespace TreeViewer.Core.Trees
         }
 
         [Fact]
+        public void OrderByLength_AsAscending()
+        {
+            tree.OrderByLength(false);
+
+            Assert.Equal(["C", "A", "BBAB", "BBAA", "BBB", "BAB", "BAA"], tree.GetAllLeaves().Select(x => x.Taxon));
+        }
+
+        [Fact]
+        public void OrderByLength_AsDescending()
+        {
+            tree.OrderByLength(true);
+
+            Assert.Equal(["BAA", "BAB", "BBAA", "BBAB", "BBB", "A", "C"], tree.GetAllLeaves().Select(x => x.Taxon));
+        }
+
+        [Fact]
         public async Task WriteAsync()
         {
             using var writer = new StringWriter();
