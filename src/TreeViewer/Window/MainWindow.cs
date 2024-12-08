@@ -1,6 +1,8 @@
 ﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
 using System.Diagnostics.CodeAnalysis;
+using TreeViewer.Core.Trees.Parsers;
+using TreeViewer.ViewModels;
 
 namespace TreeViewer.Window
 {
@@ -9,6 +11,7 @@ namespace TreeViewer.Window
     /// </summary>
     internal class MainWindow
     {
+        private HomeViewModel? viewModel;
         private BrowserWindow? window;
 
         /// <summary>
@@ -20,6 +23,18 @@ namespace TreeViewer.Window
             {
                 VerifyWindowState();
                 return window;
+            }
+        }
+
+        /// <summary>
+        /// ウェブ画面のViewModelを取得します。
+        /// </summary>
+        private HomeViewModel ViewModel
+        {
+            get
+            {
+                VerifyViewModelState();
+                return viewModel;
             }
         }
 
@@ -46,6 +61,16 @@ namespace TreeViewer.Window
         }
 
         /// <summary>
+        /// <see cref="viewModel"/>の状態をチェックします。
+        /// </summary>
+        /// <exception cref="InvalidOperationException"><see cref="viewModel"/>が初期化されていない</exception>
+        [MemberNotNull(nameof(viewModel))]
+        private void VerifyViewModelState()
+        {
+            if (viewModel is null) throw new InvalidOperationException("ViewModelが初期化されていません");
+        }
+
+        /// <summary>
         /// Electronのウィンドウを立ち上げます。
         /// </summary>
         public async Task CreateElectronWindow()
@@ -58,6 +83,15 @@ namespace TreeViewer.Window
             });
             window.OnReadyToShow += window.Show;
             window.OnClosed += Electron.App.Quit;
+        }
+
+        /// <summary>
+        /// ViewModelを設定します。
+        /// </summary>
+        /// <param name="viewModel">設定するViewModelのインスタンス</param>
+        public void SetViewModel(HomeViewModel viewModel)
+        {
+            this.viewModel = viewModel;
         }
 
         /// <summary>
@@ -94,7 +128,6 @@ namespace TreeViewer.Window
                         {
                             Type = MenuType.normal,
                             Label = "名前を付けて保存(&A)",
-                            Accelerator = "Ctrl+Shift+S",
                         },
                         new MenuItem()
                         {
@@ -104,13 +137,57 @@ namespace TreeViewer.Window
                         {
                             Type = MenuType.normal,
                             Label = "インポート(&I)",
-                            Accelerator = "Ctrl+Shift+O",
+                            Submenu = [
+                                new MenuItem()
+                                {
+                                    Type = MenuType.normal,
+                                    Label = "Newick(&W)",
+                                    Click = () => Import(TreeFormat.Newick).Wait(),
+                                },
+                                //new MenuItem()
+                                //{
+                                //    Type = MenuType.normal,
+                                //    Label = "Nexus(&X)",
+                                //    Click = () => Import(TreeFormat.).Wait(),
+                                //},
+                                //new MenuItem()
+                                //{
+                                //    Type = MenuType.normal,
+                                //    Label = "PhyloXML(&P)",
+                                //    Click = () => Import(TreeFormat.).Wait(),
+                                //},
+                            ],
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
                             Label = "エクスポート(&E)",
                             Submenu = [
+                                new MenuItem()
+                                {
+                                    Type = MenuType.normal,
+                                    Label = "Tree(&T)",
+                                    Submenu = [
+                                        new MenuItem()
+                                        {
+                                            Type = MenuType.normal,
+                                            Label = "Newick(&W)",
+                                            Click = () => Export(TreeFormat.Newick).Wait(),
+                                        },
+                                        //new MenuItem()
+                                        //{
+                                        //    Type = MenuType.normal,
+                                        //    Label = "Nexus(&X)",
+                                        //    Click = () => Export(TreeFormat.).Wait(),
+                                        //},
+                                        //new MenuItem()
+                                        //{
+                                        //    Type = MenuType.normal,
+                                        //    Label = "PhyloXML(&P)",
+                                        //    Click = () => Export(TreeFormat.).Wait(),
+                                        //},
+                                    ],
+                                },
                                 new MenuItem()
                                 {
                                     Type = MenuType.normal,
@@ -170,6 +247,20 @@ namespace TreeViewer.Window
                     Type = MenuType.normal,
                     Label = "ツリー(&T)",
                     Submenu = [
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Forcus all",
+                            Click = () => FocusAll().Wait(),
+                            Accelerator = "Ctrl+A",
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Unforcus all",
+                            Click = () => UnfocusAll().Wait(),
+                            Accelerator = "Esc",
+                        },
                     ],
                 },
 #if DEBUG
@@ -204,9 +295,64 @@ namespace TreeViewer.Window
             ]);
         }
 
+        #region Menu Operations
+
+        #region File
+
+        /// <summary>
+        /// インポート処理を行います。
+        /// </summary>
+        /// <param name="format">読み込む系統樹のフォーマット</param>
+        private async Task Import(TreeFormat format)
+        {
+            string[] pathes = await Electron.Dialog.ShowOpenDialogAsync(window, new OpenDialogOptions()
+            {
+                Properties = [OpenDialogProperty.openFile, OpenDialogProperty.showHiddenFiles],
+            });
+            if (pathes.Length != 1) return;
+
+            await ViewModel.ImportTree(pathes[0], format);
+        }
+
+        /// <summary>
+        /// エクスポート処理を行います。
+        /// </summary>
+        /// <param name="format">出力する系統樹のフォーマット</param>
+        private async Task Export(TreeFormat format)
+        {
+            string path = await Electron.Dialog.ShowSaveDialogAsync(window, new SaveDialogOptions());
+            if (path.Length == 0) return;
+
+            await ViewModel.ExportCurrentTree(path, format);
+        }
+
         /// <summary>
         /// ウィンドウを閉じます。
         /// </summary>
         public void CloseWindow() => Window.Close();
+
+        #endregion File
+
+        #region Tree
+
+        /// <summary>
+        /// 全要素を選択します。
+        /// </summary>
+        private async Task FocusAll()
+        {
+            await ViewModel.FocusAllCommand.ExecuteAsync();
+        }
+
+        /// <summary>
+        /// 選択を解除します。
+        /// </summary>
+        private async Task UnfocusAll()
+        {
+            await ViewModel.UnfocusAllCommand.ExecuteAsync();
+        }
+
+        #endregion Tree
+
+        #endregion Menu Operations
     }
 }

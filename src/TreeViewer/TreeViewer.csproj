@@ -7,6 +7,10 @@
 
   <ItemGroup>
     <PackageReference Include="ElectronNET.API" Version="23.6.2" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.7.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Radzen.Blazor" Version="5.6.10" />
     <PackageReference Include="ReactiveProperty.Blazor" Version="9.6.0" />
   </ItemGroup>
@@ -20,5 +24,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
 	<None Include="..\.editorconfig" Link=".editorconfig" />
+	<None Include="Components\Pages\*.razor.ts" />
   </ItemGroup>
 </Project>
