@@ -1,7 +1,8 @@
-using Reactive.Bindings;
+﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Exporting;
+using TreeViewer.Core.Styles;
 using TreeViewer.Core.Trees;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
@@ -40,6 +41,11 @@ namespace TreeViewer.ViewModels
         /// SVG要素のクリック時に実行されるコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<string> SvgElementClickedCommand { get; }
+
+        /// <summary>
+        /// エクスポートを行うコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<(string path, ExportType type)> ExportWithExporterCommand { get; }
 
         #region Focus
 
@@ -251,6 +257,9 @@ namespace TreeViewer.ViewModels
             TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
             SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
                                                                          .AddTo(Disposables);
+
+            ExportWithExporterCommand = new AsyncReactiveCommand<(string path, ExportType type)>().WithSubscribe(async x => await ExportWithExporter(x.path, x.type))
+                                                                                                  .AddTo(Disposables);
 
             FocusedSvgElementIdList = new HashSet<string>(StringComparer.Ordinal);
             FocusAllCommand = new AsyncReactiveCommand().WithSubscribe(FocusAll)
@@ -540,13 +549,53 @@ namespace TreeViewer.ViewModels
         /// </summary>
         /// <param name="path">出力する系統樹ファイルのパス</param>
         /// <param name="format">出力する系統樹のフォーマット</param>
-        public async Task ExportCurrentTree(string path, TreeFormat format)
+        public async Task ExportCurrentTreeAsTreeFile(string path, TreeFormat format)
         {
             Tree? tree = TargetTree.Value;
             if (tree is null) return;
 
             using var writer = new StreamWriter(path);
             await tree.WriteAsync(writer, format);
+        }
+
+        /// <summary>
+        /// <see cref="IExporter"/>によるエクスポートを行います。
+        /// </summary>
+        /// <param name="path">出力先のファイルパス</param>
+        /// <param name="type">エクスポートのフォーマット</param>
+        private async Task ExportWithExporter(string path, ExportType type)
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            IExporter exporter = IExporter.Create(type);
+            using var stream = new FileStream(path, FileMode.Create);
+            await exporter.ExportAsync(tree, stream, new ExportOptions()
+            {
+                XScale = XScale.Value,
+                YScale = YScale.Value,
+                BranchThickness = BranchThickness.Value,
+                ShowLeafLabels = ShowLeafLabels.Value,
+                LeafLabelsFontSize = LeafLabelsFontSize.Value,
+                ShowNodeValues = ShowNodeValues.Value,
+                NodeValueType = NodeValueType.Value,
+                NodeValueFontSize = NodeValueFontSize.Value,
+                ShowBranchValues = ShowBranchValues.Value,
+                BranchValueType = BranchValueType.Value,
+                BranchValueFontSize = BranchValueFontSize.Value,
+                ShowBranchDecorations = ShowBranchDecorations.Value,
+                DecorationStyles = BranchDecorations.Where(x => x.Regex is not null && x.Visible.Value).Select(x => new BranchDecorationStyle()
+                {
+                    Regex = x.Regex!,
+                    ShapeSize = x.ShapeSize.Value,
+                    ShapeColor = x.ShapeColor.Value,
+                    DecorationType = x.DecorationType.Value,
+                }).ToArray(),
+                ShowScaleBar = ShowScaleBar.Value,
+                ScaleBarValue = ScaleBarValue.Value,
+                ScaleBarFontSize = ScaleBarFontSize.Value,
+                ScaleBarThickness = ScaleBarThickness.Value,
+            });
         }
 
         /// <summary>

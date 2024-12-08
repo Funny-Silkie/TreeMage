@@ -1,6 +1,7 @@
 ﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
 using System.Diagnostics.CodeAnalysis;
+using TreeViewer.Core.Exporting;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.ViewModels;
 
@@ -100,6 +101,7 @@ namespace TreeViewer.Window
         public void InitMenubar()
         {
             Electron.Menu.SetApplicationMenu([
+                // File
                 new MenuItem()
                 {
                     Type = MenuType.normal,
@@ -128,6 +130,7 @@ namespace TreeViewer.Window
                         {
                             Type = MenuType.normal,
                             Label = "名前を付けて保存(&A)",
+                            Accelerator = "Ctrl+Shift+S",
                         },
                         new MenuItem()
                         {
@@ -172,7 +175,7 @@ namespace TreeViewer.Window
                                         {
                                             Type = MenuType.normal,
                                             Label = "Newick(&W)",
-                                            Click = () => Export(TreeFormat.Newick).Wait(),
+                                            Click = () => ExportAsTreeFile(TreeFormat.Newick).Wait(),
                                         },
                                         //new MenuItem()
                                         //{
@@ -191,22 +194,20 @@ namespace TreeViewer.Window
                                 new MenuItem()
                                 {
                                     Type = MenuType.normal,
-                                    Label = "PNG",
+                                    Label = "PNG(&B)",
+                                    Click = () => ExportWithExporter(ExportType.Png).Wait(),
                                 },
                                 new MenuItem()
                                 {
                                     Type = MenuType.normal,
-                                    Label = "SVG",
+                                    Label = "SVG(&S)",
+                                    Click = () => ExportWithExporter(ExportType.Svg).Wait(),
                                 },
                                 new MenuItem()
                                 {
                                     Type = MenuType.normal,
-                                    Label = "PDF",
-                                },
-                                new MenuItem()
-                                {
-                                    Type = MenuType.normal,
-                                    Label = "Adobe Illustrator",
+                                    Label = "PDF(&P)",
+                                    Click = () => ExportWithExporter(ExportType.Pdf).Wait(),
                                 },
                             ],
                         },
@@ -223,6 +224,8 @@ namespace TreeViewer.Window
                         },
                     ],
                 },
+
+                // Edit
                 new MenuItem()
                 {
                     Type = MenuType.normal,
@@ -242,6 +245,8 @@ namespace TreeViewer.Window
                         },
                     ],
                 },
+
+                // Tree
                 new MenuItem()
                 {
                     Type = MenuType.normal,
@@ -280,19 +285,11 @@ namespace TreeViewer.Window
                     ],
                 },
 #if DEBUG
+                // Debug
                 new MenuItem()
                 {
                     Label = "デバッグ(&D)",
                     Submenu = [
-                        new MenuItem()
-                        {
-                            Role = MenuRole.toggledevtools,
-                            Accelerator = "F12",
-                        },
-                        new MenuItem()
-                        {
-                            Role = MenuRole.togglefullscreen,
-                        },
                         new MenuItem()
                         {
                             Role = MenuRole.zoom,
@@ -304,6 +301,33 @@ namespace TreeViewer.Window
                         new MenuItem()
                         {
                             Role = MenuRole.zoomout,
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.separator,
+                        },
+                        new MenuItem()
+                        {
+                            Role = MenuRole.reload,
+                            Accelerator = "F5",
+                        },
+                        new MenuItem()
+                        {
+                            Role = MenuRole.forcereload,
+                            Accelerator = "Shift+F5",
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.separator,
+                        },
+                        new MenuItem()
+                        {
+                            Role = MenuRole.toggledevtools,
+                            Accelerator = "F12",
+                        },
+                        new MenuItem()
+                        {
+                            Role = MenuRole.togglefullscreen,
                         },
                     ],
                 },
@@ -334,12 +358,33 @@ namespace TreeViewer.Window
         /// エクスポート処理を行います。
         /// </summary>
         /// <param name="format">出力する系統樹のフォーマット</param>
-        private async Task Export(TreeFormat format)
+        private async Task ExportAsTreeFile(TreeFormat format)
         {
             string path = await Electron.Dialog.ShowSaveDialogAsync(window, new SaveDialogOptions());
             if (path.Length == 0) return;
 
-            await ViewModel.ExportCurrentTree(path, format);
+            await ViewModel.ExportCurrentTreeAsTreeFile(path, format);
+        }
+
+        /// <summary>
+        /// エクスポート処理を行います。
+        /// </summary>
+        /// <param name="exportType">出力するフォーマット</param>
+        private async Task ExportWithExporter(ExportType exportType)
+        {
+            string path = await Electron.Dialog.ShowSaveDialogAsync(window, new SaveDialogOptions()
+            {
+                Filters = [
+                    new FileFilter()
+                    {
+                        Name = $"{exportType.ToString().ToUpper()} File",
+                        Extensions = [exportType.ToString().ToLower()],
+                    },
+                ],
+            });
+            if (path.Length == 0) return;
+
+            await ViewModel.ExportWithExporterCommand.ExecuteAsync((path, exportType));
         }
 
         /// <summary>
