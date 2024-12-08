@@ -12,7 +12,23 @@ namespace TreeViewer.Core.Exporting
         /// </summary>
         ExportType Type { get; }
 
-        /// <inheritdoc cref="ExportAsync(Tree, Stream)"/>
+        /// <summary>
+        /// 指定したエクスポート方式を基に<see cref="IExporter"/>のインスタンスを生成します。
+        /// </summary>
+        /// <param name="exportType">エクスポート方式</param>
+        /// <returns><paramref name="exportType"/>に対応した<see cref="IExporter"/>の新しいインスタンス</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="exportType"/>が無効</exception>
+        static IExporter Create(ExportType exportType)
+        {
+            return exportType switch
+            {
+                ExportType.Svg => new SvgExporter(),
+                ExportType.Png => new PngExporter(),
+                _ => throw new ArgumentOutOfRangeException(nameof(exportType)),
+            };
+        }
+
+        /// <inheritdoc cref="ExportAsync(Tree, Stream, ExportOptions)"/>
         void Export(Tree tree, Stream stream, ExportOptions options) => ExportAsync(tree, stream, options).Wait();
 
         /// <summary>
