@@ -1,4 +1,6 @@
-﻿namespace TreeViewer.Core.Trees
+﻿using TreeViewer.Core.Styles;
+
+namespace TreeViewer.Core.Trees
 {
     public class CladeTest
     {
@@ -57,6 +59,7 @@
                 Assert.Null(clade.Parent);
                 Assert.Empty(clade.ChildrenInternal);
                 Assert.Null(clade.TreeInternal);
+                CladeStyleTest.CompareStyles(new CladeStyle(), clade.Style);
             });
         }
 
