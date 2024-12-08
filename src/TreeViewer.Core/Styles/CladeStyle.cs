@@ -23,5 +23,18 @@
             BranchColor = "black";
             LeafColor = "black";
         }
+
+        /// <summary>
+        /// 他のスタイルの内容を適用します。
+        /// </summary>
+        /// <param name="style">適用するインスタンス</param>
+        /// <exception cref="ArgumentNullException"><paramref name="style"/>が<see langword="null"/></exception>
+        public void ApplyValues(CladeStyle style)
+        {
+            ArgumentNullException.ThrowIfNull(style);
+
+            BranchColor = style.BranchColor;
+            LeafColor = style.LeafColor;
+        }
     }
 }

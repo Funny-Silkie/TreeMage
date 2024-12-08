@@ -91,10 +91,9 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// 自身を削除します。
         /// </summary>
-        private async Task DeleteSelf()
+        private void DeleteSelf()
         {
             homeViewModel.BranchDecorations.RemoveOnScheduler(this);
-            await Task.CompletedTask;
         }
     }
 }

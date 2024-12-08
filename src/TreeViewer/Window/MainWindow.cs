@@ -250,16 +250,32 @@ namespace TreeViewer.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Forcus all",
+                            Label = "Focus all",
                             Click = () => FocusAll().Wait(),
                             Accelerator = "Ctrl+A",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Unforcus all",
+                            Label = "Unfocus all",
                             Click = () => UnfocusAll().Wait(),
                             Accelerator = "Esc",
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.separator,
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Reroot",
+                            Click = () => Reroot().Wait(),
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Order by branch length",
+                            Click = () => ViewModel.OrderByBranchLengthCommand.ExecuteAsync().Wait(),
                         },
                     ],
                 },
@@ -349,6 +365,14 @@ namespace TreeViewer.Window
         private async Task UnfocusAll()
         {
             await ViewModel.UnfocusAllCommand.ExecuteAsync();
+        }
+
+        /// <summary>
+        /// リルートを行います。
+        /// </summary>
+        private async Task Reroot()
+        {
+            await ViewModel.RerootCommand.ExecuteAsync();
         }
 
         #endregion Tree

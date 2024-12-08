@@ -286,12 +286,165 @@ namespace TreeViewer.Core.Trees
         }
 
         [Fact]
+        public void GetIndexes_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => tree.GetIndexes(null!));
+        }
+
+        [Fact]
+        public void GetIndexes_WithOutsiderClade()
+        {
+            Assert.Throws<ArgumentException>(() => tree.GetIndexes(new Clade()));
+        }
+
+        [Fact]
+        public void GetIndexes_AsPositive()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Empty(tree.GetIndexes(root));
+                Assert.Equal([0], tree.GetIndexes(leafA));
+                Assert.Equal([1], tree.GetIndexes(cladeB));
+                Assert.Equal([1, 0], tree.GetIndexes(cladeBA));
+                Assert.Equal([1, 0, 0], tree.GetIndexes(leafBAA));
+                Assert.Equal([1, 0, 1], tree.GetIndexes(leafBAB));
+                Assert.Equal([1, 1], tree.GetIndexes(cladeBB));
+                Assert.Equal([1, 1, 0], tree.GetIndexes(cladeBBA));
+                Assert.Equal([1, 1, 0, 0], tree.GetIndexes(leafBBAA));
+                Assert.Equal([1, 1, 0, 1], tree.GetIndexes(leafBBAB));
+                Assert.Equal([1, 1, 1], tree.GetIndexes(leafBBB));
+                Assert.Equal([2], tree.GetIndexes(leafC));
+            });
+        }
+
+        [Fact]
+        public void Reroot_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => tree.Reroot(null!));
+        }
+
+        [Fact]
+        public void Reroot_WithOutsiderClade()
+        {
+            Assert.Throws<ArgumentException>(() => tree.Reroot(new Clade()));
+        }
+
+        [Fact]
+        public void Reroot_WithLeaf()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafA));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBAA));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBAB));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBBAA));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBBAB));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBBB));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafC));
+            });
+        }
+
+        [Fact]
+        public void Reroot_AsPositive_WithRoot()
+        {
+            Tree cloned = tree.Clone();
+
+            tree.Reroot(root);
+            CladeTest.CompareClades(cloned.Root, tree.Root);
+        }
+
+        [Fact]
+        public void Reroot_AsPositive_WithNonRoot()
+        {
+            tree.Reroot(this.cladeBB);
+
+            Clade root = tree.Root;
+            CheckBipartiton(root, double.NaN, null, 3, null);
+
+            Clade cladeBB = root.ChildrenInternal[0];
+            CheckBipartiton(cladeBB, 2, "100/100", 2, root);
+
+            Clade cladeB = cladeBB.ChildrenInternal[0];
+            CheckBipartiton(cladeB, 2, "30/45", 2, cladeBB);
+
+            Clade leafA = cladeB.ChildrenInternal[0];
+            CheckLeaf(leafA, 2, "A", cladeB);
+            Clade leafC = cladeB.ChildrenInternal[1];
+            CheckLeaf(leafC, 1, "C", cladeB);
+
+            Clade cladeBA = cladeBB.ChildrenInternal[1];
+            CheckBipartiton(cladeBA, 1, "20/30", 2, cladeBB);
+
+            Clade leafBAA = cladeBA.ChildrenInternal[0];
+            CheckLeaf(leafBAA, 5, "BAA", cladeBA);
+            Clade leafBAB = cladeBA.ChildrenInternal[1];
+            CheckLeaf(leafBAB, 3, "BAB", cladeBA);
+
+            Clade cladeBBA = root.ChildrenInternal[1];
+            CheckBipartiton(cladeBBA, 1, "85/95", 2, root);
+
+            Clade leafBBAA = cladeBBA.ChildrenInternal[0];
+            CheckLeaf(leafBBAA, 2, "BBAA", cladeBBA);
+            Clade leafBBAB = cladeBBA.ChildrenInternal[1];
+            CheckLeaf(leafBBAB, 1, "BBAB", cladeBBA);
+
+            Clade leafBBB = root.ChildrenInternal[2];
+            CheckLeaf(leafBBB, 3, "BBB", root);
+
+            static void CheckBipartiton(Clade clade, double branchLength, string? supports, int childCount, Clade? parent)
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.Equal(branchLength, clade.BranchLength);
+                    Assert.Equal(supports, clade.Supports);
+                    Assert.Null(clade.Taxon);
+                    Assert.Equal(childCount, clade.ChildrenInternal.Count);
+                    Assert.Equal(parent, clade.Parent);
+                });
+            }
+
+            static void CheckLeaf(Clade clade, double branchLength, string? taxon, Clade parent)
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.Equal(branchLength, clade.BranchLength);
+                    Assert.Null(clade.Supports);
+                    Assert.Equal(taxon, clade.Taxon);
+                    Assert.Empty(clade.ChildrenInternal);
+                    Assert.Equal(parent, clade.Parent);
+                });
+            }
+        }
+
+        [Fact]
+        public void OrderByLength_AsAscending()
+        {
+            tree.OrderByLength(false);
+
+            Assert.Equal(["C", "A", "BBAB", "BBAA", "BBB", "BAB", "BAA"], tree.GetAllLeaves().Select(x => x.Taxon));
+        }
+
+        [Fact]
+        public void OrderByLength_AsDescending()
+        {
+            tree.OrderByLength(true);
+
+            Assert.Equal(["BAA", "BAB", "BBAA", "BBAB", "BBB", "A", "C"], tree.GetAllLeaves().Select(x => x.Taxon));
+        }
+
+        [Fact]
         public async Task WriteAsync()
         {
             using var writer = new StringWriter();
             await tree.WriteAsync(writer, TreeFormat.Newick);
 
             Assert.Equal("(A:2,((BAA:5,BAB:3)20/30:1,((BBAA:2,BBAB:1)85/95:1,BBB:3)100/100:2)30/45:2,C:1);", writer.ToString());
+        }
+
+        [Fact]
+        public void ToString_AsPositive()
+        {
+            Assert.Equal("(A:2,((BAA:5,BAB:3)20/30:1,((BBAA:2,BBAB:1)85/95:1,BBB:3)100/100:2)30/45:2,C:1);", tree.ToString());
         }
 
         #endregion Instance Methods

@@ -73,7 +73,7 @@ namespace TreeViewer.Core.Trees
         /// <summary>
         /// <see cref="Clade"/>の新しいインスタンスを初期化します。
         /// </summary>
-        internal Clade()
+        public Clade()
         {
         }
 
@@ -93,6 +93,7 @@ namespace TreeViewer.Core.Trees
                     Supports = Supports,
                     BranchLength = BranchLength,
                 };
+                result.Style.ApplyValues(Style);
 
                 foreach (Clade currentChild in ChildrenInternal) result.AddChild(currentChild.Clone(true));
 

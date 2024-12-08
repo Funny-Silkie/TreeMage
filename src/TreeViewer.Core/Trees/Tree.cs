@@ -18,7 +18,7 @@ namespace TreeViewer.Core.Trees
         /// <param name="root">ルートとなる<see cref="Clade"/>のインスタンスs</param>
         /// <exception cref="ArgumentNullException"><paramref name="root"/>が<see langword="null"/></exception>
         /// <exception cref="ArgumentException"><paramref name="root"/>がルートを表していないまたは別のツリーに既に属している</exception>
-        internal Tree(Clade root)
+        public Tree(Clade root)
         {
             ArgumentNullException.ThrowIfNull(root);
             if (!root.IsRoot) throw new ArgumentException("ルートを表していません", nameof(root));
@@ -92,6 +92,116 @@ namespace TreeViewer.Core.Trees
         }
 
         /// <summary>
+        /// 指定したクレードのルートからのインデックスを取得します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <returns><paramref name="clade"/>のルートからのインデックス</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        /// <exception cref="ArgumentException"><paramref name="clade"/>がインスタンスに属していない</exception>
+        internal int[] GetIndexes(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+            if (clade.Tree != this) throw new ArgumentException("インスタンスに属していないクレードです", nameof(clade));
+
+            var list = new List<int>();
+            for (Clade current = clade; current.Parent is not null; current = current.Parent) list.Add(current.Parent.ChildrenInternal.IndexOf(current));
+
+            list.Reverse();
+            return [.. list];
+        }
+
+        /// <summary>
+        /// リルートを行います。
+        /// </summary>
+        /// <param name="clade">リルート対象のクレード</param>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        /// <exception cref="ArgumentException"><paramref name="clade"/>がインスタンスに属していない</exception>
+        public void Reroot(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+            if (clade.Tree != this) throw new ArgumentException("インスタンスに属していないクレードです", nameof(clade));
+            if (clade.IsLeaf) throw new ArgumentException("葉を起点にリルートはできません", nameof(clade));
+
+            if (clade.IsRoot) return;
+
+            Clade child = CreateClade(clade);
+            child.Parent = clade;
+            clade.ChildrenInternal.Insert(0, child);
+            clade.Parent = null;
+
+            clade.BranchLength = double.NaN;
+            clade.Supports = null;
+            Root = clade;
+
+            static Clade CreateClade(Clade target)
+            {
+                var result = new Clade()
+                {
+                    Supports = target.Supports,
+                    Taxon = target.Taxon,
+                    BranchLength = target.BranchLength,
+                };
+                result.Style.ApplyValues(target.Style);
+
+                if (!target.IsLeaf)
+                {
+                    if (!target.IsRoot && !target.Parent.IsRoot) result.AddChild(CreateClade(target.Parent));
+
+                    foreach (Clade current in target.Parent!.ChildrenInternal.Where(x => x != target))
+                    {
+                        current.Parent = null;
+                        result.AddChild(current);
+                    }
+                }
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// 枝長を基に枝を並び替えます。
+        /// </summary>
+        /// <param name="descending">降順で並び替えるかどうかを表す値</param>
+        public void OrderByLength(bool descending = true)
+        {
+            OrderByLengthOfClade(Root, descending);
+
+            static void OrderByLengthOfClade(Clade clade, bool descending)
+            {
+                if (clade.IsLeaf) return;
+
+                clade.ChildrenInternal.Sort((x, y) =>
+                {
+                    double[] xArray = GetLengthList(x, descending);
+                    double[] yArray = GetLengthList(y, descending);
+
+                    for (int i = 0; i < Math.Min(xArray.Length, yArray.Length); i++)
+                    {
+                        double xCurrent = xArray[i];
+                        double yCurrent = yArray[i];
+                        int comp = xCurrent.CompareTo(yCurrent);
+                        if (comp != 0) return descending ? -comp : comp;
+                    }
+
+                    int result = xArray.Length.CompareTo(yArray.Length);
+                    return descending ? -result : result;
+                });
+
+                foreach (Clade child in clade.ChildrenInternal) OrderByLengthOfClade(child, descending);
+            }
+
+            static double[] GetLengthList(Clade clade, bool descending)
+            {
+                IEnumerable<double> lengthCollection = clade.GetDescendants()
+                                                            .Prepend(clade)
+                                                            .Where(x => x.IsLeaf)
+                                                            .Select(x => x.GetTotalBranchLength(0));
+                lengthCollection = descending ? lengthCollection.OrderDescending() : lengthCollection.Order();
+                return lengthCollection.ToArray();
+            }
+        }
+
+        /// <summary>
         /// <see cref="TextWriter"/>を用いて系統樹を出力します。
         /// </summary>
         /// <param name="writer">使用する<see cref="TextWriter"/>のインスタンス</param>
@@ -104,6 +214,17 @@ namespace TreeViewer.Core.Trees
         {
             ITreeParser parser = ITreeParser.CreateFromTargetFormat(format);
             return parser.WriteAsync(writer, this);
+        }
+
+        /// <summary>
+        /// インスタンスを表す文字列を取得します。
+        /// </summary>
+        /// <returns>インスタンスを表す文字列</returns>
+        public override string ToString()
+        {
+            using var writer = new StringWriter();
+            WriteAsync(writer, TreeFormat.Newick).Wait();
+            return writer.ToString();
         }
     }
 }
