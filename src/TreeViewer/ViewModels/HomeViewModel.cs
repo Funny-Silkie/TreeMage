@@ -82,6 +82,11 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public AsyncReactiveCommand RerootCommand { get; }
 
+        /// <summary>
+        /// 並び替えを行うコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand OrderByBranchLengthCommand { get; }
+
         #endregion Layout
 
         #region Tree
@@ -257,6 +262,8 @@ namespace TreeViewer.ViewModels
 
             RerootCommand = new AsyncReactiveCommand().WithSubscribe(Reroot)
                                                       .AddTo(Disposables);
+            OrderByBranchLengthCommand = new AsyncReactiveCommand().WithSubscribe(OrderByBranchLength)
+                                                                   .AddTo(Disposables);
 
             XScale = new ReactivePropertySlim<int>(300).AddTo(Disposables);
             YScale = new ReactivePropertySlim<int>(30).AddTo(Disposables);
@@ -310,7 +317,7 @@ namespace TreeViewer.ViewModels
         /// SVG要素がクリックされた際に実行されます。
         /// </summary>
         /// <param name="id">SVG要素のID</param>
-        private async Task OnSvgElementClicked(string id)
+        private void OnSvgElementClicked(string id)
         {
             switch (SelectionTarget.Value)
             {
@@ -337,7 +344,6 @@ namespace TreeViewer.ViewModels
             }
 
             OnPropertyChanged(nameof(FocusedSvgElementIdList));
-            await Task.CompletedTask;
         }
 
         /// <summary>
@@ -435,6 +441,23 @@ namespace TreeViewer.ViewModels
         }
 
         /// <summary>
+        /// 枝長で並び替えます。
+        /// </summary>
+        private void OrderByBranchLength()
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            Tree cloned = tree.Clone();
+            cloned.OrderByLength();
+
+            TargetTree.Value = cloned;
+
+            UnfocusAll();
+            OnPropertyChanged(nameof(TargetTree));
+        }
+
+        /// <summary>
         /// 検索を実行します。
         /// </summary>
         private void Search()
@@ -528,10 +551,9 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// 枝の装飾を追加します。
         /// </summary>
-        private async Task AddNewBranchDecoration()
+        private void AddNewBranchDecoration()
         {
             BranchDecorations.AddOnScheduler(new BranchDecorationViewModel(this));
-            await Task.CompletedTask;
         }
 
         /// <summary>

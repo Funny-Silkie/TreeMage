@@ -1,13 +1,13 @@
-﻿@if (ViewModel is not null && ViewModel.FocusedCount.Value > 0)
-{
-    <RadzenStack Orientation="Orientation.Vertical">
-        <RadzenText TextStyle="TextStyle.DisplayH6">Properties</RadzenText>
+﻿<RadzenStack Orientation="Orientation.Vertical">
+    <RadzenText TextStyle="TextStyle.DisplayH6">Properties</RadzenText>
+    @if (ViewModel is not null && ViewModel.FocusedCount.Value > 0)
+    {
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
             <RadzenText>Color: </RadzenText>
             <RadzenColorPicker @bind-Value="ViewModel.Color.Value" />
         </RadzenStack>
-    </RadzenStack>
-}
+    }
+</RadzenStack>
 
 
 @code {

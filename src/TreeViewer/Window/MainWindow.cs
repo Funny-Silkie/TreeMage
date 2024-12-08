@@ -271,6 +271,12 @@ namespace TreeViewer.Window
                             Label = "Reroot",
                             Click = () => Reroot().Wait(),
                         },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Order by branch length",
+                            Click = () => ViewModel.OrderByBranchLengthCommand.ExecuteAsync().Wait(),
+                        },
                     ],
                 },
 #if DEBUG
