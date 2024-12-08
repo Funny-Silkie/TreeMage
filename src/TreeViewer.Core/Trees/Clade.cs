@@ -73,7 +73,7 @@ namespace TreeViewer.Core.Trees
         /// <summary>
         /// <see cref="Clade"/>の新しいインスタンスを初期化します。
         /// </summary>
-        internal Clade()
+        public Clade()
         {
         }
 

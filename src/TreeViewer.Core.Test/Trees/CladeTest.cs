@@ -39,6 +39,7 @@ namespace TreeViewer.Core.Trees
                 Assert.Equal(expected.Supports, actual.Supports);
                 Assert.Equal(expected.BranchLength, actual.BranchLength);
                 Assert.Equal(expected.ChildrenInternal.Count, actual.ChildrenInternal.Count);
+                CladeStyleTest.CompareStyles(expected.Style, actual.Style);
             });
 
             for (int i = 0; i < expected.ChildrenInternal.Count; i++) CompareClades(expected.ChildrenInternal[i], actual.ChildrenInternal[i]);

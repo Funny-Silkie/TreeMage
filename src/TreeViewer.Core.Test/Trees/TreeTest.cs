@@ -286,12 +286,79 @@ namespace TreeViewer.Core.Trees
         }
 
         [Fact]
+        public void GetIndexes_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => tree.GetIndexes(null!));
+        }
+
+        [Fact]
+        public void GetIndexes_WithOutsiderClade()
+        {
+            Assert.Throws<ArgumentException>(() => tree.GetIndexes(new Clade()));
+        }
+
+        [Fact]
+        public void GetIndexes_AsPositive()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Empty(tree.GetIndexes(root));
+                Assert.Equal([0], tree.GetIndexes(leafA));
+                Assert.Equal([1], tree.GetIndexes(cladeB));
+                Assert.Equal([1, 0], tree.GetIndexes(cladeBA));
+                Assert.Equal([1, 0, 0], tree.GetIndexes(leafBAA));
+                Assert.Equal([1, 0, 1], tree.GetIndexes(leafBAB));
+                Assert.Equal([1, 1], tree.GetIndexes(cladeBB));
+                Assert.Equal([1, 1, 0], tree.GetIndexes(cladeBBA));
+                Assert.Equal([1, 1, 0, 0], tree.GetIndexes(leafBBAA));
+                Assert.Equal([1, 1, 0, 1], tree.GetIndexes(leafBBAB));
+                Assert.Equal([1, 1, 1], tree.GetIndexes(leafBBB));
+                Assert.Equal([2], tree.GetIndexes(leafC));
+            });
+        }
+
+        [Fact]
+        public void Reroot_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => tree.Reroot(null!));
+        }
+
+        [Fact]
+        public void Reroot_WithOutsiderClade()
+        {
+            Assert.Throws<ArgumentException>(() => tree.Reroot(new Clade()));
+        }
+
+        [Fact]
+        public void Reroot_AsPositive_WithRoot()
+        {
+            Tree cloned = tree.Clone();
+
+            tree.Reroot(root);
+            CladeTest.CompareClades(cloned.Root, tree.Root);
+        }
+
+        [Fact]
+        public void Reroot_AsPositive_WithNonRoot()
+        {
+            tree.Reroot(cladeBB);
+
+            Assert.Equal("(((A:2,C:1)30/45:2,(BAA:5,BAB:3)20/30:1)100/100:2,(BBAA:2,BBAB:1)85/95:1,BBB:3);", tree.ToString());
+        }
+
+        [Fact]
         public async Task WriteAsync()
         {
             using var writer = new StringWriter();
             await tree.WriteAsync(writer, TreeFormat.Newick);
 
             Assert.Equal("(A:2,((BAA:5,BAB:3)20/30:1,((BBAA:2,BBAB:1)85/95:1,BBB:3)100/100:2)30/45:2,C:1);", writer.ToString());
+        }
+
+        [Fact]
+        public void ToString_AsPositive()
+        {
+            Assert.Equal("(A:2,((BAA:5,BAB:3)20/30:1,((BBAA:2,BBAB:1)85/95:1,BBB:3)100/100:2)30/45:2,C:1);", tree.ToString());
         }
 
         #endregion Instance Methods

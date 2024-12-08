@@ -38,5 +38,31 @@
         }
 
         #endregion Ctors
+
+        #region Methods
+
+        [Fact]
+        public void ApplyValues_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => style.ApplyValues(null!));
+        }
+
+        [Fact]
+        public void ApplyValues_AsPositive()
+        {
+            style.ApplyValues(new CladeStyle()
+            {
+                BranchColor = "white",
+                LeafColor = "none",
+            });
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal("white", style.BranchColor);
+                Assert.Equal("none", style.LeafColor);
+            });
+        }
+
+        #endregion Methods
     }
 }
