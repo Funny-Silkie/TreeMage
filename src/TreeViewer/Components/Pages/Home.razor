@@ -142,26 +142,33 @@
                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch">
                         @foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations)
                         {
-                            <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
-                                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
-                                        <RadzenText Style="@sidebarFormLabelStyle">Pattern:</RadzenText>
-                                        <RadzenText Style="@sidebarFormLabelStyle">Shape:</RadzenText>
-                                        <RadzenText Style="@sidebarFormLabelStyle">Size:</RadzenText>
-                                        <RadzenText Style="@sidebarFormLabelStyle">Color:</RadzenText>
-                                    </RadzenStack>
+                            <RadzenPanel class="rz-border-radius" AllowCollapse="true" Style="background-color: whitesmoke">
+                                <HeaderTemplate>
+                                    <RadzenText Style="font-size: 1.1rem">@currentViewModel.TargetRegexPattern.Value</RadzenText>
+                                </HeaderTemplate>
+                                <ChildContent>
                                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                                        <RadzenTextBox @bind-Value="currentViewModel.TargetRegexPattern.Value" Style="@sidebarFormValueStyle" />
-                                        <RadzenDropDown TValue="BranchDecorationType" Data="Enum.GetValues<BranchDecorationType>()" @bind-Value="currentViewModel.DecorationType.Value" Style="@sidebarFormValueStyle" />
-                                        <RadzenNumeric TValue="int" Min="1" @bind-Value="currentViewModel.ShapeSize.Value" Style="@sidebarFormValueStyle" />
-                                        <RadzenColorPicker @bind-Value="currentViewModel.ShapeColor.Value" Style="@sidebarFormValueStyle" />
+                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
+                                            <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
+                                                <RadzenText Style="@sidebarFormLabelStyle">Pattern:</RadzenText>
+                                                <RadzenText Style="@sidebarFormLabelStyle">Shape:</RadzenText>
+                                                <RadzenText Style="@sidebarFormLabelStyle">Size:</RadzenText>
+                                                <RadzenText Style="@sidebarFormLabelStyle">Color:</RadzenText>
+                                            </RadzenStack>
+                                            <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                                                <RadzenTextBox @bind-Value="currentViewModel.TargetRegexPattern.Value" Style="@sidebarFormValueStyle" />
+                                                <RadzenDropDown TValue="BranchDecorationType" Data="Enum.GetValues<BranchDecorationType>()" @bind-Value="currentViewModel.DecorationType.Value" Style="@sidebarFormValueStyle" />
+                                                <RadzenNumeric TValue="int" Min="1" @bind-Value="currentViewModel.ShapeSize.Value" Style="@sidebarFormValueStyle" />
+                                                <RadzenColorPicker @bind-Value="currentViewModel.ShapeColor.Value" Style="@sidebarFormValueStyle" />
+                                            </RadzenStack>
+                                        </RadzenStack>
+                                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                                            <RadzenButton Icon="@(currentViewModel.Visible.Value ? "visibility" : "visibility_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="x => currentViewModel.Visible.Value = !currentViewModel.Visible.Value" />
+                                            <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" Click="currentViewModel.DeleteSelfCommand.ToDelegate()" />
+                                        </RadzenStack>
                                     </RadzenStack>
-                                </RadzenStack>
-                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
-                                    <RadzenButton Icon="@(currentViewModel.Visible.Value ? "visibility" : "visibility_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="x => currentViewModel.Visible.Value = !currentViewModel.Visible.Value" />
-                                    <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" Click="currentViewModel.DeleteSelfCommand.ToDelegate()" />
-                                </RadzenStack>
-                            </RadzenStack>
+                                </ChildContent>
+                            </RadzenPanel>
                         }
                     </RadzenStack>
                 </ChildContent>
