@@ -8,6 +8,20 @@
             <RadzenSidebarToggle Click="() => toggleExpanded = !toggleExpanded" />
             <RadzenText>Tree No.</RadzenText>
             <RadzenNumeric TValue="int" Min="1" Max="Math.Max(ViewModel.MaxTreeIndex.Value, 1)" @bind-Value="ViewModel.TreeIndex.Value" Disabled="@(ViewModel.MaxTreeIndex.Value == 0)" Style="width: 50px" />
+            <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" Gap="0">
+                <RadzenStack>
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                        <RadzenRadioButtonList TValue="SelectionMode" @bind-Value="ViewModel.SelectionTarget.Value">
+                            <Items>
+                                <RadzenRadioButtonListItem Text="Node" Value="SelectionMode.Node" />
+                                <RadzenRadioButtonListItem Text="Clade" Value="SelectionMode.Clade" />
+                                <RadzenRadioButtonListItem Text="Taxa" Value="SelectionMode.Taxa" />
+                            </Items>
+                        </RadzenRadioButtonList>
+                    </RadzenStack>
+                </RadzenStack>
+                <RadzenText>Selection Mode</RadzenText>
+            </RadzenStack>
         </RadzenStack>
     </RadzenHeader>
     <RadzenSidebar Responsive="false" @bind-Expanded="toggleExpanded" Style="width: 300px">
