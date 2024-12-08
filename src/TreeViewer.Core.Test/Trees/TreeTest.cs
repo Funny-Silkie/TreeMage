@@ -330,6 +330,21 @@ namespace TreeViewer.Core.Trees
         }
 
         [Fact]
+        public void Reroot_WithLeaf()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafA));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBAA));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBAB));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBBAA));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBBAB));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafBBB));
+                Assert.Throws<ArgumentException>(() => tree.Reroot(leafC));
+            });
+        }
+
+        [Fact]
         public void Reroot_AsPositive_WithRoot()
         {
             Tree cloned = tree.Clone();

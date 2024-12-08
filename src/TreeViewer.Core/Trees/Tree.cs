@@ -120,6 +120,7 @@ namespace TreeViewer.Core.Trees
         {
             ArgumentNullException.ThrowIfNull(clade);
             if (clade.Tree != this) throw new ArgumentException("インスタンスに属していないクレードです", nameof(clade));
+            if (clade.IsLeaf) throw new ArgumentException("葉を起点にリルートはできません", nameof(clade));
 
             if (clade.IsRoot) return;
 
