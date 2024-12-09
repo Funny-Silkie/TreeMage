@@ -337,6 +337,7 @@
                                         <line class="branch" x1="@(x1 - ViewModel.BranchThickness.Value / 2)" y1="@y1" x2="@(x2 + x2Offset)" y2="@y1" style="stroke: @current.Style.BranchColor" />
                                     }
 
+                                    // 枝の装飾
                                     if (ViewModel.ShowBranchDecorations.Value && !string.IsNullOrEmpty(current.Supports))
                                         foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations.Where(x => x.Visible.Value && x.Regex is not null && x.Regex.IsMatch(current.Supports)))
                                         {

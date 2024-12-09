@@ -1,4 +1,4 @@
-﻿namespace TreeViewer.Data
+﻿namespace TreeViewer.Core.Styles
 {
     /// <summary>
     /// 枝の装飾の種類を表します。
