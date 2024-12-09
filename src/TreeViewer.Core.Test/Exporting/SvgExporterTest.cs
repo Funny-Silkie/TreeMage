@@ -1,4 +1,5 @@
 ﻿using Svg;
+using System.Drawing;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Styles;
 using TreeViewer.Core.Trees;
@@ -48,6 +49,17 @@ namespace TreeViewer.Core.Exporting
         #endregion Properties
 
         #region Static Methods
+
+        [Fact]
+        public void FromColorString()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(Color.Black, SvgExporter.FromColorString("black").Colour);
+                Assert.Equal(Color.FromArgb(10, 20, 30), SvgExporter.FromColorString("rgb(10, 20, 30)").Colour);
+                Assert.Equal(Color.FromArgb(40, 10, 20, 30), SvgExporter.FromColorString("rgba(10, 20, 30, 40)").Colour);
+            });
+        }
 
         [Fact]
         public void CreateSvg_Minumum()
