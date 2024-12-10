@@ -1,5 +1,4 @@
 ﻿using Svg;
-using System.Drawing;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Assertions;
 using TreeViewer.Core.Styles;

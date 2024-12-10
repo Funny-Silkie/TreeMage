@@ -57,8 +57,11 @@ namespace TreeViewer.Core.Exporting
 
             double pageWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * options.XScale + 100;
             if (options.ShowLeafLabels) pageWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * options.LeafLabelsFontSize / 1.25;
+            double pageHeight = allLeaves.Length * options.YScale + 100;
+            if (options.ShowScaleBar) pageHeight += options.ScaleBarFontSize;
+
             mainPage.Width = pageWidth;
-            mainPage.Height = allLeaves.Length * options.YScale + 100;
+            mainPage.Height = pageHeight;
 
             graphics.TranslateTransform(50, 50);
 

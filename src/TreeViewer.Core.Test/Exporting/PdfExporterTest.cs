@@ -1,8 +1,4 @@
-﻿using PdfSharpCore.Drawing;
-using System.Text.RegularExpressions;
-using TreeViewer.Core.Assertions;
-using TreeViewer.Core.Styles;
-using TreeViewer.Core.Trees;
+﻿using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Exporting
 {
