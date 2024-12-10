@@ -1,5 +1,7 @@
-﻿using Svg;
+﻿using PdfSharpCore.Drawing;
+using Svg;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Trees;
 
@@ -74,6 +76,37 @@ namespace TreeViewer.Core.Exporting
 
             return new SvgColourServer(ColorTranslator.FromHtml(color));
         }
+
+        /// <summary>
+        /// 色を表す文字列から<see cref="XColor"/>を取得します。
+        /// </summary>
+        /// <param name="value">色を表す文字列</param>
+        /// <returns><paramref name="color"/>に対応した<see cref="XColor"/></returns>
+        public static XColor CreatePdfColor(string value)
+        {
+            if (TryGetRgb(value, out byte r, out byte g, out byte b)) return XColor.FromArgb(r, g, b);
+            if (TryGetRgba(value, out r, out g, out b, out byte a)) return XColor.FromArgb(a, r, g, b);
+
+            if (Enum.TryParse(value, true, out XKnownColor knownColor)) return XColor.FromKnownColor(knownColor);
+            return XColor.FromArgb(0, 0, 0);
+        }
+
+        /// <summary>
+        /// 色から<see cref="XBrush"/>に変換します。
+        /// </summary>
+        /// <param name="color">色</param>
+        /// <returns><paramref name="color"/>に対応した<see cref="XBrush"/>のインスタンス</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static XSolidBrush ToBrush(this XColor color) => new XSolidBrush(color);
+
+        /// <summary>
+        /// 色から<see cref="XPen"/>に変換します。
+        /// </summary>
+        /// <param name="color">色</param>
+        /// <param name="width">線の太さ</param>
+        /// <returns><paramref name="color"/>に対応した<see cref="XPen"/>のインスタンス</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static XPen ToPen(this XColor color, double width) => new XPen(color, width);
 
         /// <summary>
         /// 表示するクレードの値を選択します。

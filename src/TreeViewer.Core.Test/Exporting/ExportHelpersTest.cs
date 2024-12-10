@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using PdfSharpCore.Drawing;
+using System.Drawing;
 using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Exporting
@@ -73,6 +74,39 @@ namespace TreeViewer.Core.Exporting
                 Assert.Equal(Color.Black, ExportHelpers.CreateSvgColor("black").Colour);
                 Assert.Equal(Color.FromArgb(10, 20, 30), ExportHelpers.CreateSvgColor("rgb(10, 20, 30)").Colour);
                 Assert.Equal(Color.FromArgb(40, 10, 20, 30), ExportHelpers.CreateSvgColor("rgba(10, 20, 30, 40)").Colour);
+            });
+        }
+
+        [Fact]
+        public void CreatePdfColor()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(XColor.FromArgb(10, 20, 30), ExportHelpers.CreatePdfColor("rgb(10, 20, 30)"));
+                Assert.Equal(XColor.FromArgb(40, 10, 20, 30), ExportHelpers.CreatePdfColor("rgba(10, 20, 30, 40)"));
+                Assert.Equal(XColor.FromKnownColor(XKnownColor.Red), ExportHelpers.CreatePdfColor("red"));
+                Assert.Equal(XColor.FromArgb(0, 0, 0), ExportHelpers.CreatePdfColor("!!!"));
+            });
+        }
+
+        [Fact]
+        public void ToBrush()
+        {
+            XColor color = XColor.FromArgb(100, 150, 255);
+
+            Assert.Equal(color, color.ToBrush().Color);
+        }
+
+        [Fact]
+        public void ToPen()
+        {
+            XColor color = XColor.FromArgb(100, 150, 255);
+            XPen pen = color.ToPen(3);
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(color, pen.Color);
+                Assert.Equal(3, pen.Width);
             });
         }
 
