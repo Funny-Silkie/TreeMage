@@ -1,4 +1,5 @@
-﻿using Xunit.Sdk;
+﻿using System.Buffers;
+using Xunit.Sdk;
 
 namespace TreeViewer.Core.Assertions
 {
@@ -57,6 +58,65 @@ namespace TreeViewer.Core.Assertions
                 {
                     throw EqualException.ForMismatchedValuesWithError(expectedLine, actualLine, banner: $"Value differ at Line {lineNo}");
                 }
+            }
+        }
+
+        /// <summary>
+        /// 二つのバイナリファイルの等価性を検証します。
+        /// </summary>
+        /// <param name="expected">予期されるバイナリファイルのパス</param>
+        /// <param name="actual">実際のバイナリファイルのパス</param>
+        /// <exception cref="EqualException">ファイルに違いがみられる</exception>
+        public static void EqualBinaryFiles(string expected, string actual)
+        {
+            if (string.Equals(expected, actual, StringComparison.OrdinalIgnoreCase)) return;
+
+            var expectedFileInfo = new FileInfo(expected);
+            var actualFileInfo = new FileInfo(actual);
+
+            try
+            {
+                Assert.Equal(expectedFileInfo.Length, actualFileInfo.Length);
+            }
+            catch (EqualException)
+            {
+                throw EqualException.ForMismatchedValuesWithError(expectedFileInfo.Length, actualFileInfo.Length, banner: "File sizes differ");
+            }
+
+            using var expectedStream = new FileStream(expected, FileMode.Open, FileAccess.Read);
+            using var actualStream = new FileStream(actual, FileMode.Open, FileAccess.Read);
+
+            const int bufferSize = 4096;
+
+            byte[] expectedBuffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+            try
+            {
+                Span<byte> expectedBufferSpan = expectedBuffer.AsSpan(0, bufferSize);
+
+                byte[] actualBuffer = ArrayPool<byte>.Shared.Rent(bufferSize);
+                try
+                {
+                    Span<byte> actualBufferSpan = actualBuffer.AsSpan(0, bufferSize);
+
+                    while (true)
+                    {
+                        int expectedBytesToRead = expectedStream.Read(expectedBufferSpan);
+                        int actualBytesToRead = actualStream.Read(actualBufferSpan);
+
+                        Assert.Equal(expectedBytesToRead, actualBytesToRead);
+
+                        if (expectedBytesToRead == 0) break;
+                        Assert.Equal(expectedBufferSpan, actualBufferSpan);
+                    }
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(actualBuffer);
+                }
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(expectedBuffer);
             }
         }
     }
