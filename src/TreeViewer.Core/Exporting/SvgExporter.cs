@@ -1,7 +1,6 @@
 ﻿using Svg;
 using Svg.Transforms;
 using System.Drawing;
-using System.Text.RegularExpressions;
 using TreeViewer.Core.Internal;
 using TreeViewer.Core.Styles;
 using TreeViewer.Core.Trees;
@@ -11,7 +10,7 @@ namespace TreeViewer.Core.Exporting
     /// <summary>
     /// SVGへの出力を行う<see cref="IExporter"/>の実装です。
     /// </summary>
-    public partial class SvgExporter : IExporter
+    public class SvgExporter : IExporter
     {
         private const string FontFamily = "Arial, Helvetica, sans-serif";
 
@@ -23,41 +22,6 @@ namespace TreeViewer.Core.Exporting
         /// </summary>
         public SvgExporter()
         {
-        }
-
-        [GeneratedRegex(@"rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)")]
-        private static partial Regex GetRgbRegex();
-
-        [GeneratedRegex(@"rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)")]
-        private static partial Regex GetRgbaRegex();
-
-        /// <summary>
-        /// 色を表す文字列から<see cref="SvgColourServer"/>を生成します。
-        /// </summary>
-        /// <param name="value">色</param>
-        /// <returns><paramref name="value"/>を表す<see cref="SvgColourServer"/>の新しいインスタンス</returns>
-        internal static SvgColourServer FromColorString(string value)
-        {
-            Match rgbMatch = GetRgbRegex().Match(value);
-            if (rgbMatch.Success)
-            {
-                byte r = byte.Parse(rgbMatch.Groups[1].ValueSpan);
-                byte g = byte.Parse(rgbMatch.Groups[2].ValueSpan);
-                byte b = byte.Parse(rgbMatch.Groups[3].ValueSpan);
-                return new SvgColourServer(Color.FromArgb(r, g, b));
-            }
-
-            Match rgbaMatch = GetRgbaRegex().Match(value);
-            if (rgbaMatch.Success)
-            {
-                byte r = byte.Parse(rgbaMatch.Groups[1].ValueSpan);
-                byte g = byte.Parse(rgbaMatch.Groups[2].ValueSpan);
-                byte b = byte.Parse(rgbaMatch.Groups[3].ValueSpan);
-                byte a = byte.Parse(rgbaMatch.Groups[4].ValueSpan);
-                return new SvgColourServer(Color.FromArgb(a, r, g, b));
-            }
-
-            return new SvgColourServer(ColorTranslator.FromHtml(value));
         }
 
         /// <summary>
@@ -133,7 +97,7 @@ namespace TreeViewer.Core.Exporting
                         {
                             X = [(SvgUnit)x],
                             Y = [(SvgUnit)y],
-                            Fill = FromColorString(current.Style.LeafColor),
+                            Fill = ExportHelpers.CreateSvgColor(current.Style.LeafColor),
                             FontSize = options.LeafLabelsFontSize,
                             FontFamily = FontFamily,
                         };
@@ -145,7 +109,7 @@ namespace TreeViewer.Core.Exporting
                     // 結節点の値
                     if (options.ShowNodeValues)
                     {
-                        string nodeValue = SelectShowValue(current, options.NodeValueType);
+                        string nodeValue = ExportHelpers.SelectShowValue(current, options.NodeValueType);
                         if (nodeValue.Length > 0)
                         {
                             double y = positionManager.CalcY1(current) + options.NodeValueFontSize / 2.5;
@@ -155,7 +119,7 @@ namespace TreeViewer.Core.Exporting
                             {
                                 X = [(SvgUnit)(totalLength * options.XScale + 5)],
                                 Y = [(SvgUnit)y],
-                                Fill = FromColorString(current.Style.BranchColor),
+                                Fill = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
                                 FontSize = options.NodeValueFontSize,
                                 FontFamily = FontFamily,
                             };
@@ -180,7 +144,7 @@ namespace TreeViewer.Core.Exporting
                             StartY = y,
                             EndX = (SvgUnit)(x2 + x2Offset),
                             EndY = y,
-                            Stroke = FromColorString(current.Style.BranchColor),
+                            Stroke = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
                             StrokeWidth = options.BranchThickness,
                         };
                         horizontalLine.AddTo(branchesGroup);
@@ -200,14 +164,14 @@ namespace TreeViewer.Core.Exporting
                                     CenterY = (SvgUnit)positionManager.CalcY1(current),
                                     Radius = size,
                                     Stroke = SvgPaintServer.None,
-                                    Fill = FromColorString(currentDecoration.ShapeColor),
+                                    Fill = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor),
                                 },
                                 BranchDecorationType.OpenCircle => new SvgCircle()
                                 {
                                     CenterX = (SvgUnit)((x1 + x2) / 2),
                                     CenterY = (SvgUnit)positionManager.CalcY1(current),
                                     Radius = size,
-                                    Stroke = FromColorString(currentDecoration.ShapeColor),
+                                    Stroke = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor),
                                     Fill = new SvgColourServer(Color.White),
                                 },
                                 BranchDecorationType.ClosedRectangle => new SvgRectangle()
@@ -217,7 +181,7 @@ namespace TreeViewer.Core.Exporting
                                     Width = size * 2,
                                     Height = size * 2,
                                     Stroke = SvgPaintServer.None,
-                                    Fill = FromColorString(currentDecoration.ShapeColor),
+                                    Fill = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor),
                                 },
                                 BranchDecorationType.OpenedRectangle => new SvgRectangle()
                                 {
@@ -225,7 +189,7 @@ namespace TreeViewer.Core.Exporting
                                     Y = (SvgUnit)(positionManager.CalcY1(current) - size),
                                     Width = size * 2,
                                     Height = size * 2,
-                                    Stroke = FromColorString(currentDecoration.ShapeColor),
+                                    Stroke = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor),
                                     StrokeWidth = size / 5 + 1,
                                     Fill = new SvgColourServer(Color.White),
                                 },
@@ -237,14 +201,14 @@ namespace TreeViewer.Core.Exporting
                     // 二分岐の値
                     if (options.ShowBranchValues)
                     {
-                        string branchValue = SelectShowValue(current, options.BranchValueType);
+                        string branchValue = ExportHelpers.SelectShowValue(current, options.BranchValueType);
                         if (branchValue.Length > 0)
                         {
                             var branchValueText = new SvgText(branchValue)
                             {
                                 X = [(SvgUnit)((x1 + x2) / 2)],
                                 Y = [(SvgUnit)(positionManager.CalcY1(current) - options.BranchValueFontSize / 2.5 - options.BranchThickness / 2)],
-                                Fill = FromColorString(current.Style.BranchColor),
+                                Fill = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
                                 FontSize = options.BranchValueFontSize,
                                 FontFamily = FontFamily,
                                 TextAnchor = SvgTextAnchor.Middle,
@@ -271,7 +235,7 @@ namespace TreeViewer.Core.Exporting
                                 StartY = (SvgUnit)y1,
                                 EndX = (SvgUnit)x1,
                                 EndY = (SvgUnit)y2,
-                                Stroke = FromColorString(current.Style.BranchColor),
+                                Stroke = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
                                 StrokeWidth = options.BranchThickness,
                             };
                             branchesGroup.Children.Add(verticalLine);
@@ -317,29 +281,6 @@ namespace TreeViewer.Core.Exporting
             #endregion スケールバー
 
             return result;
-        }
-
-        /// <summary>
-        /// 表示するクレードの値を選択します。
-        /// </summary>
-        /// <param name="clade">対象のクレード</param>
-        /// <param name="valueType">取得する値のタイプ</param>
-        /// <returns><paramref name="valueType"/>に応じた<paramref name="clade"/>における値</returns>
-        private static string SelectShowValue(Clade clade, CladeValueType valueType)
-        {
-            switch (valueType)
-            {
-                case CladeValueType.Supports:
-                    string supports = clade.Supports ?? string.Empty;
-                    return supports.Trim();
-
-                case CladeValueType.BranchLength:
-                    double branchLength = clade.BranchLength;
-                    if (double.IsNaN(branchLength)) return string.Empty;
-                    return branchLength.ToString();
-
-                default: return string.Empty;
-            }
         }
 
         /// <inheritdoc/>
