@@ -1,6 +1,7 @@
 ﻿using Svg;
 using System.Drawing;
 using System.Text.RegularExpressions;
+using TreeViewer.Core.Assertions;
 using TreeViewer.Core.Styles;
 using TreeViewer.Core.Trees;
 
@@ -325,12 +326,18 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void Export_AsPositive()
         {
-            using var stream = new FileStream(outputPath, FileMode.Create);
-            exporter.Export(TreeTest.CreateDummyTree(), stream, exportOptions);
+            using (var stream = new FileStream(outputPath, FileMode.Create))
+            {
+                exporter.Export(TreeTest.CreateDummyTree(), stream, exportOptions);
+            }
 
             var fileInfo = new FileInfo(outputPath);
 
-            Assert.True(fileInfo.Length > 0);
+            Assert.Multiple(() =>
+            {
+                Assert.True(fileInfo.Length > 0);
+                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Export", "test.svg"), outputPath);
+            });
         }
 
         [Fact]
@@ -356,12 +363,18 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public async Task ExportAsync_AsPositive()
         {
-            using var stream = new FileStream(outputPath, FileMode.Create);
-            await exporter.ExportAsync(TreeTest.CreateDummyTree(), stream, exportOptions);
+            using (var stream = new FileStream(outputPath, FileMode.Create))
+            {
+                await exporter.ExportAsync(TreeTest.CreateDummyTree(), stream, exportOptions);
+            }
 
             var fileInfo = new FileInfo(outputPath);
 
-            Assert.True(fileInfo.Length > 0);
+            Assert.Multiple(() =>
+            {
+                Assert.True(fileInfo.Length > 0);
+                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Export", "test.svg"), outputPath);
+            });
         }
 
         #endregion Instance Methods
