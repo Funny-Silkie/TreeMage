@@ -1,4 +1,5 @@
-﻿using TreeViewer.Core.Trees;
+﻿using TreeViewer.Core.Styles;
+using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Exporting
 {
@@ -9,21 +10,7 @@ namespace TreeViewer.Core.Exporting
     {
         private readonly Dictionary<Clade, PositionInfo> positions = [];
         private readonly Dictionary<Clade, int> indexTable;
-
-        /// <summary>
-        /// X軸方向への拡大率を取得または設定します。
-        /// </summary>
-        public int XScale { get; set; } = 1;
-
-        /// <summary>
-        /// Y軸方向への拡大率を取得または設定します。
-        /// </summary>
-        public int YScale { get; set; } = 1;
-
-        /// <summary>
-        /// 枝の太さを取得または設定します。
-        /// </summary>
-        public int BranchThickness { get; set; } = 1;
+        private TreeStyle treeStyle;
 
         /// <summary>
         /// <see cref="PositionManager"/>の新しいインスタンスを初期化します。
@@ -31,22 +18,19 @@ namespace TreeViewer.Core.Exporting
         public PositionManager()
         {
             indexTable = [];
+            treeStyle = new TreeStyle();
         }
 
         /// <summary>
         /// <see cref="PositionManager"/>の新しいインスタンスを初期化します。
         /// </summary>
-        /// <param name="options">オプション</param>
         /// <param name="tree">対象の樹形</param>
-        /// <exception cref="ArgumentNullException"><paramref name="options"/>または<paramref name="tree"/>が<see langword="null"/></exception>
-        public PositionManager(ExportOptions options, Tree tree)
+        /// <exception cref="ArgumentNullException"><paramref name="tree"/>が<see langword="null"/></exception>
+        public PositionManager(Tree tree)
         {
-            ArgumentNullException.ThrowIfNull(options);
             ArgumentNullException.ThrowIfNull(tree);
 
-            XScale = options.XScale;
-            YScale = options.YScale;
-            BranchThickness = options.BranchThickness;
+            treeStyle = tree.Style;
             indexTable = tree.GetAllLeaves()
                              .Select((x, i) => (x, i))
                              .ToDictionary();
@@ -85,7 +69,7 @@ namespace TreeViewer.Core.Exporting
             }
             if (!double.IsNaN(info.X1)) return info.X1;
 
-            double result = (CalcTotalBranchLength(clade) - clade.BranchLength) * XScale;
+            double result = (CalcTotalBranchLength(clade) - clade.BranchLength) * treeStyle.XScale;
             info.X1 = result;
             return result;
         }
@@ -116,7 +100,7 @@ namespace TreeViewer.Core.Exporting
         /// <returns><paramref name="clade"/>のX座標2</returns>
         private double CalcX2Core(Clade clade)
         {
-            if (clade.BranchLength > 0) return CalcTotalBranchLength(clade) * XScale;
+            if (clade.BranchLength > 0) return CalcTotalBranchLength(clade) * treeStyle.XScale;
             return CalcX1(clade);
         }
 
@@ -146,7 +130,7 @@ namespace TreeViewer.Core.Exporting
         /// <returns><paramref name="clade"/>のY座標1</returns>
         private double CalcY1Core(Clade clade)
         {
-            if (clade.IsLeaf) return indexTable[clade] * YScale;
+            if (clade.IsLeaf) return indexTable[clade] * treeStyle.YScale;
             if (clade.Children.Count == 1) return CalcY2(clade.Children[0]);
             return (CalcY2(clade.Children[0]) + CalcY2(clade.Children[^1])) / 2;
         }
@@ -209,10 +193,10 @@ namespace TreeViewer.Core.Exporting
         {
             ArgumentNullException.ThrowIfNull(clade);
 
-            double xParent = CalcX1(clade) - BranchThickness / 2;
+            double xParent = CalcX1(clade) - treeStyle.BranchThickness / 2;
             double y = CalcY1(clade);
             double xChild = CalcX2(clade);
-            if (clade.IsLeaf) xChild += BranchThickness / 2;
+            if (clade.IsLeaf) xChild += treeStyle.BranchThickness / 2;
 
             return (xParent, xChild, y);
         }
@@ -249,6 +233,8 @@ namespace TreeViewer.Core.Exporting
 
             positions.Clear();
             indexTable.Clear();
+
+            treeStyle = tree.Style;
             foreach ((int index, Clade clade) in tree.GetAllLeaves().Index()) indexTable.Add(clade, index);
         }
 

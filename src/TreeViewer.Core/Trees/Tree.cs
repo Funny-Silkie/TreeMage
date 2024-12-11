@@ -1,4 +1,5 @@
-﻿using TreeViewer.Core.Trees.Parsers;
+﻿using TreeViewer.Core.Styles;
+using TreeViewer.Core.Trees.Parsers;
 
 namespace TreeViewer.Core.Trees
 {
@@ -11,6 +12,11 @@ namespace TreeViewer.Core.Trees
         /// ルートとなる<see cref="Clade"/>のインスタンスを取得します。
         /// </summary>
         public Clade Root { get; private set; }
+
+        /// <summary>
+        /// スタイルを取得します。
+        /// </summary>
+        public TreeStyle Style { get; } = new TreeStyle();
 
         /// <summary>
         /// <see cref="Tree"/>の新しいインスタンスを初期化します。

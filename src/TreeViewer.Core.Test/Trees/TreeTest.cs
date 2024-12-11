@@ -1,4 +1,6 @@
-﻿using TreeViewer.Core.Trees.Parsers;
+﻿using TreeViewer.Core.Assertions;
+using TreeViewer.Core.Styles;
+using TreeViewer.Core.Trees.Parsers;
 
 namespace TreeViewer.Core.Trees
 {
@@ -199,6 +201,7 @@ namespace TreeViewer.Core.Trees
             {
                 Assert.Same(root, tree.Root);
                 Assert.Same(tree, root.Tree);
+                CustomizedAssertions.Equal(new TreeStyle(), tree.Style);
             });
         }
 

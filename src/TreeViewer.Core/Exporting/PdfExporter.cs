@@ -33,9 +33,8 @@ namespace TreeViewer.Core.Exporting
         /// PDFオブジェクトを生成します。
         /// </summary>
         /// <param name="tree">描画するツリー</param>
-        /// <param name="options">オプション</param>
         /// <returns><paramref name="tree"/>の図を表すPDFオブジェクト</returns>
-        internal static PdfDocument CreatePdf(Tree tree, ExportOptions options)
+        internal static PdfDocument CreatePdf(Tree tree)
         {
             var result = new PdfDocument();
             result.Info.Creator = "TreeViewer";
@@ -45,17 +44,17 @@ namespace TreeViewer.Core.Exporting
 
             using XGraphics graphics = XGraphics.FromPdfPage(mainPage);
 
-            var leafFont = new XFont(FontFamily, options.LeafLabelsFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
-            var nodeValuesFont = new XFont(FontFamily, options.NodeValueFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
-            var branchValuesFont = new XFont(FontFamily, options.BranchValueFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
+            var leafFont = new XFont(FontFamily, tree.Style.LeafLabelsFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
+            var nodeValuesFont = new XFont(FontFamily, tree.Style.NodeValueFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
+            var branchValuesFont = new XFont(FontFamily, tree.Style.BranchValueFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
 
             Clade[] allLeaves = tree.GetAllLeaves()
                                     .ToArray();
 
-            double pageWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * options.XScale + 100;
-            if (options.ShowLeafLabels) pageWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * options.LeafLabelsFontSize / 1.25;
-            double pageHeight = allLeaves.Length * options.YScale + 100;
-            if (options.ShowScaleBar) pageHeight += options.ScaleBarFontSize;
+            double pageWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * tree.Style.XScale + 100;
+            if (tree.Style.ShowLeafLabels) pageWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * tree.Style.LeafLabelsFontSize / 1.25;
+            double pageHeight = allLeaves.Length * tree.Style.YScale + 100;
+            if (tree.Style.ShowScaleBar) pageHeight += tree.Style.ScaleBarFontSize;
 
             mainPage.Width = pageWidth;
             mainPage.Height = pageHeight;
@@ -64,21 +63,21 @@ namespace TreeViewer.Core.Exporting
 
             #region 系統樹部分
 
-            var positionManager = new PositionManager(options, tree);
+            var positionManager = new PositionManager(tree);
 
             foreach (Clade current in tree.GetAllClades())
             {
                 double totalLength = positionManager.CalcTotalBranchLength(current);
                 XPen branchPen = ExportHelpers.CreatePdfColor(current.Style.BranchColor)
-                                              .ToPen(options.BranchThickness);
+                                              .ToPen(tree.Style.BranchThickness);
 
                 if (current.IsLeaf)
                 {
-                    double x = totalLength * options.XScale + 5;
-                    double y = positionManager.CalcY1(current) + options.LeafLabelsFontSize / 2.5;
+                    double x = totalLength * tree.Style.XScale + 5;
+                    double y = positionManager.CalcY1(current) + tree.Style.LeafLabelsFontSize / 2.5;
 
                     // 系統名
-                    if (options.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
+                    if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
                     {
                         graphics.DrawString(current.Taxon,
                                             leafFont,
@@ -89,27 +88,27 @@ namespace TreeViewer.Core.Exporting
                 else
                 {
                     // 結節点の値
-                    if (options.ShowNodeValues)
+                    if (tree.Style.ShowNodeValues)
                     {
-                        string nodeValue = ExportHelpers.SelectShowValue(current, options.NodeValueType);
+                        string nodeValue = ExportHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                         if (nodeValue.Length > 0)
                         {
-                            double y = positionManager.CalcY1(current) + options.NodeValueFontSize / 2.5;
-                            if (current.Children.Count % 2 == 1) y += options.BranchThickness / 2 + 3 + options.NodeValueFontSize / 2.5;
+                            double y = positionManager.CalcY1(current) + tree.Style.NodeValueFontSize / 2.5;
+                            if (current.Children.Count % 2 == 1) y += tree.Style.BranchThickness / 2 + 3 + tree.Style.NodeValueFontSize / 2.5;
 
                             graphics.DrawString(nodeValue,
                                                 nodeValuesFont,
                                                 ExportHelpers.CreatePdfColor(current.Style.BranchColor).ToBrush(),
-                                                new XPoint(totalLength * options.XScale + 5, y));
+                                                new XPoint(totalLength * tree.Style.XScale + 5, y));
                         }
                     }
                 }
 
-                double x1 = (totalLength - current.BranchLength) * options.XScale;
+                double x1 = (totalLength - current.BranchLength) * tree.Style.XScale;
                 double x2;
                 if (current.BranchLength > 0)
                 {
-                    x2 = totalLength * options.XScale;
+                    x2 = totalLength * tree.Style.XScale;
 
                     // 横棒
                     {
@@ -121,8 +120,8 @@ namespace TreeViewer.Core.Exporting
                     }
 
                     // 枝の装飾
-                    if (options.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
-                        foreach (BranchDecorationStyle currentDecoration in options.DecorationStyles.Where(x => x.Regex.IsMatch(current.Supports)))
+                    if (tree.Style.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
+                        foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Regex.IsMatch(current.Supports)))
                         {
                             int size = currentDecoration.ShapeSize;
                             string color = currentDecoration.ShapeColor;
@@ -160,15 +159,15 @@ namespace TreeViewer.Core.Exporting
                         }
 
                     // 二分岐の値
-                    if (options.ShowBranchValues)
+                    if (tree.Style.ShowBranchValues)
                     {
-                        string branchValue = ExportHelpers.SelectShowValue(current, options.BranchValueType);
+                        string branchValue = ExportHelpers.SelectShowValue(current, tree.Style.BranchValueType);
                         if (branchValue.Length > 0)
                         {
                             graphics.DrawString(branchValue,
                                                 branchValuesFont,
                                                 ExportHelpers.CreatePdfColor(current.Style.BranchColor).ToBrush(),
-                                                new XPoint((x1 + x2) / 2, positionManager.CalcY1(current) - options.BranchValueFontSize / 2.5 - options.BranchThickness / 2),
+                                                new XPoint((x1 + x2) / 2, positionManager.CalcY1(current) - tree.Style.BranchValueFontSize / 2.5 - tree.Style.BranchThickness / 2),
                                                 new XStringFormat()
                                                 {
                                                     Alignment = XStringAlignment.Center,
@@ -201,20 +200,20 @@ namespace TreeViewer.Core.Exporting
 
             #region スケールバー
 
-            if (options.ShowScaleBar && options.ScaleBarValue > 0)
+            if (tree.Style.ShowScaleBar && tree.Style.ScaleBarValue > 0)
             {
-                double yOffset = allLeaves.Length * options.YScale + 30;
+                double yOffset = allLeaves.Length * tree.Style.YScale + 30;
 
-                double scaleBarWidth = options.ScaleBarValue * options.XScale;
-                graphics.DrawString(options.ScaleBarValue.ToString(),
-                                    new XFont(FontFamily, options.ScaleBarFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault),
+                double scaleBarWidth = tree.Style.ScaleBarValue * tree.Style.XScale;
+                graphics.DrawString(tree.Style.ScaleBarValue.ToString(),
+                                    new XFont(FontFamily, tree.Style.ScaleBarFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault),
                                     XBrushes.Black,
                                     new XPoint(scaleBarWidth / 2, yOffset), new XStringFormat()
                                     {
                                         Alignment = XStringAlignment.Center,
                                         LineAlignment = XLineAlignment.BaseLine,
                                     });
-                graphics.DrawLine(new XPen(XBrushes.Black, options.ScaleBarThickness),
+                graphics.DrawLine(new XPen(XBrushes.Black, tree.Style.ScaleBarThickness),
                                   new XPoint(0, 10 + yOffset),
                                   new XPoint(scaleBarWidth, 10 + yOffset));
             }
@@ -231,7 +230,7 @@ namespace TreeViewer.Core.Exporting
             ArgumentNullException.ThrowIfNull(destination);
             ArgumentNullException.ThrowIfNull(options);
 
-            using PdfDocument document = CreatePdf(tree, options);
+            using PdfDocument document = CreatePdf(tree);
             document.Save(destination);
         }
 

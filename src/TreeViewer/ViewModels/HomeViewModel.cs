@@ -311,6 +311,37 @@ namespace TreeViewer.ViewModels
         }
 
         /// <summary>
+        /// 対象の系統樹にスタイル情報を適用します。
+        /// </summary>
+        /// <param name="tree">適用する対象</param>
+        public void ApplyTreeStyle(Tree tree)
+        {
+            tree.Style.XScale = XScale.Value;
+            tree.Style.YScale = YScale.Value;
+            tree.Style.BranchThickness = BranchThickness.Value;
+            tree.Style.ShowLeafLabels = ShowLeafLabels.Value;
+            tree.Style.LeafLabelsFontSize = LeafLabelsFontSize.Value;
+            tree.Style.ShowNodeValues = ShowNodeValues.Value;
+            tree.Style.NodeValueType = NodeValueType.Value;
+            tree.Style.NodeValueFontSize = NodeValueFontSize.Value;
+            tree.Style.ShowBranchValues = ShowBranchValues.Value;
+            tree.Style.BranchValueType = BranchValueType.Value;
+            tree.Style.BranchValueFontSize = BranchValueFontSize.Value;
+            tree.Style.ShowBranchDecorations = ShowBranchDecorations.Value;
+            tree.Style.DecorationStyles = BranchDecorations.Where(x => x.Regex is not null && x.Visible.Value).Select(x => new BranchDecorationStyle()
+            {
+                Regex = x.Regex!,
+                ShapeSize = x.ShapeSize.Value,
+                ShapeColor = x.ShapeColor.Value,
+                DecorationType = x.DecorationType.Value,
+            }).ToArray();
+            tree.Style.ShowScaleBar = ShowScaleBar.Value;
+            tree.Style.ScaleBarValue = ScaleBarValue.Value;
+            tree.Style.ScaleBarFontSize = ScaleBarFontSize.Value;
+            tree.Style.ScaleBarThickness = ScaleBarThickness.Value;
+        }
+
+        /// <summary>
         /// <see cref="TreeIndex"/>が変更されたときに実行されます。
         /// </summary>
         /// <param name="value">変更後の値</param>
@@ -568,34 +599,11 @@ namespace TreeViewer.ViewModels
             Tree? tree = TargetTree.Value;
             if (tree is null) return;
 
+            ApplyTreeStyle(tree);
+
             IExporter exporter = IExporter.Create(type);
             using var stream = new FileStream(path, FileMode.Create);
-            await exporter.ExportAsync(tree, stream, new ExportOptions()
-            {
-                XScale = XScale.Value,
-                YScale = YScale.Value,
-                BranchThickness = BranchThickness.Value,
-                ShowLeafLabels = ShowLeafLabels.Value,
-                LeafLabelsFontSize = LeafLabelsFontSize.Value,
-                ShowNodeValues = ShowNodeValues.Value,
-                NodeValueType = NodeValueType.Value,
-                NodeValueFontSize = NodeValueFontSize.Value,
-                ShowBranchValues = ShowBranchValues.Value,
-                BranchValueType = BranchValueType.Value,
-                BranchValueFontSize = BranchValueFontSize.Value,
-                ShowBranchDecorations = ShowBranchDecorations.Value,
-                DecorationStyles = BranchDecorations.Where(x => x.Regex is not null && x.Visible.Value).Select(x => new BranchDecorationStyle()
-                {
-                    Regex = x.Regex!,
-                    ShapeSize = x.ShapeSize.Value,
-                    ShapeColor = x.ShapeColor.Value,
-                    DecorationType = x.DecorationType.Value,
-                }).ToArray(),
-                ShowScaleBar = ShowScaleBar.Value,
-                ScaleBarValue = ScaleBarValue.Value,
-                ScaleBarFontSize = ScaleBarFontSize.Value,
-                ScaleBarThickness = ScaleBarThickness.Value,
-            });
+            await exporter.ExportAsync(tree, stream, new ExportOptions());
         }
 
         /// <summary>

@@ -28,20 +28,19 @@ namespace TreeViewer.Core.Exporting
         /// SVGオブジェクトを生成します。
         /// </summary>
         /// <param name="tree">描画するツリー</param>
-        /// <param name="options">オプション</param>
         /// <returns><paramref name="tree"/>の図を表すSVGオブジェクト</returns>
-        internal static SvgDocument CreateSvg(Tree tree, ExportOptions options)
+        internal static SvgDocument CreateSvg(Tree tree)
         {
             Clade[] allLeaves = tree.GetAllLeaves()
                                     .ToArray();
 
-            double svgWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * options.XScale + 100;
-            if (options.ShowLeafLabels) svgWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * options.LeafLabelsFontSize / 1.25;
+            double svgWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * tree.Style.XScale + 100;
+            if (tree.Style.ShowLeafLabels) svgWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * tree.Style.LeafLabelsFontSize / 1.25;
 
             var result = new SvgDocument()
             {
                 Width = (SvgUnit)svgWidth,
-                Height = allLeaves.Length * options.YScale + 100,
+                Height = allLeaves.Length * tree.Style.YScale + 100,
             };
 
             #region 系統樹部分
@@ -55,7 +54,7 @@ namespace TreeViewer.Core.Exporting
             {
                 ID = "leaves",
             };
-            if (options.ShowLeafLabels) leavesGroup.AddTo(treeArea);
+            if (tree.Style.ShowLeafLabels) leavesGroup.AddTo(treeArea);
             SvgGroup branchesGroup = new SvgGroup()
             {
                 ID = "branches",
@@ -64,19 +63,19 @@ namespace TreeViewer.Core.Exporting
             {
                 ID = "node-values",
             };
-            if (options.ShowNodeValues) nodeValuesGroup.AddTo(treeArea);
+            if (tree.Style.ShowNodeValues) nodeValuesGroup.AddTo(treeArea);
             var branchValuesGroup = new SvgGroup()
             {
                 ID = "branch-values",
             };
-            if (options.ShowBranchValues) branchValuesGroup.AddTo(treeArea);
+            if (tree.Style.ShowBranchValues) branchValuesGroup.AddTo(treeArea);
             var branchDecorationsGroup = new SvgGroup()
             {
                 ID = "branch-decorations",
             };
-            if (options.ShowBranchDecorations) branchDecorationsGroup.AddTo(treeArea);
+            if (tree.Style.ShowBranchDecorations) branchDecorationsGroup.AddTo(treeArea);
 
-            var positionManager = new PositionManager(options, tree);
+            var positionManager = new PositionManager(tree);
 
             foreach (Clade current in tree.GetAllClades())
             {
@@ -84,18 +83,18 @@ namespace TreeViewer.Core.Exporting
 
                 if (current.IsLeaf)
                 {
-                    double x = totalLength * options.XScale + 5;
-                    double y = positionManager.CalcY1(current) + options.LeafLabelsFontSize / 2.5;
+                    double x = totalLength * tree.Style.XScale + 5;
+                    double y = positionManager.CalcY1(current) + tree.Style.LeafLabelsFontSize / 2.5;
 
                     // 系統名
-                    if (options.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
+                    if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
                     {
                         var leafText = new SvgText(current.Taxon)
                         {
                             X = [(SvgUnit)x],
                             Y = [(SvgUnit)y],
                             Fill = ExportHelpers.CreateSvgColor(current.Style.LeafColor),
-                            FontSize = options.LeafLabelsFontSize,
+                            FontSize = tree.Style.LeafLabelsFontSize,
                             FontFamily = FontFamily,
                         };
                         leafText.AddTo(leavesGroup);
@@ -104,20 +103,20 @@ namespace TreeViewer.Core.Exporting
                 else
                 {
                     // 結節点の値
-                    if (options.ShowNodeValues)
+                    if (tree.Style.ShowNodeValues)
                     {
-                        string nodeValue = ExportHelpers.SelectShowValue(current, options.NodeValueType);
+                        string nodeValue = ExportHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                         if (nodeValue.Length > 0)
                         {
-                            double y = positionManager.CalcY1(current) + options.NodeValueFontSize / 2.5;
-                            if (current.Children.Count % 2 == 1) y += options.BranchThickness / 2 + 3 + options.NodeValueFontSize / 2.5;
+                            double y = positionManager.CalcY1(current) + tree.Style.NodeValueFontSize / 2.5;
+                            if (current.Children.Count % 2 == 1) y += tree.Style.BranchThickness / 2 + 3 + tree.Style.NodeValueFontSize / 2.5;
 
                             var nodeValueText = new SvgText(nodeValue)
                             {
-                                X = [(SvgUnit)(totalLength * options.XScale + 5)],
+                                X = [(SvgUnit)(totalLength * tree.Style.XScale + 5)],
                                 Y = [(SvgUnit)y],
                                 Fill = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
-                                FontSize = options.NodeValueFontSize,
+                                FontSize = tree.Style.NodeValueFontSize,
                                 FontFamily = FontFamily,
                             };
                             nodeValueText.AddTo(nodeValuesGroup);
@@ -140,15 +139,15 @@ namespace TreeViewer.Core.Exporting
                             EndX = (SvgUnit)xChild,
                             EndY = (SvgUnit)y,
                             Stroke = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
-                            StrokeWidth = options.BranchThickness,
+                            StrokeWidth = tree.Style.BranchThickness,
                         };
                         horizontalLine.AddTo(branchesGroup);
                     }
 
                     // 枝の装飾
-                    if (options.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
+                    if (tree.Style.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
                     {
-                        foreach (BranchDecorationStyle currentDecoration in options.DecorationStyles.Where(x => x.Regex.IsMatch(current.Supports)))
+                        foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Regex.IsMatch(current.Supports)))
                         {
                             int size = currentDecoration.ShapeSize;
                             string color = currentDecoration.ShapeColor;
@@ -196,17 +195,17 @@ namespace TreeViewer.Core.Exporting
                     }
 
                     // 二分岐の値
-                    if (options.ShowBranchValues)
+                    if (tree.Style.ShowBranchValues)
                     {
-                        string branchValue = ExportHelpers.SelectShowValue(current, options.BranchValueType);
+                        string branchValue = ExportHelpers.SelectShowValue(current, tree.Style.BranchValueType);
                         if (branchValue.Length > 0)
                         {
                             var branchValueText = new SvgText(branchValue)
                             {
                                 X = [(SvgUnit)((x1 + x2) / 2)],
-                                Y = [(SvgUnit)(positionManager.CalcY1(current) - options.BranchValueFontSize / 2.5 - options.BranchThickness / 2)],
+                                Y = [(SvgUnit)(positionManager.CalcY1(current) - tree.Style.BranchValueFontSize / 2.5 - tree.Style.BranchThickness / 2)],
                                 Fill = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
-                                FontSize = options.BranchValueFontSize,
+                                FontSize = tree.Style.BranchValueFontSize,
                                 FontFamily = FontFamily,
                                 TextAnchor = SvgTextAnchor.Middle,
                             };
@@ -232,7 +231,7 @@ namespace TreeViewer.Core.Exporting
                                 EndX = (SvgUnit)x,
                                 EndY = (SvgUnit)yParent,
                                 Stroke = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
-                                StrokeWidth = options.BranchThickness,
+                                StrokeWidth = tree.Style.BranchThickness,
                             };
                             branchesGroup.Children.Add(verticalLine);
                         }
@@ -244,20 +243,20 @@ namespace TreeViewer.Core.Exporting
 
             #region スケールバー
 
-            if (options.ShowScaleBar && options.ScaleBarValue > 0)
+            if (tree.Style.ShowScaleBar && tree.Style.ScaleBarValue > 0)
             {
                 SvgGroup scaleBarArea = new SvgGroup()
                 {
                     ID = "scale-bar",
-                    Transforms = new SvgTransformCollection().Translate(50, (float)(allLeaves.Length * options.YScale + 30 + options.ScaleBarFontSize)),
+                    Transforms = new SvgTransformCollection().Translate(50, (float)(allLeaves.Length * tree.Style.YScale + 30 + tree.Style.ScaleBarFontSize)),
                 }.AddTo(result);
 
-                double scaleBarWidth = options.ScaleBarValue * options.XScale;
-                var scaleBarText = new SvgText(options.ScaleBarValue.ToString())
+                double scaleBarWidth = tree.Style.ScaleBarValue * tree.Style.XScale;
+                var scaleBarText = new SvgText(tree.Style.ScaleBarValue.ToString())
                 {
                     X = [(SvgUnit)(scaleBarWidth / 2)],
                     FontFamily = FontFamily,
-                    FontSize = options.ScaleBarFontSize,
+                    FontSize = tree.Style.ScaleBarFontSize,
                     TextAnchor = SvgTextAnchor.Middle,
                 };
                 scaleBarText.AddTo(scaleBarArea);
@@ -269,7 +268,7 @@ namespace TreeViewer.Core.Exporting
                     EndX = (SvgUnit)scaleBarWidth,
                     EndY = 10,
                     Stroke = new SvgColourServer(Color.Black),
-                    StrokeWidth = options.ScaleBarThickness,
+                    StrokeWidth = tree.Style.ScaleBarThickness,
                 };
                 scaleBarLine.AddTo(scaleBarArea);
             }
@@ -286,7 +285,7 @@ namespace TreeViewer.Core.Exporting
             ArgumentNullException.ThrowIfNull(destination);
             ArgumentNullException.ThrowIfNull(options);
 
-            SvgDocument svg = CreateSvg(tree, options);
+            SvgDocument svg = CreateSvg(tree);
             svg.Write(destination);
         }
 
