@@ -40,9 +40,6 @@ namespace TreeViewer.Core.Exporting
             var result = new PdfDocument();
             result.Info.Creator = "TreeViewer";
             result.Info.Keywords = "TreeViewer, Phylogeny";
-#if DEBUG
-            result.Info.CreationDate = new DateTime(2000, 1, 1);
-#endif
             result.PageLayout = PdfPageLayout.SinglePage;
             PdfPage mainPage = result.AddPage();
 
@@ -67,14 +64,11 @@ namespace TreeViewer.Core.Exporting
 
             #region 系統樹部分
 
-            Dictionary<Clade, int> indexTable = tree.GetAllLeaves()
-                                                    .Select((x, i) => (x, i))
-                                                    .ToDictionary();
-            var positionManager = new PositionManager(options, indexTable);
+            var positionManager = new PositionManager(options, tree);
 
             foreach (Clade current in tree.GetAllClades())
             {
-                double totalLength = current.GetTotalBranchLength();
+                double totalLength = positionManager.CalcTotalBranchLength(current);
                 XPen branchPen = ExportHelpers.CreatePdfColor(current.Style.BranchColor)
                                               .ToPen(options.BranchThickness);
 
@@ -119,12 +113,11 @@ namespace TreeViewer.Core.Exporting
 
                     // 横棒
                     {
-                        double x2Offset = current.IsLeaf ? 0 : options.BranchThickness / 2;
-                        double y = positionManager.CalcY1(current);
+                        (double xParent, double xChild, double y) = positionManager.CalcHorizontalBranchPositions(current);
 
                         graphics.DrawLine(branchPen,
-                                          new XPoint(x1 - options.BranchThickness / 2, y),
-                                          new XPoint(x2 + x2Offset, y));
+                                          new XPoint(xParent, y),
+                                          new XPoint(xChild, y));
                     }
 
                     // 枝の装飾
@@ -191,14 +184,14 @@ namespace TreeViewer.Core.Exporting
                 {
                     if (parent.Children.Count > 1)
                     {
-                        double y1 = positionManager.CalcY1(current);
-                        double y2 = positionManager.CalcY2(current);
+                        (double x, double yParent, double yChild) = positionManager.CalcVerticalBranchPositions(current);
+
                         // 縦棒
-                        if (y1 != y2)
+                        if (yParent != yChild)
                         {
                             graphics.DrawLine(branchPen,
-                                              new XPoint(x1, y1),
-                                              new XPoint(x1, y2));
+                                              new XPoint(x, yChild),
+                                              new XPoint(x, yParent));
                         }
                     }
                 }

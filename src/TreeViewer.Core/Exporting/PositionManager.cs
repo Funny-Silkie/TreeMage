@@ -5,25 +5,119 @@ namespace TreeViewer.Core.Exporting
     /// <summary>
     /// 座標の管理を行います。
     /// </summary>
-    internal class PositionManager
+    public class PositionManager
     {
-        private readonly Dictionary<Clade, double> y1Map = [];
-        private readonly Dictionary<Clade, double> y2Map = [];
-        private readonly ExportOptions options;
+        private readonly Dictionary<Clade, PositionInfo> positions = [];
         private readonly Dictionary<Clade, int> indexTable;
+
+        /// <summary>
+        /// X軸方向への拡大率を取得または設定します。
+        /// </summary>
+        public int XScale { get; set; } = 1;
+
+        /// <summary>
+        /// Y軸方向への拡大率を取得または設定します。
+        /// </summary>
+        public int YScale { get; set; } = 1;
+
+        /// <summary>
+        /// 枝の太さを取得または設定します。
+        /// </summary>
+        public int BranchThickness { get; set; } = 1;
+
+        /// <summary>
+        /// <see cref="PositionManager"/>の新しいインスタンスを初期化します。
+        /// </summary>
+        public PositionManager()
+        {
+            indexTable = [];
+        }
 
         /// <summary>
         /// <see cref="PositionManager"/>の新しいインスタンスを初期化します。
         /// </summary>
         /// <param name="options">オプション</param>
-        /// <param name="indexTable">クレードとインデックスの関係</param>
-        /// <exception cref="ArgumentNullException"><paramref name="options"/>または<paramref name="indexTable"/>が<see langword="null"/></exception>
-        public PositionManager(ExportOptions options, Dictionary<Clade, int> indexTable)
+        /// <param name="tree">対象の樹形</param>
+        /// <exception cref="ArgumentNullException"><paramref name="options"/>または<paramref name="tree"/>が<see langword="null"/></exception>
+        public PositionManager(ExportOptions options, Tree tree)
         {
             ArgumentNullException.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(tree);
 
-            this.options = options;
-            this.indexTable = indexTable;
+            XScale = options.XScale;
+            YScale = options.YScale;
+            BranchThickness = options.BranchThickness;
+            indexTable = tree.GetAllLeaves()
+                             .Select((x, i) => (x, i))
+                             .ToDictionary();
+        }
+
+        /// <summary>
+        /// 枝長の合計を算出します。
+        /// </summary>
+        /// <param name="clade">計算を行うクレード</param>
+        /// <returns><paramref name="clade"/>の合計枝長</returns>
+        public double CalcTotalBranchLength(Clade clade)
+        {
+            if (!positions.TryGetValue(clade, out PositionInfo? info))
+            {
+                info = new PositionInfo();
+                positions.Add(clade, info);
+            }
+            if (!double.IsNaN(info.TotalLength)) return info.TotalLength;
+
+            double result = clade.GetTotalBranchLength();
+            info.TotalLength = result;
+            return result;
+        }
+
+        /// <summary>
+        /// X座標1を算出します。
+        /// </summary>
+        /// <param name="clade">計算を行うクレード</param>
+        /// <returns><paramref name="clade"/>のX座標1</returns>
+        public double CalcX1(Clade clade)
+        {
+            if (!positions.TryGetValue(clade, out PositionInfo? info))
+            {
+                info = new PositionInfo();
+                positions.Add(clade, info);
+            }
+            if (!double.IsNaN(info.X1)) return info.X1;
+
+            double result = (CalcTotalBranchLength(clade) - clade.BranchLength) * XScale;
+            info.X1 = result;
+            return result;
+        }
+
+        /// <summary>
+        /// X座標2を算出します。
+        /// </summary>
+        /// <param name="clade">計算を行うクレード</param>
+        /// <returns><paramref name="clade"/>のX座標2</returns>
+        public double CalcX2(Clade clade)
+        {
+            if (!positions.TryGetValue(clade, out PositionInfo? info))
+            {
+                info = new PositionInfo();
+                positions.Add(clade, info);
+            }
+            if (!double.IsNaN(info.X2)) return info.X2;
+
+            double result = CalcX2Core(clade);
+            info.X2 = result;
+            return result;
+        }
+
+        /// <summary>
+        /// X座標2を算出します。
+        /// </summary>
+        /// <param name="clade">計算を行うクレード</param>
+        /// <returns><paramref name="clade"/>のX座標2</returns>
+        private double CalcX2Core(Clade clade)
+        {
+            if (clade.BranchLength > 0) return CalcTotalBranchLength(clade) * XScale;
+            return CalcX1(clade);
         }
 
         /// <summary>
@@ -33,16 +127,28 @@ namespace TreeViewer.Core.Exporting
         /// <returns><paramref name="clade"/>のY座標1</returns>
         public double CalcY1(Clade clade)
         {
-            if (y1Map.TryGetValue(clade, out double result)) return result;
-
-            if (clade.IsLeaf) result = indexTable[clade] * options.YScale;
-            else
+            if (!positions.TryGetValue(clade, out PositionInfo? info))
             {
-                if (clade.Children.Count == 1) result = CalcY2(clade.Children[0]);
-                result = (CalcY2(clade.Children[0]) + CalcY2(clade.Children[^1])) / 2;
+                info = new PositionInfo();
+                positions.Add(clade, info);
             }
-            y1Map.Add(clade, result);
+            if (!double.IsNaN(info.Y1)) return info.Y1;
+
+            double result = CalcY1Core(clade);
+            info.Y1 = result;
             return result;
+        }
+
+        /// <summary>
+        /// Y座標1を算出します。
+        /// </summary>
+        /// <param name="clade">計算を行うクレード</param>
+        /// <returns><paramref name="clade"/>のY座標1</returns>
+        private double CalcY1Core(Clade clade)
+        {
+            if (clade.IsLeaf) return indexTable[clade] * YScale;
+            if (clade.Children.Count == 1) return CalcY2(clade.Children[0]);
+            return (CalcY2(clade.Children[0]) + CalcY2(clade.Children[^1])) / 2;
         }
 
         /// <summary>
@@ -52,10 +158,15 @@ namespace TreeViewer.Core.Exporting
         /// <returns><paramref name="clade"/>のY座標2</returns>
         public double CalcY2(Clade clade)
         {
-            if (y2Map.TryGetValue(clade, out double result)) return result;
+            if (!positions.TryGetValue(clade, out PositionInfo? info))
+            {
+                info = new PositionInfo();
+                positions.Add(clade, info);
+            }
+            if (!double.IsNaN(info.Y2)) return info.Y2;
 
-            result = CalcY2Core(clade, CalcY1(clade));
-            y2Map.Add(clade, result);
+            double result = CalcY2Core(clade, CalcY1(clade));
+            info.Y2 = result;
             return result;
         }
 
@@ -89,12 +200,73 @@ namespace TreeViewer.Core.Exporting
         }
 
         /// <summary>
+        /// 枝の横棒の座標を算出します。
+        /// </summary>
+        /// <param name="clade">計算対象</param>
+        /// <returns><paramref name="clade"/>における枝の横棒の座標</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        public (double xParent, double xChild, double y) CalcHorizontalBranchPositions(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            double xParent = CalcX1(clade) - BranchThickness / 2;
+            double y = CalcY1(clade);
+            double xChild = CalcX2(clade);
+            if (clade.IsLeaf) xChild += BranchThickness / 2;
+
+            return (xParent, xChild, y);
+        }
+
+        /// <summary>
+        /// 枝の縦棒の座標を算出します。
+        /// </summary>
+        /// <param name="clade">計算対象</param>
+        /// <returns><paramref name="clade"/>における枝の縦棒の座標</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        public (double x, double yParent, double yChild) CalcVerticalBranchPositions(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            return (CalcX1(clade), CalcY2(clade), CalcY1(clade));
+        }
+
+        /// <summary>
         /// キャッシュされた値のリセットを行います。
         /// </summary>
-        public void Reset()
+        public void ClearCache()
         {
-            y1Map.Clear();
-            y2Map.Clear();
+            positions.Clear();
+        }
+
+        /// <summary>
+        /// 値のリセットを行います。
+        /// </summary>
+        /// <param name="tree">読み込むツリー</param>
+        /// <exception cref="ArgumentNullException"><paramref name="tree"/>が<see langword="null"/></exception>
+        public void Reset(Tree tree)
+        {
+            ArgumentNullException.ThrowIfNull(tree);
+
+            positions.Clear();
+            indexTable.Clear();
+            foreach ((int index, Clade clade) in tree.GetAllLeaves().Index()) indexTable.Add(clade, index);
+        }
+
+        internal sealed class PositionInfo
+        {
+            public double X1;
+            public double X2;
+            public double Y1;
+            public double Y2;
+            public double TotalLength;
+
+            /// <summary>
+            /// <see cref="PositionInfo"/>の新しいインスタンスを初期化します。
+            /// </summary>
+            public PositionInfo()
+            {
+                X1 = X2 = Y1 = Y2 = TotalLength = double.NaN;
+            }
         }
     }
 }

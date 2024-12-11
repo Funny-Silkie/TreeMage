@@ -76,14 +76,11 @@ namespace TreeViewer.Core.Exporting
             };
             if (options.ShowBranchDecorations) branchDecorationsGroup.AddTo(treeArea);
 
-            Dictionary<Clade, int> indexTable = tree.GetAllLeaves()
-                                                    .Select((x, i) => (x, i))
-                                                    .ToDictionary();
-            var positionManager = new PositionManager(options, indexTable);
+            var positionManager = new PositionManager(options, tree);
 
             foreach (Clade current in tree.GetAllClades())
             {
-                double totalLength = current.GetTotalBranchLength();
+                double totalLength = positionManager.CalcTotalBranchLength(current);
 
                 if (current.IsLeaf)
                 {
@@ -128,22 +125,20 @@ namespace TreeViewer.Core.Exporting
                     }
                 }
 
-                double x1 = (totalLength - current.BranchLength) * options.XScale;
-                double x2;
+                double x1 = positionManager.CalcX1(current);
+                double x2 = positionManager.CalcX2(current);
                 if (current.BranchLength > 0)
                 {
-                    x2 = totalLength * options.XScale;
-
                     // 横棒
                     {
-                        double x2Offset = current.IsLeaf ? 0 : options.BranchThickness / 2;
-                        SvgUnit y = (SvgUnit)positionManager.CalcY1(current);
+                        (double xParent, double xChild, double y) = positionManager.CalcHorizontalBranchPositions(current);
+
                         var horizontalLine = new SvgLine()
                         {
-                            StartX = (SvgUnit)(x1 - options.BranchThickness / 2),
-                            StartY = y,
-                            EndX = (SvgUnit)(x2 + x2Offset),
-                            EndY = y,
+                            StartX = (SvgUnit)xParent,
+                            StartY = (SvgUnit)y,
+                            EndX = (SvgUnit)xChild,
+                            EndY = (SvgUnit)y,
                             Stroke = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
                             StrokeWidth = options.BranchThickness,
                         };
@@ -152,7 +147,8 @@ namespace TreeViewer.Core.Exporting
 
                     // 枝の装飾
                     if (options.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
-                        foreach (var currentDecoration in options.DecorationStyles.Where(x => x.Regex.IsMatch(current.Supports)))
+                    {
+                        foreach (BranchDecorationStyle currentDecoration in options.DecorationStyles.Where(x => x.Regex.IsMatch(current.Supports)))
                         {
                             int size = currentDecoration.ShapeSize;
                             string color = currentDecoration.ShapeColor;
@@ -197,6 +193,7 @@ namespace TreeViewer.Core.Exporting
                             };
                             decorationSvg.AddTo(branchDecorationsGroup);
                         }
+                    }
 
                     // 二分岐の値
                     if (options.ShowBranchValues)
@@ -217,24 +214,23 @@ namespace TreeViewer.Core.Exporting
                         }
                     }
                 }
-                else x2 = x1;
 
                 Clade? parent = current.Parent;
                 if (parent is not null)
                 {
                     if (parent.Children.Count > 1)
                     {
-                        double y1 = positionManager.CalcY1(current);
-                        double y2 = positionManager.CalcY2(current);
+                        (double x, double yParent, double yChild) = positionManager.CalcVerticalBranchPositions(current);
+
                         // 縦棒
-                        if (y1 != y2)
+                        if (yParent != yChild)
                         {
                             var verticalLine = new SvgLine()
                             {
-                                StartX = (SvgUnit)x1,
-                                StartY = (SvgUnit)y1,
-                                EndX = (SvgUnit)x1,
-                                EndY = (SvgUnit)y2,
+                                StartX = (SvgUnit)x,
+                                StartY = (SvgUnit)yChild,
+                                EndX = (SvgUnit)x,
+                                EndY = (SvgUnit)yParent,
                                 Stroke = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
                                 StrokeWidth = options.BranchThickness,
                             };
