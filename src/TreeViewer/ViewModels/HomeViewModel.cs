@@ -1,8 +1,8 @@
 ﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Text.RegularExpressions;
+using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Exporting;
-using TreeViewer.Core.Styles;
 using TreeViewer.Core.Trees;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;

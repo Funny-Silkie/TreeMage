@@ -2,7 +2,8 @@
 using PdfSharpCore.Fonts;
 using PdfSharpCore.Pdf;
 using PdfSharpCore.Utils;
-using TreeViewer.Core.Styles;
+using TreeViewer.Core.Drawing;
+using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Exporting
@@ -48,7 +49,7 @@ namespace TreeViewer.Core.Exporting
 
             var positionManager = new PositionManager(tree);
 
-            (double pageWidth, double pageHeight) = positionManager.ClacDocumentSize();
+            (double pageWidth, double pageHeight) = positionManager.CalcDocumentSize();
 
             mainPage.Width = pageWidth;
             mainPage.Height = pageHeight;
@@ -61,7 +62,7 @@ namespace TreeViewer.Core.Exporting
 
                 foreach (Clade current in tree.GetAllClades())
                 {
-                    XPen branchPen = ExportHelpers.CreatePdfColor(current.Style.BranchColor)
+                    XPen branchPen = DrawHelpers.CreatePdfColor(current.Style.BranchColor)
                                                   .ToPen(tree.Style.BranchThickness);
 
                     if (current.IsLeaf)
@@ -73,7 +74,7 @@ namespace TreeViewer.Core.Exporting
 
                             graphics.DrawString(current.Taxon,
                                                 leafFont,
-                                                ExportHelpers.CreatePdfColor(current.Style.LeafColor).ToBrush(),
+                                                DrawHelpers.CreatePdfColor(current.Style.LeafColor).ToBrush(),
                                                 new XPoint(x, y));
                         }
                     }
@@ -82,14 +83,14 @@ namespace TreeViewer.Core.Exporting
                         // 結節点の値
                         if (tree.Style.ShowNodeValues)
                         {
-                            string nodeValue = ExportHelpers.SelectShowValue(current, tree.Style.NodeValueType);
+                            string nodeValue = DrawHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                             if (nodeValue.Length > 0)
                             {
                                 (double x, double y) = positionManager.CalcNodeValuePosition(current);
 
                                 graphics.DrawString(nodeValue,
                                                     nodeValuesFont,
-                                                    ExportHelpers.CreatePdfColor(current.Style.BranchColor).ToBrush(),
+                                                    DrawHelpers.CreatePdfColor(current.Style.BranchColor).ToBrush(),
                                                     new XPoint(x, y));
                             }
                         }
@@ -117,7 +118,7 @@ namespace TreeViewer.Core.Exporting
                                 switch (currentDecoration.DecorationType)
                                 {
                                     case BranchDecorationType.ClosedCircle:
-                                        graphics.DrawPie(ExportHelpers.CreatePdfColor(currentDecoration.ShapeColor).ToBrush(),
+                                        graphics.DrawPie(DrawHelpers.CreatePdfColor(currentDecoration.ShapeColor).ToBrush(),
                                                          shapeArea,
                                                          0,
                                                          360);
@@ -128,19 +129,19 @@ namespace TreeViewer.Core.Exporting
                                                          shapeArea,
                                                          0,
                                                          360);
-                                        graphics.DrawArc(ExportHelpers.CreatePdfColor(currentDecoration.ShapeColor).ToPen(1),
+                                        graphics.DrawArc(DrawHelpers.CreatePdfColor(currentDecoration.ShapeColor).ToPen(1),
                                                          shapeArea,
                                                          0,
                                                          360);
                                         break;
 
                                     case BranchDecorationType.ClosedRectangle:
-                                        graphics.DrawRectangle(ExportHelpers.CreatePdfColor(currentDecoration.ShapeColor).ToBrush(), shapeArea);
+                                        graphics.DrawRectangle(DrawHelpers.CreatePdfColor(currentDecoration.ShapeColor).ToBrush(), shapeArea);
                                         break;
 
                                     case BranchDecorationType.OpenedRectangle:
                                         graphics.DrawRectangle(XBrushes.White, shapeArea);
-                                        graphics.DrawRectangle(ExportHelpers.CreatePdfColor(currentDecoration.ShapeColor).ToPen(currentDecoration.ShapeSize / 5 + 1), shapeArea);
+                                        graphics.DrawRectangle(DrawHelpers.CreatePdfColor(currentDecoration.ShapeColor).ToPen(currentDecoration.ShapeSize / 5 + 1), shapeArea);
                                         break;
                                 }
                             }
@@ -148,14 +149,14 @@ namespace TreeViewer.Core.Exporting
                         // 二分岐の値
                         if (tree.Style.ShowBranchValues)
                         {
-                            string branchValue = ExportHelpers.SelectShowValue(current, tree.Style.BranchValueType);
+                            string branchValue = DrawHelpers.SelectShowValue(current, tree.Style.BranchValueType);
                             if (branchValue.Length > 0)
                             {
                                 (double x, double y) = positionManager.CalcBranchValuePosition(current);
 
                                 graphics.DrawString(branchValue,
                                                     branchValuesFont,
-                                                    ExportHelpers.CreatePdfColor(current.Style.BranchColor).ToBrush(),
+                                                    DrawHelpers.CreatePdfColor(current.Style.BranchColor).ToBrush(),
                                                     new XPoint(x, y),
                                                     new XStringFormat()
                                                     {

@@ -2,16 +2,16 @@
 using System.Drawing;
 using TreeViewer.Core.Trees;
 
-namespace TreeViewer.Core.Exporting
+namespace TreeViewer.Core.Drawing
 {
-    public class ExportHelpersTest
+    public class DrawHelpersTest
     {
         #region Static Methods
 
         [Fact]
         public void TryGetRgb_AsSuccess()
         {
-            bool success = ExportHelpers.TryGetRgb("rgb(1, 11, 111)", out byte r, out byte g, out byte b);
+            bool success = DrawHelpers.TryGetRgb("rgb(1, 11, 111)", out byte r, out byte g, out byte b);
 
             Assert.Multiple(() =>
             {
@@ -25,7 +25,7 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void TryGetRgb_AsFailure()
         {
-            bool success = ExportHelpers.TryGetRgb("white", out byte r, out byte g, out byte b);
+            bool success = DrawHelpers.TryGetRgb("white", out byte r, out byte g, out byte b);
 
             Assert.Multiple(() =>
             {
@@ -39,7 +39,7 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void TryGetRgba_AsSuccess()
         {
-            bool success = ExportHelpers.TryGetRgba("rgba(1, 11, 111, 01)", out byte r, out byte g, out byte b, out byte a);
+            bool success = DrawHelpers.TryGetRgba("rgba(1, 11, 111, 01)", out byte r, out byte g, out byte b, out byte a);
 
             Assert.Multiple(() =>
             {
@@ -54,7 +54,7 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void TryGetRgba_AsFailure()
         {
-            bool success = ExportHelpers.TryGetRgba("white", out byte r, out byte g, out byte b, out byte a);
+            bool success = DrawHelpers.TryGetRgba("white", out byte r, out byte g, out byte b, out byte a);
 
             Assert.Multiple(() =>
             {
@@ -71,9 +71,9 @@ namespace TreeViewer.Core.Exporting
         {
             Assert.Multiple(() =>
             {
-                Assert.Equal(Color.Black, ExportHelpers.CreateSvgColor("black").Colour);
-                Assert.Equal(Color.FromArgb(10, 20, 30), ExportHelpers.CreateSvgColor("rgb(10, 20, 30)").Colour);
-                Assert.Equal(Color.FromArgb(40, 10, 20, 30), ExportHelpers.CreateSvgColor("rgba(10, 20, 30, 40)").Colour);
+                Assert.Equal(Color.Black, DrawHelpers.CreateSvgColor("black").Colour);
+                Assert.Equal(Color.FromArgb(10, 20, 30), DrawHelpers.CreateSvgColor("rgb(10, 20, 30)").Colour);
+                Assert.Equal(Color.FromArgb(40, 10, 20, 30), DrawHelpers.CreateSvgColor("rgba(10, 20, 30, 40)").Colour);
             });
         }
 
@@ -82,10 +82,10 @@ namespace TreeViewer.Core.Exporting
         {
             Assert.Multiple(() =>
             {
-                Assert.Equal(XColor.FromArgb(10, 20, 30), ExportHelpers.CreatePdfColor("rgb(10, 20, 30)"));
-                Assert.Equal(XColor.FromArgb(40, 10, 20, 30), ExportHelpers.CreatePdfColor("rgba(10, 20, 30, 40)"));
-                Assert.Equal(XColor.FromKnownColor(XKnownColor.Red), ExportHelpers.CreatePdfColor("red"));
-                Assert.Equal(XColor.FromArgb(0, 0, 0), ExportHelpers.CreatePdfColor("!!!"));
+                Assert.Equal(XColor.FromArgb(10, 20, 30), DrawHelpers.CreatePdfColor("rgb(10, 20, 30)"));
+                Assert.Equal(XColor.FromArgb(40, 10, 20, 30), DrawHelpers.CreatePdfColor("rgba(10, 20, 30, 40)"));
+                Assert.Equal(XColor.FromKnownColor(XKnownColor.Red), DrawHelpers.CreatePdfColor("red"));
+                Assert.Equal(XColor.FromArgb(0, 0, 0), DrawHelpers.CreatePdfColor("!!!"));
             });
         }
 
@@ -121,9 +121,9 @@ namespace TreeViewer.Core.Exporting
 
             Assert.Multiple(() =>
             {
-                Assert.Empty(ExportHelpers.SelectShowValue(clade, (CladeValueType)(-1)));
-                Assert.Equal(clade.Supports, ExportHelpers.SelectShowValue(clade, CladeValueType.Supports));
-                Assert.Equal(clade.BranchLength.ToString(), ExportHelpers.SelectShowValue(clade, CladeValueType.BranchLength));
+                Assert.Empty(DrawHelpers.SelectShowValue(clade, (CladeValueType)(-1)));
+                Assert.Equal(clade.Supports, DrawHelpers.SelectShowValue(clade, CladeValueType.Supports));
+                Assert.Equal(clade.BranchLength.ToString(), DrawHelpers.SelectShowValue(clade, CladeValueType.BranchLength));
             });
         }
 

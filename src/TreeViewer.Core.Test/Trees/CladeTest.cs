@@ -1,5 +1,5 @@
 ﻿using TreeViewer.Core.Assertions;
-using TreeViewer.Core.Styles;
+using TreeViewer.Core.Drawing.Styles;
 
 namespace TreeViewer.Core.Trees
 {

@@ -1,5 +1,5 @@
 ﻿using System.Buffers;
-using TreeViewer.Core.Styles;
+using TreeViewer.Core.Drawing.Styles;
 using Xunit.Sdk;
 
 namespace TreeViewer.Core.Assertions

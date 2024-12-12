@@ -1,7 +1,7 @@
 ﻿using Svg;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Assertions;
-using TreeViewer.Core.Styles;
+using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Exporting

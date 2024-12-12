@@ -1,6 +1,6 @@
 ﻿using TreeViewer.Core.Trees;
 
-namespace TreeViewer.Core.Styles
+namespace TreeViewer.Core.Drawing.Styles
 {
     /// <summary>
     /// ツリーのスタイルを表します。

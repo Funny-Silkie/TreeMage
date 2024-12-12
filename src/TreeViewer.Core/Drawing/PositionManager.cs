@@ -1,7 +1,7 @@
-﻿using TreeViewer.Core.Styles;
+﻿using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 
-namespace TreeViewer.Core.Exporting
+namespace TreeViewer.Core.Drawing
 {
     /// <summary>
     /// 座標の管理を行います。
@@ -190,7 +190,7 @@ namespace TreeViewer.Core.Exporting
         /// ドキュメントのサイズを取得します。
         /// </summary>
         /// <returns>ドキュメントのサイズ</returns>
-        public (double width, double height) ClacDocumentSize()
+        public (double width, double height) CalcDocumentSize()
         {
             double width = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * treeStyle.XScale + 100;
             if (treeStyle.ShowLeafLabels) width += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * treeStyle.LeafLabelsFontSize / 1.25;

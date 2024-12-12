@@ -1,4 +1,4 @@
-﻿using TreeViewer.Core.Styles;
+﻿using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees.Parsers;
 
 namespace TreeViewer.Core.Trees

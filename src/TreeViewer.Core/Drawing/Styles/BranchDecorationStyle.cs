@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace TreeViewer.Core.Styles
+namespace TreeViewer.Core.Drawing.Styles
 {
     /// <summary>
     /// 枝の装飾のスタイルを表します。
