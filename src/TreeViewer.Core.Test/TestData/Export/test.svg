@@ -56,7 +56,7 @@
     <g id="branch-decorations" />
   </g>
   <g transform="translate(50, 265)" id="scale-bar">
-    <text x="15" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25">1</text>
+    <text x="15" y="0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25">1</text>
     <line x1="0" y1="10" x2="30" y2="10" stroke-width="5" style="stroke:black;" />
   </g>
 </svg>

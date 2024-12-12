@@ -1,4 +1,5 @@
-﻿using TreeViewer.Core.Styles;
+﻿using TreeViewer.Core.Assertions;
+using TreeViewer.Core.Drawing.Styles;
 
 namespace TreeViewer.Core.Trees
 {
@@ -39,7 +40,7 @@ namespace TreeViewer.Core.Trees
                 Assert.Equal(expected.Supports, actual.Supports);
                 Assert.Equal(expected.BranchLength, actual.BranchLength);
                 Assert.Equal(expected.ChildrenInternal.Count, actual.ChildrenInternal.Count);
-                CladeStyleTest.CompareStyles(expected.Style, actual.Style);
+                CustomizedAssertions.Equal(expected.Style, actual.Style);
             });
 
             for (int i = 0; i < expected.ChildrenInternal.Count; i++) CompareClades(expected.ChildrenInternal[i], actual.ChildrenInternal[i]);
@@ -60,7 +61,7 @@ namespace TreeViewer.Core.Trees
                 Assert.Null(clade.Parent);
                 Assert.Empty(clade.ChildrenInternal);
                 Assert.Null(clade.TreeInternal);
-                CladeStyleTest.CompareStyles(new CladeStyle(), clade.Style);
+                CustomizedAssertions.Equal(new CladeStyle(), clade.Style);
             });
         }
 

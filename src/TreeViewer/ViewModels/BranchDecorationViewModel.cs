@@ -1,7 +1,7 @@
 ﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Text.RegularExpressions;
-using TreeViewer.Core.Styles;
+using TreeViewer.Core.Drawing.Styles;
 
 namespace TreeViewer.ViewModels
 {

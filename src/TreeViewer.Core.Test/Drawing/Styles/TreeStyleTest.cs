@@ -1,22 +1,22 @@
 ﻿using TreeViewer.Core.Trees;
 
-namespace TreeViewer.Core.Exporting
+namespace TreeViewer.Core.Drawing.Styles
 {
-    public class ExportOptionsTest
+    public class TreeStyleTest
     {
-        private readonly ExportOptions options;
+        private readonly TreeStyle options;
 
-        public ExportOptionsTest()
+        public TreeStyleTest()
         {
-            options = new ExportOptions();
+            options = new TreeStyle();
         }
 
         #region Ctors
 
         [Fact]
-        public void Ctors()
+        public void Ctor()
         {
-            var options = new ExportOptions();
+            var options = new TreeStyle();
 
             Assert.Multiple(() =>
             {

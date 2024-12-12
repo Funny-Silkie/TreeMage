@@ -6,17 +6,17 @@ namespace TreeViewer.Core.Exporting
     {
         private const string outputPath = "test.pdf";
 
+        private readonly Tree tree;
         private readonly PdfExporter exporter;
         private readonly ExportOptions exportOptions;
 
         public PdfExporterTest()
         {
+            tree = TreeTest.CreateDummyTree();
+            tree.Style.XScale = 30;
+            tree.Style.ScaleBarValue = 1;
             exporter = new PdfExporter();
-            exportOptions = new ExportOptions()
-            {
-                XScale = 30,
-                ScaleBarValue = 1,
-            };
+            exportOptions = new ExportOptions();
         }
 
         #region Ctors
@@ -53,14 +53,14 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void Export_WithNullStream()
         {
-            Assert.Throws<ArgumentNullException>(() => exporter.Export(TreeTest.CreateDummyTree(), null!, new ExportOptions()));
+            Assert.Throws<ArgumentNullException>(() => exporter.Export(tree, null!, new ExportOptions()));
         }
 
         [Fact]
         public void Export_WithNullOptions()
         {
             using var stream = new MemoryStream();
-            Assert.Throws<ArgumentNullException>(() => exporter.Export(TreeTest.CreateDummyTree(), stream, null!));
+            Assert.Throws<ArgumentNullException>(() => exporter.Export(tree, stream, null!));
         }
 
         [Fact]
@@ -68,7 +68,7 @@ namespace TreeViewer.Core.Exporting
         {
             using (var stream = new FileStream(outputPath, FileMode.Create))
             {
-                exporter.Export(TreeTest.CreateDummyTree(), stream, exportOptions);
+                exporter.Export(tree, stream, exportOptions);
             }
 
             var fileInfo = new FileInfo(outputPath);
@@ -86,14 +86,14 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public async Task ExportAsync_WithNullStream()
         {
-            await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(TreeTest.CreateDummyTree(), null!, new ExportOptions()));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(tree, null!, new ExportOptions()));
         }
 
         [Fact]
         public async Task ExportAsync_WithNullOptions()
         {
             using var stream = new MemoryStream();
-            await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(TreeTest.CreateDummyTree(), stream, null!));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(tree, stream, null!));
         }
 
         [Fact]
@@ -101,7 +101,7 @@ namespace TreeViewer.Core.Exporting
         {
             using (var stream = new FileStream(outputPath, FileMode.Create))
             {
-                await exporter.ExportAsync(TreeTest.CreateDummyTree(), stream, exportOptions);
+                await exporter.ExportAsync(tree, stream, exportOptions);
             }
 
             var fileInfo = new FileInfo(outputPath);

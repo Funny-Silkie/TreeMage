@@ -5,12 +5,12 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Trees;
 
-namespace TreeViewer.Core.Exporting
+namespace TreeViewer.Core.Drawing
 {
     /// <summary>
-    /// エクスポートのヘルパークラスを表します。
+    /// 描画のヘルパークラスを表します。
     /// </summary>
-    internal static partial class ExportHelpers
+    internal static partial class DrawHelpers
     {
         /// <summary>
         /// RGBカラーを取得します。

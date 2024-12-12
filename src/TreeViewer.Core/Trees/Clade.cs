@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using TreeViewer.Core.Styles;
+using TreeViewer.Core.Drawing.Styles;
 
 namespace TreeViewer.Core.Trees
 {

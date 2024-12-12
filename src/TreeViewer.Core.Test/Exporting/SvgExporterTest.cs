@@ -1,7 +1,7 @@
 ﻿using Svg;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Assertions;
-using TreeViewer.Core.Styles;
+using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Exporting
@@ -10,17 +10,17 @@ namespace TreeViewer.Core.Exporting
     {
         private const string outputPath = "test.svg";
 
+        private readonly Tree tree;
         private readonly SvgExporter exporter;
         private readonly ExportOptions exportOptions;
 
         public SvgExporterTest()
         {
+            tree = TreeTest.CreateDummyTree();
+            tree.Style.XScale = 30;
+            tree.Style.ScaleBarValue = 1;
             exporter = new SvgExporter();
-            exportOptions = new ExportOptions()
-            {
-                XScale = 30,
-                ScaleBarValue = 1,
-            };
+            exportOptions = new ExportOptions();
         }
 
         [GeneratedRegex(@"^([8-9]\d|100)/([8-9]\d|100)$")]
@@ -53,13 +53,13 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void CreateSvg_Minumum()
         {
-            exportOptions.ShowLeafLabels = false;
-            exportOptions.ShowNodeValues = false;
-            exportOptions.ShowBranchValues = false;
-            exportOptions.ShowBranchDecorations = false;
-            exportOptions.ShowScaleBar = false;
+            tree.Style.ShowLeafLabels = false;
+            tree.Style.ShowNodeValues = false;
+            tree.Style.ShowBranchValues = false;
+            tree.Style.ShowBranchDecorations = false;
+            tree.Style.ShowScaleBar = false;
 
-            SvgDocument svg = SvgExporter.CreateSvg(TreeTest.CreateDummyTree(), exportOptions);
+            SvgDocument svg = SvgExporter.CreateSvg(tree);
 
             Assert.Multiple(() =>
             {
@@ -80,9 +80,9 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void CreateSvg_OnOutputLeaves()
         {
-            exportOptions.ShowLeafLabels = true;
+            tree.Style.ShowLeafLabels = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(TreeTest.CreateDummyTree(), exportOptions);
+            SvgDocument svg = SvgExporter.CreateSvg(tree);
 
             Assert.Multiple(() =>
             {
@@ -103,9 +103,9 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void CreateSvg_OnOutputNodeValues()
         {
-            exportOptions.ShowNodeValues = true;
+            tree.Style.ShowNodeValues = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(TreeTest.CreateDummyTree(), exportOptions);
+            SvgDocument svg = SvgExporter.CreateSvg(tree);
 
             Assert.Multiple(() =>
             {
@@ -126,9 +126,9 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void CreateSvg_OnOutputBranchValues()
         {
-            exportOptions.ShowBranchValues = true;
+            tree.Style.ShowBranchValues = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(TreeTest.CreateDummyTree(), exportOptions);
+            SvgDocument svg = SvgExporter.CreateSvg(tree);
 
             Assert.Multiple(() =>
             {
@@ -149,10 +149,10 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void CreateSvg_OnOutputBranchDecorationsAsEmpty()
         {
-            exportOptions.ShowBranchDecorations = true;
-            exportOptions.DecorationStyles = [];
+            tree.Style.ShowBranchDecorations = true;
+            tree.Style.DecorationStyles = [];
 
-            SvgDocument svg = SvgExporter.CreateSvg(TreeTest.CreateDummyTree(), exportOptions);
+            SvgDocument svg = SvgExporter.CreateSvg(tree);
 
             Assert.Multiple(() =>
             {
@@ -172,8 +172,8 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void CreateSvg_OnOutputBranchDecorationsAsNotEmpty()
         {
-            exportOptions.ShowBranchDecorations = true;
-            exportOptions.DecorationStyles = [
+            tree.Style.ShowBranchDecorations = true;
+            tree.Style.DecorationStyles = [
                 new BranchDecorationStyle()
                 {
                     Regex = GetDecorationRegex(),
@@ -181,7 +181,7 @@ namespace TreeViewer.Core.Exporting
                 },
             ];
 
-            SvgDocument svg = SvgExporter.CreateSvg(TreeTest.CreateDummyTree(), exportOptions);
+            SvgDocument svg = SvgExporter.CreateSvg(tree);
 
             Assert.Multiple(() =>
             {
@@ -202,9 +202,9 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void CreateSvg_OnOutputScaleBar()
         {
-            exportOptions.ShowScaleBar = true;
+            tree.Style.ShowScaleBar = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(TreeTest.CreateDummyTree(), exportOptions);
+            SvgDocument svg = SvgExporter.CreateSvg(tree);
 
             Assert.Multiple(() =>
             {
@@ -219,7 +219,7 @@ namespace TreeViewer.Core.Exporting
                 Assert.IsType<SvgGroup>(scaleBarGroup);
                 Assert.Equal(2, scaleBarGroup.Children.Count);
                 Assert.IsType<SvgText>(scaleBarGroup.Children[0]);
-                Assert.Equal(exportOptions.ScaleBarValue.ToString(), ((SvgText)scaleBarGroup.Children[0]).Text);
+                Assert.Equal(tree.Style.ScaleBarValue.ToString(), ((SvgText)scaleBarGroup.Children[0]).Text);
                 Assert.IsType<SvgLine>(scaleBarGroup.Children[1]);
             });
         }
@@ -227,20 +227,20 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void CreateSvg_Maximum()
         {
-            exportOptions.ShowLeafLabels = true;
-            exportOptions.ShowNodeValues = true;
-            exportOptions.ShowBranchValues = true;
-            exportOptions.ShowBranchDecorations = true;
-            exportOptions.DecorationStyles = [
+            tree.Style.ShowLeafLabels = true;
+            tree.Style.ShowNodeValues = true;
+            tree.Style.ShowBranchValues = true;
+            tree.Style.ShowBranchDecorations = true;
+            tree.Style.DecorationStyles = [
                 new BranchDecorationStyle()
                 {
                     Regex = GetDecorationRegex(),
                     DecorationType = BranchDecorationType.ClosedCircle,
                 },
             ];
-            exportOptions.ShowScaleBar = true;
+            tree.Style.ShowScaleBar = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(TreeTest.CreateDummyTree(), exportOptions);
+            SvgDocument svg = SvgExporter.CreateSvg(tree);
 
             Assert.Multiple(() =>
             {
@@ -282,7 +282,7 @@ namespace TreeViewer.Core.Exporting
                 Assert.IsType<SvgGroup>(scaleBarGroup);
                 Assert.Equal(2, scaleBarGroup.Children.Count);
                 Assert.IsType<SvgText>(scaleBarGroup.Children[0]);
-                Assert.Equal(exportOptions.ScaleBarValue.ToString(), ((SvgText)scaleBarGroup.Children[0]).Text);
+                Assert.Equal(tree.Style.ScaleBarValue.ToString(), ((SvgText)scaleBarGroup.Children[0]).Text);
                 Assert.IsType<SvgLine>(scaleBarGroup.Children[1]);
             });
         }
@@ -301,14 +301,14 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void Export_WithNullStream()
         {
-            Assert.Throws<ArgumentNullException>(() => exporter.Export(TreeTest.CreateDummyTree(), null!, new ExportOptions()));
+            Assert.Throws<ArgumentNullException>(() => exporter.Export(tree, null!, new ExportOptions()));
         }
 
         [Fact]
         public void Export_WithNullOptions()
         {
             using var stream = new MemoryStream();
-            Assert.Throws<ArgumentNullException>(() => exporter.Export(TreeTest.CreateDummyTree(), stream, null!));
+            Assert.Throws<ArgumentNullException>(() => exporter.Export(tree, stream, null!));
         }
 
         [Fact]
@@ -316,7 +316,7 @@ namespace TreeViewer.Core.Exporting
         {
             using (var stream = new FileStream(outputPath, FileMode.Create))
             {
-                exporter.Export(TreeTest.CreateDummyTree(), stream, exportOptions);
+                exporter.Export(tree, stream, exportOptions);
             }
 
             var fileInfo = new FileInfo(outputPath);
@@ -338,14 +338,14 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public async Task ExportAsync_WithNullStream()
         {
-            await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(TreeTest.CreateDummyTree(), null!, new ExportOptions()));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(tree, null!, new ExportOptions()));
         }
 
         [Fact]
         public async Task ExportAsync_WithNullOptions()
         {
             using var stream = new MemoryStream();
-            await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(TreeTest.CreateDummyTree(), stream, null!));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(tree, stream, null!));
         }
 
         [Fact]
@@ -353,7 +353,7 @@ namespace TreeViewer.Core.Exporting
         {
             using (var stream = new FileStream(outputPath, FileMode.Create))
             {
-                await exporter.ExportAsync(TreeTest.CreateDummyTree(), stream, exportOptions);
+                await exporter.ExportAsync(tree, stream, exportOptions);
             }
 
             var fileInfo = new FileInfo(outputPath);

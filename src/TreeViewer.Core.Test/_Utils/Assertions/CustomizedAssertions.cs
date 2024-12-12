@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using TreeViewer.Core.Drawing.Styles;
 using Xunit.Sdk;
 
 namespace TreeViewer.Core.Assertions
@@ -118,6 +119,51 @@ namespace TreeViewer.Core.Assertions
             {
                 ArrayPool<byte>.Shared.Return(expectedBuffer);
             }
+        }
+
+        /// <summary>
+        /// <see cref="TreeStyle"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(TreeStyle expected, TreeStyle actual)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(expected.XScale, actual.XScale);
+                Assert.Equal(expected.YScale, actual.YScale);
+                Assert.Equal(expected.BranchThickness, actual.BranchThickness);
+                Assert.Equal(expected.ShowLeafLabels, actual.ShowLeafLabels);
+                Assert.Equal(expected.LeafLabelsFontSize, actual.LeafLabelsFontSize);
+                Assert.Equal(expected.ShowNodeValues, actual.ShowNodeValues);
+                Assert.Equal(expected.NodeValueType, actual.NodeValueType);
+                Assert.Equal(expected.NodeValueFontSize, actual.NodeValueFontSize);
+                Assert.Equal(expected.ShowBranchValues, actual.ShowBranchValues);
+                Assert.Equal(expected.BranchValueType, actual.BranchValueType);
+                Assert.Equal(expected.BranchValueFontSize, actual.BranchValueFontSize);
+                Assert.Equal(expected.ShowBranchDecorations, actual.ShowBranchDecorations);
+                Assert.Equal(expected.DecorationStyles, actual.DecorationStyles);
+                Assert.Equal(expected.ShowScaleBar, actual.ShowScaleBar);
+                Assert.Equal(expected.ScaleBarValue, actual.ScaleBarValue);
+                Assert.Equal(expected.ScaleBarFontSize, actual.ScaleBarFontSize);
+                Assert.Equal(expected.ScaleBarThickness, actual.ScaleBarThickness);
+            });
+        }
+
+        /// <summary>
+        /// <see cref="CladeStyle"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(CladeStyle expected, CladeStyle actual)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(expected.BranchColor, actual.BranchColor);
+                Assert.Equal(expected.LeafColor, actual.LeafColor);
+            });
         }
     }
 }

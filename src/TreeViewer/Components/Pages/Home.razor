@@ -2,7 +2,7 @@
 @rendermode InteractiveServer
 @inject HomeViewModel ViewModel
 
-<RadzenLayout>
+<RadzenLayout Style="user-select: none">
     <RadzenHeader>
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
             <RadzenSidebarToggle Click="() => toggleExpanded = !toggleExpanded" />
@@ -217,23 +217,16 @@
             <RadzenSplitterPane Size="calc(100% - 300px)" Style="overflow: scroll">
                 @if (ViewModel.TargetTree.Value is not null)
                 {
-                    y1Map.Clear();
-                    y2Map.Clear();
-
                     Tree tree = ViewModel.TargetTree.Value;
-                    Dictionary<Clade, int> indexTable = tree.GetAllLeaves().Select((x, i) => (x, i)).ToDictionary();
-                    Clade[] allLeaves = tree.GetAllLeaves().ToArray();
-                    double svgWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * ViewModel.XScale.Value + 100;
-                    if (ViewModel.ShowLeafLabels.Value) svgWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * ViewModel.LeafLabelsFontSize.Value / 1.25;
+                    ViewModel.ApplyTreeStyle(tree);
+                    positionManager.Reset(tree);
 
-                    double svgHeight = allLeaves.Length * ViewModel.YScale.Value + 100;
-                    if (ViewModel.ShowScaleBar.Value) svgHeight += ViewModel.ScaleBarFontSize.Value;
+                    (double svgWidth, double svgHeight) = positionManager.CalcDocumentSize();
 
                     <svg width="@svgWidth" height="@svgHeight">
                         <style type="text/css">
                             text {
                                 font-family: Arial, Helvetica, sans-serif;
-                                user-select: none;
                             }
 
                             .leaf {
@@ -275,22 +268,13 @@
                         <g transform="translate(50, 50)">
                             @foreach (Clade current in tree.GetAllClades())
                             {
-                                //
-                                // y1   +----current
-                                //      |
-                                // y2   |
-                                //   .Parent
-                                //      x1  x2
-
-                                double totalLength = current.GetTotalBranchLength();
-                                double y1 = CalcY1(current, indexTable);
                                 if (current.IsLeaf)
                                 {
                                     // 系統名
-                                    if (ViewModel.ShowLeafLabels.Value && !string.IsNullOrEmpty(current.Taxon))
+                                    if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
                                     {
-                                        double x = totalLength * ViewModel.XScale.Value + 5;
-                                        double y = (y1 + ViewModel.LeafLabelsFontSize.Value / 2.5);
+                                        (double x, double y) = positionManager.CalcLeafPosition(current);
+
                                         var svgText = new MarkupString($"<text class=\"leaf\" x=\"{x}\" y=\"{y}\" style=\"fill: {current.Style.LeafColor}\">{current.Taxon}</text>");
                                         @svgText
 
@@ -300,9 +284,8 @@
                                         double width = current.Taxon.Length * ViewModel.LeafLabelsFontSize.Value / 2;
                                         double height = ViewModel.LeafLabelsFontSize.Value;
 
-                                        <rect id="@id" class="clickable-leaf" x="@(x - 2)" y="@(y1 - ViewModel.LeafLabelsFontSize.Value / 2.5 - 2)" width="@width" height="@height"
+                                        <rect id="@id" class="clickable-leaf" x="@(x - 2)" y="@(positionManager.CalcY1(current) - ViewModel.LeafLabelsFontSize.Value / 2.5 - 2)" width="@width" height="@height"
                                               style="fill: @fillColor" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
-
                                     }
                                 }
                                 else
@@ -313,54 +296,73 @@
                                         string nodeValue = SelectShowValue(current, ViewModel.NodeValueType.Value);
                                         if (nodeValue.Length > 0)
                                         {
-                                            double y = y1 + ViewModel.NodeValueFontSize.Value / 2.5 - ViewModel.YScale.Value;
-                                            if (current.Children.Count % 2 == 1) y += ViewModel.BranchThickness.Value / 2 + 3 + ViewModel.NodeValueFontSize.Value / 2.5;
+                                            (double x, double y) = positionManager.CalcNodeValuePosition(current);
 
-                                            <svg x="@(totalLength * ViewModel.XScale.Value + 5)" y="@y">
-                                                <text class="node-value" y="@ViewModel.YScale.Value">
-                                                    @nodeValue
-                                                </text>
-                                            </svg>
+                                            var svgText = new MarkupString($"<text class=\"node-value\" x=\"{x}\" y=\"{y}\" style=\"fill: {current.Style.BranchColor}\">{nodeValue}</text>");
+                                            @svgText
                                         }
                                     }
                                 }
-                                double x1 = (totalLength - current.BranchLength) * ViewModel.XScale.Value;
 
-                                double x2;
                                 if (current.BranchLength > 0)
                                 {
-                                    x2 = totalLength * ViewModel.XScale.Value;
-
                                     // 横棒
                                     {
-                                        double x2Offset = current.IsLeaf ? 0 : ViewModel.BranchThickness.Value / 2;
-                                        <line class="branch" x1="@(x1 - ViewModel.BranchThickness.Value / 2)" y1="@y1" x2="@(x2 + x2Offset)" y2="@y1" style="stroke: @current.Style.BranchColor" />
+                                        (double xParent, double xChild, double y) = positionManager.CalcHorizontalBranchPositions(current);
+
+                                        <line class="branch" x1="@xParent" y1="@y" x2="@xChild" y2="@y" style="stroke: @current.Style.BranchColor" />
                                     }
 
                                     // 枝の装飾
                                     if (ViewModel.ShowBranchDecorations.Value && !string.IsNullOrEmpty(current.Supports))
-                                        foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations.Where(x => x.Visible.Value && x.Regex is not null && x.Regex.IsMatch(current.Supports)))
+                                        foreach (BranchDecorationStyle currentViewModel in tree.Style.DecorationStyles)
                                         {
-                                            int size = currentViewModel.ShapeSize.Value;
-                                            string color = currentViewModel.ShapeColor.Value;
+                                            string color = currentViewModel.ShapeColor;
 
-                                            switch (currentViewModel.DecorationType.Value)
+                                            switch (currentViewModel.DecorationType)
                                             {
                                                 case BranchDecorationType.ClosedCircle:
-                                                    <circle cx="@((x1 + x2) / 2)" cy="@y1" r="@size" style="stroke: none; fill: @color" />
-                                                    break;
                                                 case BranchDecorationType.OpenCircle:
-                                                    <circle cx="@((x1 + x2) / 2)" cy="@y1" r="@size" style="stroke: @color; fill: white" />
+                                                    {
+                                                        (double centerX, double centerY, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentViewModel);
+
+                                                        string fill, stroke;
+                                                        if (currentViewModel.DecorationType == BranchDecorationType.ClosedCircle)
+                                                        {
+                                                            fill = color;
+                                                            stroke = "none";
+                                                        }
+                                                        else
+                                                        {
+                                                            fill = "white";
+                                                            stroke = color;
+                                                        }
+
+                                                        <circle cx="@centerX" cy="@centerY" r="@radius" style="stroke: @stroke; fill: @fill" />
+                                                    }
                                                     break;
                                                 case BranchDecorationType.ClosedRectangle:
-                                                    <rect x="@((x1 + x2) / 2 - size)" y="@(y1 - size)" width="@(size * 2)" height="@(size * 2)" style="stroke: none; fill: @color" />
-                                                    break;
                                                 case BranchDecorationType.OpenedRectangle:
-                                                    <rect x="@((x1 + x2) / 2 - size)" y="@(y1 - size)" width="@(size * 2)" height="@(size * 2)" style="stroke: @color; stroke-width: @(size / 5 + 1); fill: white" />
+                                                    {
+                                                        (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(current, currentViewModel);
+
+                                                        string fill, stroke;
+                                                        if (currentViewModel.DecorationType == BranchDecorationType.ClosedRectangle)
+                                                        {
+                                                            fill = color;
+                                                            stroke = "none";
+                                                        }
+                                                        else
+                                                        {
+                                                            fill = "white";
+                                                            stroke = color;
+                                                        }
+
+                                                        <rect x="@x" y="@y" width="@width" height="@height" style="stroke: @stroke; fill: @fill" />
+                                                    }
                                                     break;
                                             }
                                         }
-
 
                                     // 二分岐の値
                                     if (ViewModel.ShowBranchValues.Value)
@@ -368,44 +370,50 @@
                                         string branchValue = SelectShowValue(current, ViewModel.BranchValueType.Value);
                                         if (branchValue.Length > 0)
                                         {
-                                            double xOffset = branchValue.Length * 2 * ViewModel.BranchValueFontSize.Value / 2.5;
-                                            <svg x="@((x1 + x2) / 2 - xOffset)" y="@(y1 - ViewModel.BranchValueFontSize.Value / 2.5 - ViewModel.BranchThickness.Value / 2 - ViewModel.YScale.Value)">
-                                                <text class="branch-value" x="@xOffset" y="@ViewModel.YScale.Value" text-anchor="middle">
-                                                    @branchValue
-                                                </text>
-                                            </svg>
+                                            (double x, double y) = positionManager.CalcBranchValuePosition(current);
+
+                                            var svgText = new MarkupString($"<text class=\"branch-value\" x=\"{x}\" y=\"{y}\" text-anchor=\"middle\" style=\"fill: {current.Style.BranchColor}\">{branchValue}</text>");
+                                            @svgText
                                         }
                                     }
                                 }
-                                else x2 = x1;
 
                                 Clade? parent = current.Parent;
-                                double y2 = y1;
                                 if (parent is not null)
                                 {
                                     if (parent.Children.Count > 1)
                                     {
-                                        y2 = CalcY2(current, y1, indexTable);
+                                        (double x, double yParent, double yChild) = positionManager.CalcVerticalBranchPositions(current);
+
                                         // 縦棒
-                                        if (y1 != y2)
+                                        if (yParent != yChild)
                                         {
-                                            <line class="branch" x1="@x1" y1="@y1" x2="@x1" y2="@y2" style="stroke: @current.Style.BranchColor" />
+                                            <line class="branch" x1="@x" y1="@yParent" x2="@x" y2="@yChild" style="stroke: @current.Style.BranchColor" />
                                         }
                                     }
                                 }
 
                                 // 枝クリックエリア
                                 {
-                                    string path = $"M {x2} {y1}";
-                                    if (x1 != x2) path += $"H {x1}";
-                                    if (y1 != y2) path += $"V {y2}";
+                                    double x2 = positionManager.CalcX2(current);
 
-                                    string id = current.GetId("branch");
-                                    string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
+                                    if (!double.IsNaN(x2))
+                                    {
+                                        double x1 = positionManager.CalcX1(current);
+                                        double y1 = positionManager.CalcY1(current);
+                                        double y2 = positionManager.CalcY2(current);
 
-                                    <path id="@id" class="clickable-branch" d="@path"
-                                          style="stroke: @strokeColor; stroke-width: @(ViewModel.BranchThickness.Value + 4)"
-                                          onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+                                        string path = $"M {x2} {y1}";
+                                        if (x1 != x2) path += $"H {x1}";
+                                        if (y1 != y2) path += $"V {y2}";
+
+                                        string id = current.GetId("branch");
+                                        string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
+
+                                        <path id="@id" class="clickable-branch" d="@path"
+                                              style="stroke: @strokeColor; stroke-width: @(ViewModel.BranchThickness.Value + 4)"
+                                              onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+                                    }
                                 }
                             }
                         </g>
@@ -413,10 +421,12 @@
                         // Scale bar
                         @if (ViewModel.ShowScaleBar.Value && ViewModel.ScaleBarValue.Value > 0)
                         {
-                            double scaleBarWidth = ViewModel.ScaleBarValue.Value * ViewModel.XScale.Value;
-                            <g transform="translate(50, @(allLeaves.Length * ViewModel.YScale.Value + 30 + ViewModel.ScaleBarFontSize.Value))">
-                                <text class="scalebar-text" x="@(scaleBarWidth / 2)" text-anchor="middle">@ViewModel.ScaleBarValue.Value</text>
-                                <line class="scalebar-line" x1="0" y1="10" x2="@scaleBarWidth" y2="10" />
+                            (double offsetX, double offsetY) = positionManager.CalcScaleBarOffset();
+                            ((double xLeft, double xRight, double y) line, (double x, double y) text) = positionManager.CalcScaleBarPositions();
+
+                            <g transform="translate(@offsetX, @offsetY)">
+                                <text class="scalebar-text" x="@(text.x)" y="@(text.y)" text-anchor="middle">@ViewModel.ScaleBarValue.Value</text>
+                                <line class="scalebar-line" x1="@(line.xLeft)" y1="@(line.y)" x2="@(line.xRight)" y2="@(line.y)" />
                             </g>
                         }
                     </svg>
@@ -437,54 +447,7 @@
     private const string sidebarFormLabelStyle = "width: 150px; height: 23px";
     private const string sidebarFormValueStyle = "width: 100px; height: 30px";
 
-    private Dictionary<Clade, double> y1Map = [];
-    private Dictionary<Clade, double> y2Map = [];
-
-    private double CalcY1(Clade clade, Dictionary<Clade, int> indexTable)
-    {
-        if (y1Map.TryGetValue(clade, out double result)) return result;
-
-        if (clade.IsLeaf) result = indexTable[clade] * ViewModel.YScale.Value;
-        else
-        {
-            if (clade.Children.Count == 1) result = CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable);
-            result = (CalcY2(clade.Children[0], CalcY1(clade.Children[0], indexTable), indexTable) + CalcY2(clade.Children[^1], CalcY1(clade.Children[^1], indexTable), indexTable)) / 2;
-        }
-        y1Map.Add(clade, result);
-        return result;
-    }
-
-    private double CalcY2(Clade clade, double y1, Dictionary<Clade, int> indexTable)
-    {
-        if (y2Map.TryGetValue(clade, out double result)) return result;
-
-        double CalcY2Internal()
-        {
-            IList<Clade> sisters = clade.Parent!.Children;
-            int indexOfClade = sisters.IndexOf(clade);
-            (int halfCount, int countRem) = Math.DivRem(sisters.Count, 2);
-
-            if (countRem == 1 && indexOfClade == halfCount) return y1;
-            if (indexOfClade < halfCount)
-            {
-                double otherY1 = CalcY1(sisters[indexOfClade + 1], indexTable);
-                double length = otherY1 - y1;
-                if (countRem == 0 && indexOfClade + 1 == halfCount) length /= 2;
-                return y1 + length;
-            }
-            else
-            {
-                double otherY1 = CalcY1(sisters[indexOfClade - 1], indexTable);
-                double length = y1 - otherY1;
-                if (countRem == 0 && indexOfClade == halfCount) length /= 2;
-                return y1 - length;
-            }
-        }
-
-        result = CalcY2Internal();
-        y2Map.Add(clade, result);
-        return result;
-    }
+    private readonly PositionManager positionManager = new();
 
     private string SelectShowValue(Clade clade, CladeValueType valueType)
     {

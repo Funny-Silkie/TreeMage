@@ -1,4 +1,4 @@
-﻿namespace TreeViewer.Core.Styles
+﻿namespace TreeViewer.Core.Drawing.Styles
 {
     /// <summary>
     /// クレードのスタイルを表します。
