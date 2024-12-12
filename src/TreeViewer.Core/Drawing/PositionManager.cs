@@ -8,6 +8,13 @@ namespace TreeViewer.Core.Drawing
     /// </summary>
     public class PositionManager
     {
+        //
+        // y1   +----current
+        //      |
+        // y2   |
+        //   .Parent
+        //      x1  x2
+
         private readonly Dictionary<Clade, PositionInfo> positions = [];
         private Clade[] allLeaves;
         private readonly Dictionary<Clade, int> indexTable;
@@ -165,7 +172,9 @@ namespace TreeViewer.Core.Drawing
         /// <returns><paramref name="clade"/>のY座標2</returns>
         private double CalcY2Core(Clade clade, double y1)
         {
-            IList<Clade> sisters = clade.Parent!.Children;
+            if (clade.Parent is null) return y1;
+
+            IList<Clade> sisters = clade.Parent.Children;
             int indexOfClade = sisters.IndexOf(clade);
             (int halfCount, int countRem) = Math.DivRem(sisters.Count, 2);
 
