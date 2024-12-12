@@ -31,16 +31,14 @@ namespace TreeViewer.Core.Exporting
         /// <returns><paramref name="tree"/>の図を表すSVGオブジェクト</returns>
         internal static SvgDocument CreateSvg(Tree tree)
         {
-            Clade[] allLeaves = tree.GetAllLeaves()
-                                    .ToArray();
+            var positionManager = new PositionManager(tree);
 
-            double svgWidth = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * tree.Style.XScale + 100;
-            if (tree.Style.ShowLeafLabels) svgWidth += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * tree.Style.LeafLabelsFontSize / 1.25;
+            (double svgWidth, double svgHeight) = positionManager.ClacDocumentSize();
 
             var result = new SvgDocument()
             {
                 Width = (SvgUnit)svgWidth,
-                Height = allLeaves.Length * tree.Style.YScale + 100,
+                Height = (SvgUnit)svgHeight,
             };
 
             #region 系統樹部分
@@ -75,20 +73,15 @@ namespace TreeViewer.Core.Exporting
             };
             if (tree.Style.ShowBranchDecorations) branchDecorationsGroup.AddTo(treeArea);
 
-            var positionManager = new PositionManager(tree);
-
             foreach (Clade current in tree.GetAllClades())
             {
-                double totalLength = positionManager.CalcTotalBranchLength(current);
-
                 if (current.IsLeaf)
                 {
-                    double x = totalLength * tree.Style.XScale + 5;
-                    double y = positionManager.CalcY1(current) + tree.Style.LeafLabelsFontSize / 2.5;
-
                     // 系統名
                     if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
                     {
+                        (double x, double y) = positionManager.CalcLeafPosition(current);
+
                         var leafText = new SvgText(current.Taxon)
                         {
                             X = [(SvgUnit)x],
@@ -108,12 +101,11 @@ namespace TreeViewer.Core.Exporting
                         string nodeValue = ExportHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                         if (nodeValue.Length > 0)
                         {
-                            double y = positionManager.CalcY1(current) + tree.Style.NodeValueFontSize / 2.5;
-                            if (current.Children.Count % 2 == 1) y += tree.Style.BranchThickness / 2 + 3 + tree.Style.NodeValueFontSize / 2.5;
+                            (double x, double y) = positionManager.CalcNodeValuePosition(current);
 
                             var nodeValueText = new SvgText(nodeValue)
                             {
-                                X = [(SvgUnit)(totalLength * tree.Style.XScale + 5)],
+                                X = [(SvgUnit)x],
                                 Y = [(SvgUnit)y],
                                 Fill = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
                                 FontSize = tree.Style.NodeValueFontSize,
@@ -124,8 +116,6 @@ namespace TreeViewer.Core.Exporting
                     }
                 }
 
-                double x1 = positionManager.CalcX1(current);
-                double x2 = positionManager.CalcX2(current);
                 if (current.BranchLength > 0)
                 {
                     // 横棒
@@ -149,61 +139,81 @@ namespace TreeViewer.Core.Exporting
                     {
                         foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Regex.IsMatch(current.Supports)))
                         {
-                            int size = currentDecoration.ShapeSize;
                             string color = currentDecoration.ShapeColor;
-                            SvgElement decorationSvg = currentDecoration.DecorationType switch
+
+                            SvgElement decorationSvg;
+                            switch (currentDecoration.DecorationType)
                             {
-                                BranchDecorationType.ClosedCircle => new SvgCircle()
-                                {
-                                    CenterX = (SvgUnit)((x1 + x2) / 2),
-                                    CenterY = (SvgUnit)positionManager.CalcY1(current),
-                                    Radius = size,
-                                    Stroke = SvgPaintServer.None,
-                                    Fill = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor),
-                                },
-                                BranchDecorationType.OpenCircle => new SvgCircle()
-                                {
-                                    CenterX = (SvgUnit)((x1 + x2) / 2),
-                                    CenterY = (SvgUnit)positionManager.CalcY1(current),
-                                    Radius = size,
-                                    Stroke = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor),
-                                    Fill = new SvgColourServer(Color.White),
-                                },
-                                BranchDecorationType.ClosedRectangle => new SvgRectangle()
-                                {
-                                    X = (SvgUnit)((x1 + x2) / 2 - size),
-                                    Y = (SvgUnit)(positionManager.CalcY1(current) - size),
-                                    Width = size * 2,
-                                    Height = size * 2,
-                                    Stroke = SvgPaintServer.None,
-                                    Fill = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor),
-                                },
-                                BranchDecorationType.OpenedRectangle => new SvgRectangle()
-                                {
-                                    X = (SvgUnit)((x1 + x2) / 2 - size),
-                                    Y = (SvgUnit)(positionManager.CalcY1(current) - size),
-                                    Width = size * 2,
-                                    Height = size * 2,
-                                    Stroke = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor),
-                                    StrokeWidth = size / 5 + 1,
-                                    Fill = new SvgColourServer(Color.White),
-                                },
-                                _ => throw new InvalidOperationException($"装飾の種類'{currentDecoration.DecorationType}'が無効です"),
+                                case BranchDecorationType.ClosedCircle:
+                                case BranchDecorationType.OpenCircle:
+                                    {
+                                        (double centerX, double centerY, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentDecoration);
+
+                                        decorationSvg = new SvgCircle()
+                                        {
+                                            CenterX = (SvgUnit)centerX,
+                                            CenterY = (SvgUnit)centerY,
+                                            Radius = (SvgUnit)radius,
+                                        };
+
+                                        if (currentDecoration.DecorationType == BranchDecorationType.ClosedCircle)
+                                        {
+                                            decorationSvg.Stroke = SvgPaintServer.None;
+                                            decorationSvg.Fill = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor);
+                                        }
+                                        else
+                                        {
+                                            decorationSvg.Stroke = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor);
+                                            decorationSvg.Fill = new SvgColourServer(Color.White);
+                                        }
+                                    }
+                                    break;
+
+                                case BranchDecorationType.ClosedRectangle:
+                                case BranchDecorationType.OpenedRectangle:
+                                    {
+                                        (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(current, currentDecoration);
+
+                                        decorationSvg = new SvgRectangle()
+                                        {
+                                            X = (SvgUnit)x,
+                                            Y = (SvgUnit)y,
+                                            Width = (SvgUnit)width,
+                                            Height = (SvgUnit)height,
+                                        };
+
+                                        if (currentDecoration.DecorationType == BranchDecorationType.ClosedRectangle)
+                                        {
+                                            decorationSvg.Stroke = SvgPaintServer.None;
+                                            decorationSvg.Fill = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor);
+                                        }
+                                        else
+                                        {
+                                            decorationSvg.Stroke = ExportHelpers.CreateSvgColor(currentDecoration.ShapeColor);
+                                            decorationSvg.StrokeWidth = currentDecoration.ShapeSize / 5 + 1;
+                                            decorationSvg.Fill = new SvgColourServer(Color.White);
+                                        }
+                                    }
+                                    break;
+
+                                default: throw new InvalidOperationException($"装飾の種類'{currentDecoration.DecorationType}'が無効です");
                             };
                             decorationSvg.AddTo(branchDecorationsGroup);
                         }
                     }
 
-                    // 二分岐の値
+                    // 枝の値
                     if (tree.Style.ShowBranchValues)
                     {
                         string branchValue = ExportHelpers.SelectShowValue(current, tree.Style.BranchValueType);
                         if (branchValue.Length > 0)
                         {
+                            (double x, double y) = positionManager.CalcBranchValuePosition(current);
+
                             var branchValueText = new SvgText(branchValue)
                             {
-                                X = [(SvgUnit)((x1 + x2) / 2)],
-                                Y = [(SvgUnit)(positionManager.CalcY1(current) - tree.Style.BranchValueFontSize / 2.5 - tree.Style.BranchThickness / 2)],
+                                X = [(SvgUnit)x],
+                                Y = [(SvgUnit)y],
                                 Fill = ExportHelpers.CreateSvgColor(current.Style.BranchColor),
                                 FontSize = tree.Style.BranchValueFontSize,
                                 FontFamily = FontFamily,
@@ -245,16 +255,20 @@ namespace TreeViewer.Core.Exporting
 
             if (tree.Style.ShowScaleBar && tree.Style.ScaleBarValue > 0)
             {
+                (double offsetX, double offsetY) = positionManager.CalcScaleBarOffset();
+
                 SvgGroup scaleBarArea = new SvgGroup()
                 {
                     ID = "scale-bar",
-                    Transforms = new SvgTransformCollection().Translate(50, (float)(allLeaves.Length * tree.Style.YScale + 30 + tree.Style.ScaleBarFontSize)),
+                    Transforms = new SvgTransformCollection().Translate((SvgUnit)offsetX, (SvgUnit)offsetY),
                 }.AddTo(result);
 
-                double scaleBarWidth = tree.Style.ScaleBarValue * tree.Style.XScale;
+                ((double xLeft, double xRight, double y) line, (double x, double y) text) = positionManager.CalcScaleBarPositions();
+
                 var scaleBarText = new SvgText(tree.Style.ScaleBarValue.ToString())
                 {
-                    X = [(SvgUnit)(scaleBarWidth / 2)],
+                    X = [(SvgUnit)text.x],
+                    Y = [(SvgUnit)text.y],
                     FontFamily = FontFamily,
                     FontSize = tree.Style.ScaleBarFontSize,
                     TextAnchor = SvgTextAnchor.Middle,
@@ -263,10 +277,10 @@ namespace TreeViewer.Core.Exporting
 
                 var scaleBarLine = new SvgLine()
                 {
-                    StartX = 0,
-                    StartY = 10,
-                    EndX = (SvgUnit)scaleBarWidth,
-                    EndY = 10,
+                    StartX = (SvgUnit)line.xLeft,
+                    StartY = (SvgUnit)line.y,
+                    EndX = (SvgUnit)line.xRight,
+                    EndY = (SvgUnit)line.y,
                     Stroke = new SvgColourServer(Color.Black),
                     StrokeWidth = tree.Style.ScaleBarThickness,
                 };

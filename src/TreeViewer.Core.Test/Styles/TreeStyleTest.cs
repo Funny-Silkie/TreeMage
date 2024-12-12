@@ -14,7 +14,7 @@ namespace TreeViewer.Core.Styles
         #region Ctors
 
         [Fact]
-        public void Ctors()
+        public void Ctor()
         {
             var options = new TreeStyle();
 
