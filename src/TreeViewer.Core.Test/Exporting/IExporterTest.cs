@@ -17,6 +17,7 @@
             {
                 Assert.IsType<SvgExporter>(IExporter.Create(ExportType.Svg));
                 Assert.IsType<PngExporter>(IExporter.Create(ExportType.Png));
+                Assert.IsType<PdfExporter>(IExporter.Create(ExportType.Pdf));
             });
         }
 

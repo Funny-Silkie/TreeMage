@@ -1,18 +1,17 @@
-﻿using TreeViewer.Core.Assertions;
-using TreeViewer.Core.Trees;
+﻿using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Exporting
 {
-    public class PngExporterTest
+    public partial class PdfExporterTest
     {
-        private const string outputPath = "test.png";
+        private const string outputPath = "test.pdf";
 
-        private readonly PngExporter exporter;
+        private readonly PdfExporter exporter;
         private readonly ExportOptions exportOptions;
 
-        public PngExporterTest()
+        public PdfExporterTest()
         {
-            exporter = new PngExporter();
+            exporter = new PdfExporter();
             exportOptions = new ExportOptions()
             {
                 XScale = 30,
@@ -25,7 +24,7 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void Ctor()
         {
-            Exception? exception = Record.Exception(() => new PngExporter());
+            Exception? exception = Record.Exception(() => new PdfExporter());
 
             Assert.Null(exception);
         }
@@ -37,7 +36,7 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void Type_Get()
         {
-            Assert.Equal(ExportType.Png, exporter.Type);
+            Assert.Equal(ExportType.Pdf, exporter.Type);
         }
 
         #endregion Properties
@@ -74,11 +73,7 @@ namespace TreeViewer.Core.Exporting
 
             var fileInfo = new FileInfo(outputPath);
 
-            Assert.Multiple(() =>
-            {
-                Assert.True(fileInfo.Length > 0);
-                CustomizedAssertions.EqualBinaryFiles(CreateTestDataPath("Export", "test.png"), outputPath);
-            });
+            Assert.True(fileInfo.Length > 0);
         }
 
         [Fact]
@@ -111,11 +106,7 @@ namespace TreeViewer.Core.Exporting
 
             var fileInfo = new FileInfo(outputPath);
 
-            Assert.Multiple(() =>
-            {
-                Assert.True(fileInfo.Length > 0);
-                CustomizedAssertions.EqualBinaryFiles(CreateTestDataPath("Export", "test.png"), outputPath);
-            });
+            Assert.True(fileInfo.Length > 0);
         }
 
         #endregion Methods

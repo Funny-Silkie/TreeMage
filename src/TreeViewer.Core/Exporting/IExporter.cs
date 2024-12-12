@@ -24,6 +24,7 @@ namespace TreeViewer.Core.Exporting
             {
                 ExportType.Svg => new SvgExporter(),
                 ExportType.Png => new PngExporter(),
+                ExportType.Pdf => new PdfExporter(),
                 _ => throw new ArgumentOutOfRangeException(nameof(exportType)),
             };
         }

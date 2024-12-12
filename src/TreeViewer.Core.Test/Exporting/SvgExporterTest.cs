@@ -1,6 +1,6 @@
 ﻿using Svg;
-using System.Drawing;
 using System.Text.RegularExpressions;
+using TreeViewer.Core.Assertions;
 using TreeViewer.Core.Styles;
 using TreeViewer.Core.Trees;
 
@@ -49,17 +49,6 @@ namespace TreeViewer.Core.Exporting
         #endregion Properties
 
         #region Static Methods
-
-        [Fact]
-        public void FromColorString()
-        {
-            Assert.Multiple(() =>
-            {
-                Assert.Equal(Color.Black, SvgExporter.FromColorString("black").Colour);
-                Assert.Equal(Color.FromArgb(10, 20, 30), SvgExporter.FromColorString("rgb(10, 20, 30)").Colour);
-                Assert.Equal(Color.FromArgb(40, 10, 20, 30), SvgExporter.FromColorString("rgba(10, 20, 30, 40)").Colour);
-            });
-        }
 
         [Fact]
         public void CreateSvg_Minumum()
@@ -325,12 +314,18 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public void Export_AsPositive()
         {
-            using var stream = new FileStream(outputPath, FileMode.Create);
-            exporter.Export(TreeTest.CreateDummyTree(), stream, exportOptions);
+            using (var stream = new FileStream(outputPath, FileMode.Create))
+            {
+                exporter.Export(TreeTest.CreateDummyTree(), stream, exportOptions);
+            }
 
             var fileInfo = new FileInfo(outputPath);
 
-            Assert.True(fileInfo.Length > 0);
+            Assert.Multiple(() =>
+            {
+                Assert.True(fileInfo.Length > 0);
+                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Export", "test.svg"), outputPath);
+            });
         }
 
         [Fact]
@@ -356,12 +351,18 @@ namespace TreeViewer.Core.Exporting
         [Fact]
         public async Task ExportAsync_AsPositive()
         {
-            using var stream = new FileStream(outputPath, FileMode.Create);
-            await exporter.ExportAsync(TreeTest.CreateDummyTree(), stream, exportOptions);
+            using (var stream = new FileStream(outputPath, FileMode.Create))
+            {
+                await exporter.ExportAsync(TreeTest.CreateDummyTree(), stream, exportOptions);
+            }
 
             var fileInfo = new FileInfo(outputPath);
 
-            Assert.True(fileInfo.Length > 0);
+            Assert.Multiple(() =>
+            {
+                Assert.True(fileInfo.Length > 0);
+                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Export", "test.svg"), outputPath);
+            });
         }
 
         #endregion Instance Methods
