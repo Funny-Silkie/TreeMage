@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using TreeViewer.Core.Assertions;
+﻿using TreeViewer.Core.Assertions;
 using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Drawing.Styles
@@ -12,9 +11,6 @@ namespace TreeViewer.Core.Drawing.Styles
         {
             style = new TreeStyle();
         }
-
-        [GeneratedRegex("100/100")]
-        private static partial Regex GetDummyDecorationRegex();
 
         #region Ctors
 
@@ -71,7 +67,7 @@ namespace TreeViewer.Core.Drawing.Styles
                 DecorationStyles = [
                     new BranchDecorationStyle()
                     {
-                        Regex = GetDummyDecorationRegex(),
+                        RegexPattern = "100/100",
                         ShapeSize = 1,
                         DecorationType = BranchDecorationType.OpenCircle,
                         ShapeColor = "red",
@@ -104,7 +100,7 @@ namespace TreeViewer.Core.Drawing.Styles
             style.DecorationStyles = [
                 new BranchDecorationStyle()
                 {
-                    Regex = GetDummyDecorationRegex(),
+                    RegexPattern = "100/100",
                     ShapeSize = 1,
                     DecorationType = BranchDecorationType.OpenCircle,
                     ShapeColor = "red",
@@ -137,7 +133,7 @@ namespace TreeViewer.Core.Drawing.Styles
             style.DecorationStyles = [
                 new BranchDecorationStyle()
                 {
-                    Regex = GetDummyDecorationRegex(),
+                    RegexPattern = "100/100",
                     ShapeSize = 1,
                     DecorationType = BranchDecorationType.OpenCircle,
                     ShapeColor = "red",

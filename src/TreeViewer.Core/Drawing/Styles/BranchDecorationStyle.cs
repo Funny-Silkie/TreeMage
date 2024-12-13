@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace TreeViewer.Core.Drawing.Styles
 {
@@ -8,9 +9,44 @@ namespace TreeViewer.Core.Drawing.Styles
     public partial class BranchDecorationStyle : ICloneable
     {
         /// <summary>
-        /// 装飾する枝の正規表現パターンを取得または設定します。
+        /// 有効かどうかを表す値を取得または設定します。
         /// </summary>
-        public Regex Regex { get; set; } = GetDefaultRegex();
+        public bool Enabled { get; set; } = true;
+
+        /// <summary>
+        /// 装飾する枝の正規表現パターンを取得します。
+        /// </summary>
+        /// <remarks><see cref="RegexPattern"/>が無効な場合は<see langword="null"/></remarks>
+        public Regex? Regex { get; private set; }
+
+        /// <summary>
+        /// 正規表現パターンを取得または設定します。
+        /// </summary>
+        [StringSyntax(StringSyntaxAttribute.Regex)]
+        public string? RegexPattern
+        {
+            get => _regexPattern;
+            set
+            {
+                if (value == _regexPattern) return;
+                if (string.IsNullOrEmpty(value)) Regex = null;
+                else
+                {
+                    try
+                    {
+                        Regex = new Regex(value);
+                    }
+                    catch
+                    {
+                        Regex = null;
+                    }
+                }
+                _regexPattern = value;
+            }
+        }
+
+        [StringSyntax(StringSyntaxAttribute.Regex)]
+        private string? _regexPattern;
 
         /// <summary>
         /// 図形のサイズを取得または設定します。
@@ -35,13 +71,6 @@ namespace TreeViewer.Core.Drawing.Styles
         }
 
         /// <summary>
-        /// デフォルトの<see cref="Regex"/>を取得します。
-        /// </summary>
-        /// <returns>デフォルトの<see cref="Regex"/>に用いる値</returns>
-        [GeneratedRegex("100")]
-        private static partial Regex GetDefaultRegex();
-
-        /// <summary>
         /// 他のスタイルの内容を適用します。
         /// </summary>
         /// <param name="style">適用するインスタンス</param>
@@ -50,7 +79,9 @@ namespace TreeViewer.Core.Drawing.Styles
         {
             ArgumentNullException.ThrowIfNull(style);
 
+            Enabled = style.Enabled;
             Regex = style.Regex;
+            _regexPattern = style._regexPattern;
             ShapeSize = style.ShapeSize;
             DecorationType = style.DecorationType;
             ShapeColor = style.ShapeColor;
@@ -62,7 +93,9 @@ namespace TreeViewer.Core.Drawing.Styles
         /// <returns>インスタンスの複製</returns>
         public BranchDecorationStyle Clone() => new BranchDecorationStyle()
         {
+            Enabled = Enabled,
             Regex = Regex,
+            _regexPattern = _regexPattern,
             ShapeSize = ShapeSize,
             DecorationType = DecorationType,
             ShapeColor = ShapeColor,

@@ -109,7 +109,7 @@ namespace TreeViewer.Core.Exporting
 
                         // 枝の装飾
                         if (tree.Style.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
-                            foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Regex.IsMatch(current.Supports)))
+                            foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Enabled && (x.Regex?.IsMatch(current.Supports) ?? false)))
                             {
                                 (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(current, currentDecoration);
                                 var shapeArea = new XRect(x, y, width, height);

@@ -328,9 +328,10 @@ namespace TreeViewer.ViewModels
             tree.Style.BranchValueType = BranchValueType.Value;
             tree.Style.BranchValueFontSize = BranchValueFontSize.Value;
             tree.Style.ShowBranchDecorations = ShowBranchDecorations.Value;
-            tree.Style.DecorationStyles = BranchDecorations.Where(x => x.Regex is not null && x.Visible.Value).Select(x => new BranchDecorationStyle()
+            tree.Style.DecorationStyles = BranchDecorations.Select(x => new BranchDecorationStyle()
             {
-                Regex = x.Regex!,
+                Enabled = x.Visible.Value,
+                RegexPattern = x.TargetRegexPattern.Value,
                 ShapeSize = x.ShapeSize.Value,
                 ShapeColor = x.ShapeColor.Value,
                 DecorationType = x.DecorationType.Value,

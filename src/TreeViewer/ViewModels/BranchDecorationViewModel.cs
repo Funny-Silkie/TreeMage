@@ -1,6 +1,5 @@
 ﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using System.Text.RegularExpressions;
 using TreeViewer.Core.Drawing.Styles;
 
 namespace TreeViewer.ViewModels
@@ -11,11 +10,6 @@ namespace TreeViewer.ViewModels
     public class BranchDecorationViewModel : ViewModelBase
     {
         private readonly HomeViewModel homeViewModel;
-
-        /// <summary>
-        /// 使用する正規表現オブジェクトを取得します。
-        /// </summary>
-        public Regex? Regex { get; private set; }
 
         /// <summary>
         /// 対象の正規表現のプロパティを取得します。
@@ -55,8 +49,7 @@ namespace TreeViewer.ViewModels
         {
             this.homeViewModel = homeViewModel;
 
-            TargetRegexPattern = new ReactivePropertySlim<string>(string.Empty).WithSubscribe(OnTargetRegexPatternChanged)
-                                                                               .AddTo(Disposables);
+            TargetRegexPattern = new ReactivePropertySlim<string>(string.Empty).AddTo(Disposables);
             DecorationType = new ReactivePropertySlim<BranchDecorationType>().AddTo(Disposables);
             ShapeSize = new ReactivePropertySlim<int>(5).AddTo(Disposables);
             ShapeColor = new ReactivePropertySlim<string>("#000000").AddTo(Disposables);
@@ -64,28 +57,6 @@ namespace TreeViewer.ViewModels
 
             DeleteSelfCommand = new AsyncReactiveCommand().WithSubscribe(DeleteSelf)
                                                           .AddTo(Disposables);
-        }
-
-        /// <summary>
-        /// <see cref="TargetRegexPattern"/>が変更された際に実行されます。
-        /// </summary>
-        /// <param name="value">変更後の値</param>
-        private void OnTargetRegexPatternChanged(string value)
-        {
-            if (value.Length == 0)
-            {
-                Regex = null;
-                return;
-            }
-
-            try
-            {
-                Regex = new Regex(value);
-            }
-            catch
-            {
-                Regex = null;
-            }
         }
 
         /// <summary>

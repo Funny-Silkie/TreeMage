@@ -1,5 +1,4 @@
-﻿using System.Text.RegularExpressions;
-using TreeViewer.Core.Assertions;
+﻿using TreeViewer.Core.Assertions;
 
 namespace TreeViewer.Core.Drawing.Styles
 {
@@ -9,11 +8,11 @@ namespace TreeViewer.Core.Drawing.Styles
 
         public BranchDecorationStyleTest()
         {
-            style = new BranchDecorationStyle();
+            style = new BranchDecorationStyle()
+            {
+                RegexPattern = "100",
+            };
         }
-
-        [GeneratedRegex("hoge")]
-        private static partial Regex GetDummyRegex();
 
         #region Ctors
 
@@ -24,7 +23,9 @@ namespace TreeViewer.Core.Drawing.Styles
 
             Assert.Multiple(() =>
             {
-                Assert.Equal("100", style.Regex.ToString());
+                Assert.True(style.Enabled);
+                Assert.Null(style.Regex);
+                Assert.Null(style.RegexPattern);
                 Assert.Equal(5, style.ShapeSize);
                 Assert.Equal(BranchDecorationType.ClosedCircle, style.DecorationType);
                 Assert.Equal("black", style.ShapeColor);
@@ -32,6 +33,52 @@ namespace TreeViewer.Core.Drawing.Styles
         }
 
         #endregion Ctors
+
+        #region Properties
+
+#pragma warning disable RE0001 // 無効な RegEx パターン
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void RegexPattern_Set_AsNullOrEmpty(string? value)
+        {
+            style.RegexPattern = value;
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(value, style.RegexPattern);
+                Assert.Null(style.Regex);
+            });
+        }
+
+        [Fact]
+        public void RegexPattern_Set_AsInValidRegex()
+        {
+            style.RegexPattern = "(";
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal("(", style.RegexPattern);
+                Assert.Null(style.Regex);
+            });
+        }
+
+#pragma warning restore RE0001 // 無効な RegEx パターン
+
+        [Fact]
+        public void RegexPattern_Set_AsValidRegex()
+        {
+            style.RegexPattern = "50";
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal("50", style.RegexPattern);
+                Assert.Equal("50", style.Regex?.ToString());
+            });
+        }
+
+        #endregion Properties
 
         #region Methods
 
@@ -46,7 +93,8 @@ namespace TreeViewer.Core.Drawing.Styles
         {
             var applied = new BranchDecorationStyle()
             {
-                Regex = GetDummyRegex(),
+                Enabled = false,
+                RegexPattern = "100",
                 ShapeSize = 10,
                 DecorationType = BranchDecorationType.OpenedRectangle,
                 ShapeColor = "red",
@@ -60,7 +108,8 @@ namespace TreeViewer.Core.Drawing.Styles
         [Fact]
         public void Clone()
         {
-            style.Regex = GetDummyRegex();
+            style.Enabled = false;
+            style.RegexPattern = "100";
             style.ShapeSize = 10;
             style.DecorationType = BranchDecorationType.OpenedRectangle;
             style.ShapeColor = "red";
@@ -73,7 +122,8 @@ namespace TreeViewer.Core.Drawing.Styles
         [Fact]
         public void Interface_ICloneable_Clone()
         {
-            style.Regex = GetDummyRegex();
+            style.Enabled = false;
+            style.RegexPattern = "100";
             style.ShapeSize = 10;
             style.DecorationType = BranchDecorationType.OpenedRectangle;
             style.ShapeColor = "red";

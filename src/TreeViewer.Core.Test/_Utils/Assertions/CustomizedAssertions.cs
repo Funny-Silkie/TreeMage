@@ -177,7 +177,9 @@ namespace TreeViewer.Core.Assertions
         {
             Assert.Multiple(() =>
             {
-                Assert.Equal(expected.Regex, actual.Regex);
+                Assert.Equal(expected.Enabled, actual.Enabled);
+                Assert.Equal(expected.Regex?.ToString(), actual.Regex?.ToString());
+                Assert.Equal(expected.RegexPattern, actual.RegexPattern);
                 Assert.Equal(expected.ShapeSize, actual.ShapeSize);
                 Assert.Equal(expected.DecorationType, actual.DecorationType);
                 Assert.Equal(expected.ShapeColor, actual.ShapeColor);

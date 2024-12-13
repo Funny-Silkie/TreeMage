@@ -315,19 +315,19 @@
 
                                     // 枝の装飾
                                     if (ViewModel.ShowBranchDecorations.Value && !string.IsNullOrEmpty(current.Supports))
-                                        foreach (BranchDecorationStyle currentViewModel in tree.Style.DecorationStyles)
+                                        foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Enabled && (x.Regex?.IsMatch(current.Supports) ?? false)))
                                         {
-                                            string color = currentViewModel.ShapeColor;
+                                            string color = currentDecoration.ShapeColor;
 
-                                            switch (currentViewModel.DecorationType)
+                                            switch (currentDecoration.DecorationType)
                                             {
                                                 case BranchDecorationType.ClosedCircle:
                                                 case BranchDecorationType.OpenCircle:
                                                     {
-                                                        (double centerX, double centerY, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentViewModel);
+                                                        (double centerX, double centerY, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentDecoration);
 
                                                         string fill, stroke;
-                                                        if (currentViewModel.DecorationType == BranchDecorationType.ClosedCircle)
+                                                        if (currentDecoration.DecorationType == BranchDecorationType.ClosedCircle)
                                                         {
                                                             fill = color;
                                                             stroke = "none";
@@ -344,10 +344,10 @@
                                                 case BranchDecorationType.ClosedRectangle:
                                                 case BranchDecorationType.OpenedRectangle:
                                                     {
-                                                        (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(current, currentViewModel);
+                                                        (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(current, currentDecoration);
 
                                                         string fill, stroke;
-                                                        if (currentViewModel.DecorationType == BranchDecorationType.ClosedRectangle)
+                                                        if (currentDecoration.DecorationType == BranchDecorationType.ClosedRectangle)
                                                         {
                                                             fill = color;
                                                             stroke = "none";

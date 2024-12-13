@@ -1,5 +1,4 @@
 ﻿using Svg;
-using System.Text.RegularExpressions;
 using TreeViewer.Core.Assertions;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
@@ -9,6 +8,9 @@ namespace TreeViewer.Core.Exporting
     public partial class SvgExporterTest
     {
         private const string outputPath = "test.svg";
+
+        // lang=regex
+        private const string DecorationRegex = @"^([8-9]\d|100)/([8-9]\d|100)$";
 
         private readonly Tree tree;
         private readonly SvgExporter exporter;
@@ -22,9 +24,6 @@ namespace TreeViewer.Core.Exporting
             exporter = new SvgExporter();
             exportOptions = new ExportOptions();
         }
-
-        [GeneratedRegex(@"^([8-9]\d|100)/([8-9]\d|100)$")]
-        private static partial Regex GetDecorationRegex();
 
         #region Ctors
 
@@ -176,7 +175,7 @@ namespace TreeViewer.Core.Exporting
             tree.Style.DecorationStyles = [
                 new BranchDecorationStyle()
                 {
-                    Regex = GetDecorationRegex(),
+                    RegexPattern = DecorationRegex,
                     DecorationType = BranchDecorationType.ClosedCircle,
                 },
             ];
@@ -234,7 +233,7 @@ namespace TreeViewer.Core.Exporting
             tree.Style.DecorationStyles = [
                 new BranchDecorationStyle()
                 {
-                    Regex = GetDecorationRegex(),
+                    RegexPattern = DecorationRegex,
                     DecorationType = BranchDecorationType.ClosedCircle,
                 },
             ];

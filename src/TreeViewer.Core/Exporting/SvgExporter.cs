@@ -138,7 +138,7 @@ namespace TreeViewer.Core.Exporting
                     // 枝の装飾
                     if (tree.Style.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
                     {
-                        foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Regex.IsMatch(current.Supports)))
+                        foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Enabled && (x.Regex?.IsMatch(current.Supports) ?? false)))
                         {
                             string color = currentDecoration.ShapeColor;
 
