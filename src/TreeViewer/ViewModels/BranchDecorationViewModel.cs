@@ -14,7 +14,7 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// 対象の正規表現のプロパティを取得します。
         /// </summary>
-        public ReactivePropertySlim<string> TargetRegexPattern { get; }
+        public ReactivePropertySlim<string?> TargetRegexPattern { get; }
 
         /// <summary>
         /// 装飾の種類のプロパティを取得します。
@@ -49,7 +49,7 @@ namespace TreeViewer.ViewModels
         {
             this.homeViewModel = homeViewModel;
 
-            TargetRegexPattern = new ReactivePropertySlim<string>(string.Empty).AddTo(Disposables);
+            TargetRegexPattern = new ReactivePropertySlim<string?>(string.Empty).AddTo(Disposables);
             DecorationType = new ReactivePropertySlim<BranchDecorationType>().AddTo(Disposables);
             ShapeSize = new ReactivePropertySlim<int>(5).AddTo(Disposables);
             ShapeColor = new ReactivePropertySlim<string>("#000000").AddTo(Disposables);

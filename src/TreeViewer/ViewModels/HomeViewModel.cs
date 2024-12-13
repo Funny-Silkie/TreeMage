@@ -343,6 +343,42 @@ namespace TreeViewer.ViewModels
         }
 
         /// <summary>
+        /// スタイル情報を読み取ります。
+        /// </summary>
+        /// <param name="tree">読み取るツリー</param>
+        private void LoadTreeStyle(Tree tree)
+        {
+            XScale.Value = tree.Style.XScale;
+            YScale.Value = tree.Style.YScale;
+            BranchThickness.Value = tree.Style.BranchThickness;
+            ShowLeafLabels.Value = tree.Style.ShowLeafLabels;
+            LeafLabelsFontSize.Value = tree.Style.LeafLabelsFontSize;
+            ShowNodeValues.Value = tree.Style.ShowNodeValues;
+            NodeValueType.Value = tree.Style.NodeValueType;
+            NodeValueFontSize.Value = tree.Style.NodeValueFontSize;
+            ShowBranchValues.Value = tree.Style.ShowBranchValues;
+            BranchValueType.Value = tree.Style.BranchValueType;
+            BranchValueFontSize.Value = tree.Style.BranchValueFontSize;
+            ShowBranchDecorations.Value = tree.Style.ShowBranchDecorations;
+            BranchDecorations.ClearOnScheduler();
+            BranchDecorations.AddRangeOnScheduler(tree.Style.DecorationStyles.Select(x =>
+            {
+                var result = new BranchDecorationViewModel(this);
+                result.Visible.Value = x.Enabled;
+                result.TargetRegexPattern.Value = x.RegexPattern;
+                result.ShapeSize.Value = x.ShapeSize;
+                result.ShapeColor.Value = x.ShapeColor;
+                result.DecorationType.Value = x.DecorationType;
+
+                return result;
+            }));
+            ShowScaleBar.Value = tree.Style.ShowScaleBar;
+            ScaleBarValue.Value = tree.Style.ScaleBarValue;
+            ScaleBarFontSize.Value = tree.Style.ScaleBarFontSize;
+            ScaleBarThickness.Value = tree.Style.ScaleBarThickness;
+        }
+
+        /// <summary>
         /// <see cref="TreeIndex"/>が変更されたときに実行されます。
         /// </summary>
         /// <param name="value">変更後の値</param>
@@ -351,8 +387,14 @@ namespace TreeViewer.ViewModels
             value--;
             if ((uint)value >= (uint)Trees.Count) return;
 
+            Tree? prevTree = TargetTree.Value;
+            if (prevTree is not null) ApplyTreeStyle(prevTree);
+
             UnfocusAll();
-            TargetTree.Value = Trees[value];
+            Tree nextTree = Trees[value];
+            TargetTree.Value = nextTree;
+
+            LoadTreeStyle(nextTree);
         }
 
         /// <summary>
@@ -477,6 +519,7 @@ namespace TreeViewer.ViewModels
 
             tree.Reroot(clade);
             TargetTree.Value = tree.Clone();
+            Trees[TreeIndex.Value - 1] = tree;
 
             OnPropertyChanged(nameof(TargetTree));
             UnfocusAll();
@@ -494,6 +537,7 @@ namespace TreeViewer.ViewModels
             cloned.OrderByLength();
 
             TargetTree.Value = cloned;
+            Trees[TreeIndex.Value - 1] = cloned;
 
             UnfocusAll();
             OnPropertyChanged(nameof(TargetTree));
@@ -565,6 +609,7 @@ namespace TreeViewer.ViewModels
             using var reader = new StreamReader(path);
             Tree[] trees = await Tree.ReadAsync(reader, format);
             if (trees.Length == 0) return;
+            for (int i = 0; i < trees.Length; i++) ApplyTreeStyle(trees[i]);
 
             Trees.AddRangeOnScheduler(trees);
 
