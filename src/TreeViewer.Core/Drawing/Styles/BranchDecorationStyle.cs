@@ -5,7 +5,7 @@ namespace TreeViewer.Core.Drawing.Styles
     /// <summary>
     /// 枝の装飾のスタイルを表します。
     /// </summary>
-    public partial class BranchDecorationStyle
+    public partial class BranchDecorationStyle : ICloneable
     {
         /// <summary>
         /// 装飾する枝の正規表現パターンを取得または設定します。
@@ -40,5 +40,34 @@ namespace TreeViewer.Core.Drawing.Styles
         /// <returns>デフォルトの<see cref="Regex"/>に用いる値</returns>
         [GeneratedRegex("100")]
         private static partial Regex GetDefaultRegex();
+
+        /// <summary>
+        /// 他のスタイルの内容を適用します。
+        /// </summary>
+        /// <param name="style">適用するインスタンス</param>
+        /// <exception cref="ArgumentNullException"><paramref name="style"/>が<see langword="null"/></exception>
+        public void ApplyValues(BranchDecorationStyle style)
+        {
+            ArgumentNullException.ThrowIfNull(style);
+
+            Regex = style.Regex;
+            ShapeSize = style.ShapeSize;
+            DecorationType = style.DecorationType;
+            ShapeColor = style.ShapeColor;
+        }
+
+        /// <summary>
+        /// インスタンスの複製を生成します。
+        /// </summary>
+        /// <returns>インスタンスの複製</returns>
+        public BranchDecorationStyle Clone() => new BranchDecorationStyle()
+        {
+            Regex = Regex,
+            ShapeSize = ShapeSize,
+            DecorationType = DecorationType,
+            ShapeColor = ShapeColor,
+        };
+
+        object ICloneable.Clone() => Clone();
     }
 }

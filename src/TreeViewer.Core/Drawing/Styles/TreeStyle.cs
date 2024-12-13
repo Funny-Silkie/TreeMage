@@ -5,7 +5,7 @@ namespace TreeViewer.Core.Drawing.Styles
     /// <summary>
     /// ツリーのスタイルを表します。
     /// </summary>
-    public class TreeStyle
+    public class TreeStyle : ICloneable
     {
         /// <summary>
         /// X方向の拡大率を取得または設定します。
@@ -98,5 +98,60 @@ namespace TreeViewer.Core.Drawing.Styles
         public TreeStyle()
         {
         }
+
+        /// <summary>
+        /// 他のスタイルの内容を適用します。
+        /// </summary>
+        /// <param name="style">適用するインスタンス</param>
+        /// <exception cref="ArgumentNullException"><paramref name="style"/>が<see langword="null"/></exception>
+        public void ApplyValues(TreeStyle style)
+        {
+            ArgumentNullException.ThrowIfNull(style);
+
+            XScale = style.XScale;
+            YScale = style.YScale;
+            BranchThickness = style.BranchThickness;
+            ShowLeafLabels = style.ShowLeafLabels;
+            LeafLabelsFontSize = style.LeafLabelsFontSize;
+            ShowNodeValues = style.ShowNodeValues;
+            NodeValueType = style.NodeValueType;
+            NodeValueFontSize = style.NodeValueFontSize;
+            ShowBranchValues = style.ShowBranchValues;
+            BranchValueType = style.BranchValueType;
+            BranchValueFontSize = style.BranchValueFontSize;
+            ShowBranchDecorations = style.ShowBranchDecorations;
+            DecorationStyles = Array.ConvertAll(style.DecorationStyles, x => x.Clone());
+            ShowScaleBar = style.ShowScaleBar;
+            ScaleBarValue = style.ScaleBarValue;
+            ScaleBarFontSize = style.ScaleBarFontSize;
+            ScaleBarThickness = style.ScaleBarThickness;
+        }
+
+        /// <summary>
+        /// インスタンスの複製を生成します。
+        /// </summary>
+        /// <returns>インスタンスの複製</returns>
+        public TreeStyle Clone() => new TreeStyle()
+        {
+            XScale = XScale,
+            YScale = YScale,
+            BranchThickness = BranchThickness,
+            ShowLeafLabels = ShowLeafLabels,
+            LeafLabelsFontSize = LeafLabelsFontSize,
+            ShowNodeValues = ShowNodeValues,
+            NodeValueType = NodeValueType,
+            NodeValueFontSize = NodeValueFontSize,
+            ShowBranchValues = ShowBranchValues,
+            BranchValueType = BranchValueType,
+            BranchValueFontSize = BranchValueFontSize,
+            ShowBranchDecorations = ShowBranchDecorations,
+            DecorationStyles = Array.ConvertAll(DecorationStyles, x => x.Clone()),
+            ShowScaleBar = ShowScaleBar,
+            ScaleBarValue = ScaleBarValue,
+            ScaleBarFontSize = ScaleBarFontSize,
+            ScaleBarThickness = ScaleBarThickness,
+        };
+
+        object ICloneable.Clone() => Clone();
     }
 }

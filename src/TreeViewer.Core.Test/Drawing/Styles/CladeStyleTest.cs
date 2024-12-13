@@ -1,4 +1,6 @@
-﻿namespace TreeViewer.Core.Drawing.Styles
+﻿using TreeViewer.Core.Assertions;
+
+namespace TreeViewer.Core.Drawing.Styles
 {
     public class CladeStyleTest
     {
@@ -47,6 +49,28 @@
                 Assert.Equal("white", style.BranchColor);
                 Assert.Equal("none", style.LeafColor);
             });
+        }
+
+        [Fact]
+        public void Clone()
+        {
+            style.BranchColor = "red";
+            style.LeafColor = "blue";
+
+            CladeStyle cloned = style.Clone();
+
+            CustomizedAssertions.Equal(style, cloned);
+        }
+
+        [Fact]
+        public void Interface_ICloneable_Clone()
+        {
+            style.BranchColor = "red";
+            style.LeafColor = "blue";
+
+            var cloned = (CladeStyle)((ICloneable)style).Clone();
+
+            CustomizedAssertions.Equal(style, cloned);
         }
 
         #endregion Methods

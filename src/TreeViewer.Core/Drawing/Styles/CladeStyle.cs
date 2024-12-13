@@ -3,7 +3,7 @@
     /// <summary>
     /// クレードのスタイルを表します。
     /// </summary>
-    public class CladeStyle
+    public class CladeStyle : ICloneable
     {
         /// <summary>
         /// 枝の色を取得または設定します。
@@ -36,5 +36,17 @@
             BranchColor = style.BranchColor;
             LeafColor = style.LeafColor;
         }
+
+        /// <summary>
+        /// インスタンスの複製を生成します。
+        /// </summary>
+        /// <returns>インスタンスの複製</returns>
+        public CladeStyle Clone() => new CladeStyle()
+        {
+            BranchColor = BranchColor,
+            LeafColor = LeafColor,
+        };
+
+        object ICloneable.Clone() => Clone();
     }
 }

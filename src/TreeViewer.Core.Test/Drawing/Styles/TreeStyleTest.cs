@@ -1,15 +1,20 @@
-﻿using TreeViewer.Core.Trees;
+﻿using System.Text.RegularExpressions;
+using TreeViewer.Core.Assertions;
+using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Drawing.Styles
 {
-    public class TreeStyleTest
+    public partial class TreeStyleTest
     {
-        private readonly TreeStyle options;
+        private readonly TreeStyle style;
 
         public TreeStyleTest()
         {
-            options = new TreeStyle();
+            style = new TreeStyle();
         }
+
+        [GeneratedRegex("100/100")]
+        private static partial Regex GetDummyDecorationRegex();
 
         #region Ctors
 
@@ -38,6 +43,113 @@ namespace TreeViewer.Core.Drawing.Styles
                 Assert.Equal(25, options.ScaleBarFontSize);
                 Assert.Equal(5, options.ScaleBarThickness);
             });
+        }
+
+        [Fact]
+        public void ApplyValues_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => style.ApplyValues(null!));
+        }
+
+        [Fact]
+        public void ApplyValues_AsPositive()
+        {
+            var applied = new TreeStyle()
+            {
+                XScale = 10,
+                YScale = 10,
+                BranchThickness = 10,
+                ShowLeafLabels = false,
+                LeafLabelsFontSize = 1,
+                ShowNodeValues = false,
+                NodeValueFontSize = 1,
+                NodeValueType = CladeValueType.BranchLength,
+                ShowBranchValues = false,
+                BranchValueFontSize = 1,
+                BranchValueType = CladeValueType.Supports,
+                ShowBranchDecorations = false,
+                DecorationStyles = [
+                    new BranchDecorationStyle()
+                    {
+                        Regex = GetDummyDecorationRegex(),
+                        ShapeSize = 1,
+                        DecorationType = BranchDecorationType.OpenCircle,
+                        ShapeColor = "red",
+                    }],
+                ShowScaleBar = false,
+                ScaleBarValue = 3,
+                ScaleBarFontSize = 50,
+                ScaleBarThickness = 10,
+            };
+            style.ApplyValues(applied);
+
+            CustomizedAssertions.Equal(applied, style);
+        }
+
+        [Fact]
+        public void Clone()
+        {
+            style.XScale = 10;
+            style.YScale = 10;
+            style.BranchThickness = 10;
+            style.ShowLeafLabels = false;
+            style.LeafLabelsFontSize = 1;
+            style.ShowNodeValues = false;
+            style.NodeValueFontSize = 1;
+            style.NodeValueType = CladeValueType.BranchLength;
+            style.ShowBranchValues = false;
+            style.BranchValueFontSize = 1;
+            style.BranchValueType = CladeValueType.Supports;
+            style.ShowBranchDecorations = false;
+            style.DecorationStyles = [
+                new BranchDecorationStyle()
+                {
+                    Regex = GetDummyDecorationRegex(),
+                    ShapeSize = 1,
+                    DecorationType = BranchDecorationType.OpenCircle,
+                    ShapeColor = "red",
+                }];
+            style.ShowScaleBar = false;
+            style.ScaleBarValue = 3;
+            style.ScaleBarFontSize = 50;
+            style.ScaleBarThickness = 10;
+
+            TreeStyle cloned = style.Clone();
+
+            CustomizedAssertions.Equal(style, cloned);
+        }
+
+        [Fact]
+        public void Interface_ICloneable_Clone()
+        {
+            style.XScale = 10;
+            style.YScale = 10;
+            style.BranchThickness = 10;
+            style.ShowLeafLabels = false;
+            style.LeafLabelsFontSize = 1;
+            style.ShowNodeValues = false;
+            style.NodeValueFontSize = 1;
+            style.NodeValueType = CladeValueType.BranchLength;
+            style.ShowBranchValues = false;
+            style.BranchValueFontSize = 1;
+            style.BranchValueType = CladeValueType.Supports;
+            style.ShowBranchDecorations = false;
+            style.DecorationStyles = [
+                new BranchDecorationStyle()
+                {
+                    Regex = GetDummyDecorationRegex(),
+                    ShapeSize = 1,
+                    DecorationType = BranchDecorationType.OpenCircle,
+                    ShapeColor = "red",
+                }];
+            style.ShowScaleBar = false;
+            style.ScaleBarValue = 3;
+            style.ScaleBarFontSize = 50;
+            style.ScaleBarThickness = 10;
+
+            var cloned = (TreeStyle)((ICloneable)style).Clone();
+
+            CustomizedAssertions.Equal(style, cloned);
         }
 
         #endregion Ctors
