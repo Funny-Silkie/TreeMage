@@ -1,8 +1,10 @@
-﻿using Reactive.Bindings;
+﻿using ElectronNET.API.Entities;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Exporting;
+using TreeViewer.Core.ProjectData;
 using TreeViewer.Core.Trees;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
@@ -15,6 +17,7 @@ namespace TreeViewer.ViewModels
     /// </summary>
     public class HomeViewModel : ViewModelBase
     {
+        private string? projectPath;
         private readonly MainWindow window;
 
         /// <summary>
@@ -42,10 +45,29 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public AsyncReactiveCommand<string> SvgElementClickedCommand { get; }
 
+        #region Menu
+
+        /// <summary>
+        /// プロジェクトを新規作成するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand CreateNewCommand { get; }
+
+        /// <summary>
+        /// プロジェクトファイルを開くコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand OpenProjectCommand { get; }
+
+        /// <summary>
+        /// プロジェクトファイルを保存するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<bool> SaveProjectCommand { get; }
+
         /// <summary>
         /// エクスポートを行うコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<(string path, ExportType type)> ExportWithExporterCommand { get; }
+
+        #endregion Menu
 
         #region Focus
 
@@ -258,6 +280,12 @@ namespace TreeViewer.ViewModels
             SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
                                                                          .AddTo(Disposables);
 
+            CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(CreateNew)
+                                                         .AddTo(Disposables);
+            OpenProjectCommand = new AsyncReactiveCommand().WithSubscribe(OpenProject)
+                                                           .AddTo(Disposables);
+            SaveProjectCommand = new AsyncReactiveCommand<bool>().WithSubscribe(SaveProject)
+                                                                 .AddTo(Disposables);
             ExportWithExporterCommand = new AsyncReactiveCommand<(string path, ExportType type)>().WithSubscribe(async x => await ExportWithExporter(x.path, x.type))
                                                                                                   .AddTo(Disposables);
 
@@ -597,6 +625,99 @@ namespace TreeViewer.ViewModels
                                                   .Where(x => !string.IsNullOrEmpty(x.value) && cladeSelection.Invoke(x.value))
                                                   .Select(x => x.clade);
             Focus(targetClades);
+        }
+
+        /// <summary>
+        /// プロジェクトファイルを新規作成します。
+        /// </summary>
+        private void CreateNew()
+        {
+            projectPath = null;
+            UnfocusAll();
+
+            TargetTree.Value = null;
+            Trees.ClearOnScheduler();
+            TreeIndex.Value = 1;
+
+            OnPropertyChanged(nameof(TargetTree));
+            OnPropertyChanged(nameof(Trees));
+        }
+
+        /// <summary>
+        /// プロジェクトファイルを開きます。
+        /// </summary>
+        private async Task OpenProject()
+        {
+            string? path = await window.ShowSingleFileOpenDialog([new FileFilter()
+            {
+                Name = "Tree viewer project file",
+                Extensions = ["treeprj"],
+            }]);
+            if (path is null) return;
+
+            projectPath = path;
+
+            try
+            {
+                ProjectData data = await ProjectData.LoadAsync(path);
+
+                UnfocusAll();
+                Trees.ClearOnScheduler();
+                Trees.AddRangeOnScheduler(data.Trees);
+
+                TargetTree.Value = null;
+
+                TreeIndex.Value = 1;
+                if (data.Trees.Length > 0)
+                {
+                    Tree mainTree = data.Trees[0];
+                    TargetTree.Value = mainTree;
+                    LoadTreeStyle(mainTree);
+                }
+
+                OnPropertyChanged(nameof(TargetTree));
+                OnPropertyChanged(nameof(Trees));
+            }
+            catch (Exception e)
+            {
+                await window.ShowErrorMessage(e);
+                projectPath = null;
+            }
+        }
+
+        /// <summary>
+        /// プロジェクトファイルを保存します。
+        /// </summary>
+        /// <param name="asNew">新しいファイルとして保存するかどうかを表す値</param>
+        private async Task SaveProject(bool asNew)
+        {
+            if (asNew || projectPath is null)
+            {
+                string? selectedPath = await window.ShowFileSaveDialog([new FileFilter()
+                {
+                    Name = "Tree viewer project file",
+                    Extensions = ["treeprj"],
+                }]);
+
+                if (selectedPath is null) return;
+                projectPath = selectedPath;
+            }
+
+            if (TargetTree.Value is not null) ApplyTreeStyle(TargetTree.Value);
+
+            var projectData = new ProjectData()
+            {
+                Trees = [.. Trees],
+            };
+
+            try
+            {
+                await projectData.SaveAsync(projectPath);
+            }
+            catch (Exception e)
+            {
+                await window.ShowErrorMessage(e);
+            }
         }
 
         /// <summary>

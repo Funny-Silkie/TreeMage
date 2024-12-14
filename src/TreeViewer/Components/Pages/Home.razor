@@ -1,6 +1,8 @@
+@implements IAsyncDisposable
 @page "/"
 @rendermode InteractiveServer
 @inject HomeViewModel ViewModel
+@inject IJSRuntime JS
 
 <RadzenLayout Style="user-select: none">
     <RadzenHeader>
@@ -441,6 +443,7 @@
 
 @code {
     private bool toggleExpanded = true;
+    private IJSObjectReference? jsModule;
 
     private const bool defaultCollapsed = false;
 
@@ -471,5 +474,38 @@
         await base.OnInitializedAsync();
 
         ViewModel.PropertyChanged += (x, y) => InvokeAsync(StateHasChanged);
+    }
+
+    /// <inheritdoc/>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/Home.razor.js");
+            await jsModule.InvokeVoidAsync("bypassShortcuts", DotNetObjectReference.Create(this));
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (jsModule is not null)
+            try
+            {
+                await jsModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+    }
+
+    /// <summary>
+    /// プロジェクトを新規作成します。。
+    /// </summary>
+    [JSInvokable]
+    public void CreateNew()
+    {
+        ViewModel.CreateNewCommand.Execute();
     }
 }
