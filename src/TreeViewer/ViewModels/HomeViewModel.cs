@@ -1,4 +1,4 @@
-using ElectronNET.API.Entities;
+﻿using ElectronNET.API.Entities;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Text.RegularExpressions;
@@ -8,6 +8,7 @@ using TreeViewer.Core.ProjectData;
 using TreeViewer.Core.Trees;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
+using TreeViewer.Settings;
 using TreeViewer.Window;
 
 namespace TreeViewer.ViewModels
@@ -774,7 +775,7 @@ namespace TreeViewer.ViewModels
 
             IExporter exporter = IExporter.Create(type);
             using var stream = new FileStream(path, FileMode.Create);
-            await exporter.ExportAsync(tree, stream, new ExportOptions());
+            await exporter.ExportAsync(tree, stream, Configurations.Instance.ToExportOptions());
         }
 
         /// <summary>
