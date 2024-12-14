@@ -1,4 +1,4 @@
-﻿using ElectronNET.API.Entities;
+using ElectronNET.API.Entities;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Text.RegularExpressions;
@@ -15,10 +15,9 @@ namespace TreeViewer.ViewModels
     /// <summary>
     /// ホーム画面のViewModelのクラスです。
     /// </summary>
-    public class HomeViewModel : ViewModelBase
+    public class HomeViewModel : WindowViewModel<MainWindow, HomeViewModel>
     {
         private string? projectPath;
-        private readonly MainWindow window;
 
         /// <summary>
         /// スタイル編集用のViewModelを取得します。
@@ -271,11 +270,8 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// <see cref="HomeViewModel"/>の新しいインスタンスを初期化します。
         /// </summary>
-        public HomeViewModel()
+        public HomeViewModel() : base(MainWindow.Instance)
         {
-            window = MainWindow.Instance;
-            window.SetViewModel(this);
-
             Trees = new ReactiveCollection<Tree>().AddTo(Disposables);
             TreeIndex = new ReactivePropertySlim<int>(1).WithSubscribe(OnTreeIndexChanged)
                                                         .AddTo(Disposables);
@@ -656,7 +652,7 @@ namespace TreeViewer.ViewModels
         /// </summary>
         private async Task OpenProject()
         {
-            string? path = await window.ShowSingleFileOpenDialog([new FileFilter()
+            string? path = await Window.ShowSingleFileOpenDialog([new FileFilter()
             {
                 Name = "Tree viewer project file",
                 Extensions = ["treeprj"],
@@ -688,7 +684,7 @@ namespace TreeViewer.ViewModels
             }
             catch (Exception e)
             {
-                await window.ShowErrorMessage(e);
+                await Window.ShowErrorMessage(e);
                 projectPath = null;
             }
         }
@@ -701,7 +697,7 @@ namespace TreeViewer.ViewModels
         {
             if (asNew || projectPath is null)
             {
-                string? selectedPath = await window.ShowFileSaveDialog([new FileFilter()
+                string? selectedPath = await Window.ShowFileSaveDialog([new FileFilter()
                 {
                     Name = "Tree viewer project file",
                     Extensions = ["treeprj"],
@@ -724,7 +720,7 @@ namespace TreeViewer.ViewModels
             }
             catch (Exception e)
             {
-                await window.ShowErrorMessage(e);
+                await Window.ShowErrorMessage(e);
             }
         }
 
