@@ -17,6 +17,19 @@ function onKeyDown(event: KeyboardEvent, page: DotNetRazorComponent): void {
         event.preventDefault();
 
         page.invokeMethodAsync("CreateNew");
+        return;
+    }
+
+    // textboxなどではショートカットを潰さないようにするために対象の要素に応じて挙動を切り替え
+    const target: HTMLElement = event.target as HTMLElement;
+    if (target.tagName != "INPUT") {
+        // Ctrl+A
+        if (event.ctrlKey && event.code == "KeyA") {
+            event.preventDefault();
+
+            page.invokeMethodAsync("FocusAll");
+            return;
+        }
     }
 }
 

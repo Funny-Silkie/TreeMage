@@ -508,4 +508,13 @@
     {
         ViewModel.CreateNewCommand.Execute();
     }
+
+    /// <summary>
+    /// 全てを選択します。
+    /// </summary>
+    [JSInvokable]
+    public void FocusAll()
+    {
+        ViewModel.FocusAllCommand.Execute();
+    }
 }
