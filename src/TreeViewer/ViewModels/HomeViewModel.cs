@@ -216,6 +216,11 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public ReactivePropertySlim<int> BranchValueFontSize { get; }
 
+        /// <summary>
+        /// 非表示にする枝の値の正規表現パターンのプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<string?> BranchValueHideRegexPattern { get; }
+
         #endregion BranchValues
 
         #region BranchDecorations
@@ -324,6 +329,7 @@ namespace TreeViewer.ViewModels
             ShowBranchValues = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
             BranchValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).AddTo(Disposables);
             BranchValueFontSize = new ReactivePropertySlim<int>(15).AddTo(Disposables);
+            BranchValueHideRegexPattern = new ReactivePropertySlim<string?>().AddTo(Disposables);
 
             ShowBranchDecorations = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
             BranchDecorations = new ReactiveCollection<BranchDecorationViewModel>().AddTo(Disposables);
@@ -355,6 +361,7 @@ namespace TreeViewer.ViewModels
             tree.Style.ShowBranchValues = ShowBranchValues.Value;
             tree.Style.BranchValueType = BranchValueType.Value;
             tree.Style.BranchValueFontSize = BranchValueFontSize.Value;
+            tree.Style.BranchValueHideRegexPattern = BranchValueHideRegexPattern.Value;
             tree.Style.ShowBranchDecorations = ShowBranchDecorations.Value;
             tree.Style.DecorationStyles = BranchDecorations.Select(x => new BranchDecorationStyle()
             {
@@ -387,6 +394,7 @@ namespace TreeViewer.ViewModels
             ShowBranchValues.Value = tree.Style.ShowBranchValues;
             BranchValueType.Value = tree.Style.BranchValueType;
             BranchValueFontSize.Value = tree.Style.BranchValueFontSize;
+            BranchValueHideRegexPattern.Value = tree.Style.BranchValueHideRegexPattern;
             ShowBranchDecorations.Value = tree.Style.ShowBranchDecorations;
             BranchDecorations.ClearOnScheduler();
             BranchDecorations.AddRangeOnScheduler(tree.Style.DecorationStyles.Select(x =>

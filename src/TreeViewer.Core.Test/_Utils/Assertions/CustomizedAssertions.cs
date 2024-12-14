@@ -143,6 +143,8 @@ namespace TreeViewer.Core.Assertions
                 Assert.Equal(expected.ShowBranchValues, actual.ShowBranchValues);
                 Assert.Equal(expected.BranchValueType, actual.BranchValueType);
                 Assert.Equal(expected.BranchValueFontSize, actual.BranchValueFontSize);
+                Assert.Equal(expected.BranchValueHideRegex?.ToString(), actual.BranchValueHideRegex?.ToString());
+                Assert.Equal(expected.BranchValueHideRegexPattern, actual.BranchValueHideRegexPattern);
                 Assert.Equal(expected.ShowBranchDecorations, actual.ShowBranchDecorations);
                 Assert.Equal(expected.DecorationStyles.Length, actual.DecorationStyles.Length);
                 Assert.Equal(expected.ShowScaleBar, actual.ShowScaleBar);

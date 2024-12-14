@@ -9,7 +9,10 @@ namespace TreeViewer.Core.Drawing.Styles
 
         public TreeStyleTest()
         {
-            style = new TreeStyle();
+            style = new TreeStyle()
+            {
+                BranchValueHideRegexPattern = "hoge",
+            };
         }
 
         #region Ctors
@@ -32,6 +35,8 @@ namespace TreeViewer.Core.Drawing.Styles
                 Assert.True(options.ShowBranchValues);
                 Assert.Equal(CladeValueType.BranchLength, options.BranchValueType);
                 Assert.Equal(15, options.BranchValueFontSize);
+                Assert.Null(options.BranchValueHideRegex);
+                Assert.Null(options.BranchValueHideRegexPattern);
                 Assert.True(options.ShowBranchDecorations);
                 Assert.Empty(options.DecorationStyles);
                 Assert.True(options.ShowScaleBar);
@@ -40,6 +45,56 @@ namespace TreeViewer.Core.Drawing.Styles
                 Assert.Equal(5, options.ScaleBarThickness);
             });
         }
+
+        #endregion Ctors
+
+        #region Properties
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void LeafLabelHideRegexPattern_Set_AsNullOrEmpty(string? value)
+        {
+            style.BranchValueHideRegexPattern = value;
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(value, style.BranchValueHideRegexPattern);
+                Assert.Null(style.BranchValueHideRegex);
+            });
+        }
+
+#pragma warning disable RE0001 // 無効な RegEx パターン
+
+        [Fact]
+        public void LeafLabelHideRegexPattern_Set_AsInvalidRegex()
+        {
+            style.BranchValueHideRegexPattern = "(";
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal("(", style.BranchValueHideRegexPattern);
+                Assert.Null(style.BranchValueHideRegex);
+            });
+        }
+
+#pragma warning restore RE0001 // 無効な RegEx パターン
+
+        [Fact]
+        public void LeafLabelHideRegexPattern_Set_AsValidRegex()
+        {
+            style.BranchValueHideRegexPattern = "50";
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal("50", style.BranchValueHideRegexPattern);
+                Assert.Equal("50", style.BranchValueHideRegex?.ToString());
+            });
+        }
+
+        #endregion Properties
+
+        #region Methods
 
         [Fact]
         public void ApplyValues_WithNull()
@@ -63,6 +118,7 @@ namespace TreeViewer.Core.Drawing.Styles
                 ShowBranchValues = false,
                 BranchValueFontSize = 1,
                 BranchValueType = CladeValueType.Supports,
+                BranchValueHideRegexPattern = "100/100",
                 ShowBranchDecorations = false,
                 DecorationStyles = [
                     new BranchDecorationStyle()
@@ -96,6 +152,7 @@ namespace TreeViewer.Core.Drawing.Styles
             style.ShowBranchValues = false;
             style.BranchValueFontSize = 1;
             style.BranchValueType = CladeValueType.Supports;
+            style.BranchValueHideRegexPattern = "100/100";
             style.ShowBranchDecorations = false;
             style.DecorationStyles = [
                 new BranchDecorationStyle()
@@ -129,6 +186,7 @@ namespace TreeViewer.Core.Drawing.Styles
             style.ShowBranchValues = false;
             style.BranchValueFontSize = 1;
             style.BranchValueType = CladeValueType.Supports;
+            style.BranchValueHideRegexPattern = "100/100";
             style.ShowBranchDecorations = false;
             style.DecorationStyles = [
                 new BranchDecorationStyle()
@@ -148,6 +206,6 @@ namespace TreeViewer.Core.Drawing.Styles
             CustomizedAssertions.Equal(style, cloned);
         }
 
-        #endregion Ctors
+        #endregion Methods
     }
 }

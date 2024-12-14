@@ -137,10 +137,12 @@
                         <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
                             <RadzenText Style="@sidebarFormLabelStyle">Value:</RadzenText>
                             <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
+                            <RadzenText Style="@sidebarFormLabelStyle">Hide pattern:</RadzenText>
                         </RadzenStack>
                         <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
                             <RadzenDropDown TValue="CladeValueType" Data="Enum.GetValues<CladeValueType>()" @bind-Value="ViewModel.BranchValueType.Value" Style="@sidebarFormValueStyle" />
                             <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.BranchValueFontSize.Value" Style="@sidebarFormValueStyle" />
+                            <RadzenTextBox @bind-Value="ViewModel.BranchValueHideRegexPattern.Value" Style="@sidebarFormValueStyle" />
                         </RadzenStack>
                     </RadzenStack>
                 </ChildContent>
@@ -370,7 +372,7 @@
                                     if (ViewModel.ShowBranchValues.Value)
                                     {
                                         string branchValue = SelectShowValue(current, ViewModel.BranchValueType.Value);
-                                        if (branchValue.Length > 0)
+                                        if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
                                         {
                                             (double x, double y) = positionManager.CalcBranchValuePosition(current);
 

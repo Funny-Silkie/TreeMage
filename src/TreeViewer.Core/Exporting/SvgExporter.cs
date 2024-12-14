@@ -207,7 +207,7 @@ namespace TreeViewer.Core.Exporting
                     if (tree.Style.ShowBranchValues)
                     {
                         string branchValue = DrawHelpers.SelectShowValue(current, tree.Style.BranchValueType);
-                        if (branchValue.Length > 0)
+                        if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
                         {
                             (double x, double y) = positionManager.CalcBranchValuePosition(current);
 

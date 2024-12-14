@@ -1,4 +1,6 @@
-﻿using TreeViewer.Core.Trees;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
+using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Drawing.Styles
 {
@@ -63,6 +65,38 @@ namespace TreeViewer.Core.Drawing.Styles
         public int BranchValueFontSize { get; set; } = 15;
 
         /// <summary>
+        /// 枝の値を非表示にする正規表現を取得します。
+        /// </summary>
+        public Regex? BranchValueHideRegex { get; private set; }
+
+        /// <summary>
+        /// 枝の値を非表示にする正規表現パターンを取得または設定します。
+        /// </summary>
+        [StringSyntax(StringSyntaxAttribute.Regex)]
+        public string? BranchValueHideRegexPattern
+        {
+            get => _branchValueHideRegexPattern;
+            set
+            {
+                if (_branchValueHideRegexPattern == value) return;
+                if (string.IsNullOrEmpty(value)) BranchValueHideRegex = null;
+                else
+                    try
+                    {
+                        BranchValueHideRegex = new Regex(value);
+                    }
+                    catch
+                    {
+                        BranchValueHideRegex = null;
+                    }
+                _branchValueHideRegexPattern = value;
+            }
+        }
+
+        [StringSyntax(StringSyntaxAttribute.Regex)]
+        private string? _branchValueHideRegexPattern;
+
+        /// <summary>
         /// 枝の装飾を出力するかどうかを表す値を取得または設定します。
         /// </summary>
         public bool ShowBranchDecorations { get; set; } = true;
@@ -119,6 +153,8 @@ namespace TreeViewer.Core.Drawing.Styles
             ShowBranchValues = style.ShowBranchValues;
             BranchValueType = style.BranchValueType;
             BranchValueFontSize = style.BranchValueFontSize;
+            BranchValueHideRegex = style.BranchValueHideRegex;
+            _branchValueHideRegexPattern = style._branchValueHideRegexPattern;
             ShowBranchDecorations = style.ShowBranchDecorations;
             DecorationStyles = Array.ConvertAll(style.DecorationStyles, x => x.Clone());
             ShowScaleBar = style.ShowScaleBar;
@@ -144,6 +180,8 @@ namespace TreeViewer.Core.Drawing.Styles
             ShowBranchValues = ShowBranchValues,
             BranchValueType = BranchValueType,
             BranchValueFontSize = BranchValueFontSize,
+            BranchValueHideRegex = BranchValueHideRegex,
+            _branchValueHideRegexPattern = _branchValueHideRegexPattern,
             ShowBranchDecorations = ShowBranchDecorations,
             DecorationStyles = Array.ConvertAll(DecorationStyles, x => x.Clone()),
             ShowScaleBar = ShowScaleBar,
