@@ -1,8 +1,10 @@
-﻿using Reactive.Bindings;
+﻿using ElectronNET.API.Entities;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Exporting;
+using TreeViewer.Core.ProjectData;
 using TreeViewer.Core.Trees;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
@@ -15,6 +17,7 @@ namespace TreeViewer.ViewModels
     /// </summary>
     public class HomeViewModel : ViewModelBase
     {
+        private string? projectPath;
         private readonly MainWindow window;
 
         /// <summary>
@@ -42,10 +45,29 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public AsyncReactiveCommand<string> SvgElementClickedCommand { get; }
 
+        #region Menu
+
+        /// <summary>
+        /// プロジェクトを新規作成するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand CreateNewCommand { get; }
+
+        /// <summary>
+        /// プロジェクトファイルを開くコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand OpenProjectCommand { get; }
+
+        /// <summary>
+        /// プロジェクトファイルを保存するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<bool> SaveProjectCommand { get; }
+
         /// <summary>
         /// エクスポートを行うコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<(string path, ExportType type)> ExportWithExporterCommand { get; }
+
+        #endregion Menu
 
         #region Focus
 
@@ -258,6 +280,12 @@ namespace TreeViewer.ViewModels
             SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
                                                                          .AddTo(Disposables);
 
+            CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(CreateNew)
+                                                         .AddTo(Disposables);
+            OpenProjectCommand = new AsyncReactiveCommand().WithSubscribe(OpenProject)
+                                                           .AddTo(Disposables);
+            SaveProjectCommand = new AsyncReactiveCommand<bool>().WithSubscribe(SaveProject)
+                                                                 .AddTo(Disposables);
             ExportWithExporterCommand = new AsyncReactiveCommand<(string path, ExportType type)>().WithSubscribe(async x => await ExportWithExporter(x.path, x.type))
                                                                                                   .AddTo(Disposables);
 
@@ -328,9 +356,10 @@ namespace TreeViewer.ViewModels
             tree.Style.BranchValueType = BranchValueType.Value;
             tree.Style.BranchValueFontSize = BranchValueFontSize.Value;
             tree.Style.ShowBranchDecorations = ShowBranchDecorations.Value;
-            tree.Style.DecorationStyles = BranchDecorations.Where(x => x.Regex is not null && x.Visible.Value).Select(x => new BranchDecorationStyle()
+            tree.Style.DecorationStyles = BranchDecorations.Select(x => new BranchDecorationStyle()
             {
-                Regex = x.Regex!,
+                Enabled = x.Visible.Value,
+                RegexPattern = x.TargetRegexPattern.Value,
                 ShapeSize = x.ShapeSize.Value,
                 ShapeColor = x.ShapeColor.Value,
                 DecorationType = x.DecorationType.Value,
@@ -342,6 +371,42 @@ namespace TreeViewer.ViewModels
         }
 
         /// <summary>
+        /// スタイル情報を読み取ります。
+        /// </summary>
+        /// <param name="tree">読み取るツリー</param>
+        private void LoadTreeStyle(Tree tree)
+        {
+            XScale.Value = tree.Style.XScale;
+            YScale.Value = tree.Style.YScale;
+            BranchThickness.Value = tree.Style.BranchThickness;
+            ShowLeafLabels.Value = tree.Style.ShowLeafLabels;
+            LeafLabelsFontSize.Value = tree.Style.LeafLabelsFontSize;
+            ShowNodeValues.Value = tree.Style.ShowNodeValues;
+            NodeValueType.Value = tree.Style.NodeValueType;
+            NodeValueFontSize.Value = tree.Style.NodeValueFontSize;
+            ShowBranchValues.Value = tree.Style.ShowBranchValues;
+            BranchValueType.Value = tree.Style.BranchValueType;
+            BranchValueFontSize.Value = tree.Style.BranchValueFontSize;
+            ShowBranchDecorations.Value = tree.Style.ShowBranchDecorations;
+            BranchDecorations.ClearOnScheduler();
+            BranchDecorations.AddRangeOnScheduler(tree.Style.DecorationStyles.Select(x =>
+            {
+                var result = new BranchDecorationViewModel(this);
+                result.Visible.Value = x.Enabled;
+                result.TargetRegexPattern.Value = x.RegexPattern;
+                result.ShapeSize.Value = x.ShapeSize;
+                result.ShapeColor.Value = x.ShapeColor;
+                result.DecorationType.Value = x.DecorationType;
+
+                return result;
+            }));
+            ShowScaleBar.Value = tree.Style.ShowScaleBar;
+            ScaleBarValue.Value = tree.Style.ScaleBarValue;
+            ScaleBarFontSize.Value = tree.Style.ScaleBarFontSize;
+            ScaleBarThickness.Value = tree.Style.ScaleBarThickness;
+        }
+
+        /// <summary>
         /// <see cref="TreeIndex"/>が変更されたときに実行されます。
         /// </summary>
         /// <param name="value">変更後の値</param>
@@ -350,8 +415,14 @@ namespace TreeViewer.ViewModels
             value--;
             if ((uint)value >= (uint)Trees.Count) return;
 
+            Tree? prevTree = TargetTree.Value;
+            if (prevTree is not null) ApplyTreeStyle(prevTree);
+
             UnfocusAll();
-            TargetTree.Value = Trees[value];
+            Tree nextTree = Trees[value];
+            TargetTree.Value = nextTree;
+
+            LoadTreeStyle(nextTree);
         }
 
         /// <summary>
@@ -476,6 +547,7 @@ namespace TreeViewer.ViewModels
 
             tree.Reroot(clade);
             TargetTree.Value = tree.Clone();
+            Trees[TreeIndex.Value - 1] = tree;
 
             OnPropertyChanged(nameof(TargetTree));
             UnfocusAll();
@@ -493,6 +565,7 @@ namespace TreeViewer.ViewModels
             cloned.OrderByLength();
 
             TargetTree.Value = cloned;
+            Trees[TreeIndex.Value - 1] = cloned;
 
             UnfocusAll();
             OnPropertyChanged(nameof(TargetTree));
@@ -555,6 +628,99 @@ namespace TreeViewer.ViewModels
         }
 
         /// <summary>
+        /// プロジェクトファイルを新規作成します。
+        /// </summary>
+        private void CreateNew()
+        {
+            projectPath = null;
+            UnfocusAll();
+
+            TargetTree.Value = null;
+            Trees.ClearOnScheduler();
+            TreeIndex.Value = 1;
+
+            OnPropertyChanged(nameof(TargetTree));
+            OnPropertyChanged(nameof(Trees));
+        }
+
+        /// <summary>
+        /// プロジェクトファイルを開きます。
+        /// </summary>
+        private async Task OpenProject()
+        {
+            string? path = await window.ShowSingleFileOpenDialog([new FileFilter()
+            {
+                Name = "Tree viewer project file",
+                Extensions = ["treeprj"],
+            }]);
+            if (path is null) return;
+
+            projectPath = path;
+
+            try
+            {
+                ProjectData data = await ProjectData.LoadAsync(path);
+
+                UnfocusAll();
+                Trees.ClearOnScheduler();
+                Trees.AddRangeOnScheduler(data.Trees);
+
+                TargetTree.Value = null;
+
+                TreeIndex.Value = 1;
+                if (data.Trees.Length > 0)
+                {
+                    Tree mainTree = data.Trees[0];
+                    TargetTree.Value = mainTree;
+                    LoadTreeStyle(mainTree);
+                }
+
+                OnPropertyChanged(nameof(TargetTree));
+                OnPropertyChanged(nameof(Trees));
+            }
+            catch (Exception e)
+            {
+                await window.ShowErrorMessage(e);
+                projectPath = null;
+            }
+        }
+
+        /// <summary>
+        /// プロジェクトファイルを保存します。
+        /// </summary>
+        /// <param name="asNew">新しいファイルとして保存するかどうかを表す値</param>
+        private async Task SaveProject(bool asNew)
+        {
+            if (asNew || projectPath is null)
+            {
+                string? selectedPath = await window.ShowFileSaveDialog([new FileFilter()
+                {
+                    Name = "Tree viewer project file",
+                    Extensions = ["treeprj"],
+                }]);
+
+                if (selectedPath is null) return;
+                projectPath = selectedPath;
+            }
+
+            if (TargetTree.Value is not null) ApplyTreeStyle(TargetTree.Value);
+
+            var projectData = new ProjectData()
+            {
+                Trees = [.. Trees],
+            };
+
+            try
+            {
+                await projectData.SaveAsync(projectPath);
+            }
+            catch (Exception e)
+            {
+                await window.ShowErrorMessage(e);
+            }
+        }
+
+        /// <summary>
         /// 系統樹を読み込みます。
         /// </summary>
         /// <param name="path">読み込む系統樹ファイルのパス</param>
@@ -564,6 +730,7 @@ namespace TreeViewer.ViewModels
             using var reader = new StreamReader(path);
             Tree[] trees = await Tree.ReadAsync(reader, format);
             if (trees.Length == 0) return;
+            for (int i = 0; i < trees.Length; i++) ApplyTreeStyle(trees[i]);
 
             Trees.AddRangeOnScheduler(trees);
 

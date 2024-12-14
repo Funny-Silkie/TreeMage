@@ -112,24 +112,28 @@ namespace TreeViewer.Window
                         {
                             Type = MenuType.normal,
                             Label = "新規作成(&N)",
+                            Click = () => ViewModel.CreateNewCommand.Execute(),
                             Accelerator = "Ctrl+N",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
                             Label = "開く(&O)",
+                            Click = () => ViewModel.OpenProjectCommand.Execute(),
                             Accelerator = "Ctrl+O",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
                             Label = "保存(&S)",
+                            Click = () => ViewModel.SaveProjectCommand.Execute(false),
                             Accelerator = "Ctrl+S",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
                             Label = "名前を付けて保存(&A)",
+                            Click = () => ViewModel.SaveProjectCommand.Execute(true),
                             Accelerator = "Ctrl+Shift+S",
                         },
                         new MenuItem()
@@ -335,6 +339,58 @@ namespace TreeViewer.Window
             ]);
         }
 
+        /// <summary>
+        /// エラーメッセージを表示します。
+        /// </summary>
+        /// <param name="exception">例外</param>
+        public async Task ShowErrorMessage(Exception exception)
+        {
+            string message =
+#if DEBUG
+                exception.ToString();
+#else
+                exception.Message;
+#endif
+
+            await Electron.Dialog.ShowMessageBoxAsync(window, new MessageBoxOptions(message)
+            {
+                Title = "Error",
+                Type = MessageBoxType.error,
+            });
+        }
+
+        /// <summary>
+        /// 単一のファイルを開くダイアログを開きます。
+        /// </summary>
+        /// <param name="filters">拡張子のフィルター</param>
+        /// <returns>読み込むファイルパス，選択されなかった場合は<see langword="null"/></returns>
+        public async Task<string?> ShowSingleFileOpenDialog(FileFilter[]? filters = null)
+        {
+            string[] pathes = await Electron.Dialog.ShowOpenDialogAsync(window, new OpenDialogOptions()
+            {
+                Properties = [OpenDialogProperty.openFile, OpenDialogProperty.showHiddenFiles],
+                Filters = filters,
+            });
+            if (pathes.Length != 1) return null;
+            return pathes[0];
+        }
+
+        /// <summary>
+        /// 単一のファイルを保存するダイアログを開きます。
+        /// </summary>
+        /// <param name="filters">拡張子のフィルター</param>
+        /// <returns>出力するファイルパス，選択されなかった場合は<see langword="null"/></returns>
+        public async Task<string?> ShowFileSaveDialog(FileFilter[]? filters = null)
+        {
+            string path = await Electron.Dialog.ShowSaveDialogAsync(window, new SaveDialogOptions()
+            {
+                Filters = filters,
+            });
+
+            if (path.Length == 0) return null;
+            return path;
+        }
+
         #region Menu Operations
 
         #region File
@@ -345,13 +401,10 @@ namespace TreeViewer.Window
         /// <param name="format">読み込む系統樹のフォーマット</param>
         private async Task Import(TreeFormat format)
         {
-            string[] pathes = await Electron.Dialog.ShowOpenDialogAsync(window, new OpenDialogOptions()
-            {
-                Properties = [OpenDialogProperty.openFile, OpenDialogProperty.showHiddenFiles],
-            });
-            if (pathes.Length != 1) return;
+            string? path = await ShowSingleFileOpenDialog();
+            if (path is null) return;
 
-            await ViewModel.ImportTree(pathes[0], format);
+            await ViewModel.ImportTree(path, format);
         }
 
         /// <summary>
@@ -360,8 +413,8 @@ namespace TreeViewer.Window
         /// <param name="format">出力する系統樹のフォーマット</param>
         private async Task ExportAsTreeFile(TreeFormat format)
         {
-            string path = await Electron.Dialog.ShowSaveDialogAsync(window, new SaveDialogOptions());
-            if (path.Length == 0) return;
+            string? path = await ShowFileSaveDialog();
+            if (path is null) return;
 
             await ViewModel.ExportCurrentTreeAsTreeFile(path, format);
         }
@@ -372,17 +425,12 @@ namespace TreeViewer.Window
         /// <param name="exportType">出力するフォーマット</param>
         private async Task ExportWithExporter(ExportType exportType)
         {
-            string path = await Electron.Dialog.ShowSaveDialogAsync(window, new SaveDialogOptions()
+            string? path = await ShowFileSaveDialog([new FileFilter()
             {
-                Filters = [
-                    new FileFilter()
-                    {
-                        Name = $"{exportType.ToString().ToUpper()} File",
-                        Extensions = [exportType.ToString().ToLower()],
-                    },
-                ],
-            });
-            if (path.Length == 0) return;
+                Name = $"{exportType.ToString().ToUpper()} File",
+                Extensions = [exportType.ToString().ToLower()],
+            }]);
+            if (path is null) return;
 
             await ViewModel.ExportWithExporterCommand.ExecuteAsync((path, exportType));
         }

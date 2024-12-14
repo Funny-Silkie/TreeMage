@@ -1,6 +1,8 @@
+@implements IAsyncDisposable
 @page "/"
 @rendermode InteractiveServer
 @inject HomeViewModel ViewModel
+@inject IJSRuntime JS
 
 <RadzenLayout Style="user-select: none">
     <RadzenHeader>
@@ -315,19 +317,19 @@
 
                                     // 枝の装飾
                                     if (ViewModel.ShowBranchDecorations.Value && !string.IsNullOrEmpty(current.Supports))
-                                        foreach (BranchDecorationStyle currentViewModel in tree.Style.DecorationStyles)
+                                        foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Enabled && (x.Regex?.IsMatch(current.Supports) ?? false)))
                                         {
-                                            string color = currentViewModel.ShapeColor;
+                                            string color = currentDecoration.ShapeColor;
 
-                                            switch (currentViewModel.DecorationType)
+                                            switch (currentDecoration.DecorationType)
                                             {
                                                 case BranchDecorationType.ClosedCircle:
                                                 case BranchDecorationType.OpenCircle:
                                                     {
-                                                        (double centerX, double centerY, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentViewModel);
+                                                        (double centerX, double centerY, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentDecoration);
 
                                                         string fill, stroke;
-                                                        if (currentViewModel.DecorationType == BranchDecorationType.ClosedCircle)
+                                                        if (currentDecoration.DecorationType == BranchDecorationType.ClosedCircle)
                                                         {
                                                             fill = color;
                                                             stroke = "none";
@@ -344,10 +346,10 @@
                                                 case BranchDecorationType.ClosedRectangle:
                                                 case BranchDecorationType.OpenedRectangle:
                                                     {
-                                                        (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(current, currentViewModel);
+                                                        (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(current, currentDecoration);
 
                                                         string fill, stroke;
-                                                        if (currentViewModel.DecorationType == BranchDecorationType.ClosedRectangle)
+                                                        if (currentDecoration.DecorationType == BranchDecorationType.ClosedRectangle)
                                                         {
                                                             fill = color;
                                                             stroke = "none";
@@ -441,6 +443,7 @@
 
 @code {
     private bool toggleExpanded = true;
+    private IJSObjectReference? jsModule;
 
     private const bool defaultCollapsed = false;
 
@@ -471,5 +474,38 @@
         await base.OnInitializedAsync();
 
         ViewModel.PropertyChanged += (x, y) => InvokeAsync(StateHasChanged);
+    }
+
+    /// <inheritdoc/>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/Home.razor.js");
+            await jsModule.InvokeVoidAsync("bypassShortcuts", DotNetObjectReference.Create(this));
+        }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+        if (jsModule is not null)
+            try
+            {
+                await jsModule.DisposeAsync();
+            }
+            catch (JSDisconnectedException)
+            {
+            }
+    }
+
+    /// <summary>
+    /// プロジェクトを新規作成します。。
+    /// </summary>
+    [JSInvokable]
+    public void CreateNew()
+    {
+        ViewModel.CreateNewCommand.Execute();
     }
 }

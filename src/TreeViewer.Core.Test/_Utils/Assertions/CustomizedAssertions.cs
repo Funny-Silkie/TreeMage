@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using TreeViewer.Core.Drawing.Styles;
+using TreeViewer.Core.Trees;
 using Xunit.Sdk;
 
 namespace TreeViewer.Core.Assertions
@@ -143,12 +144,13 @@ namespace TreeViewer.Core.Assertions
                 Assert.Equal(expected.BranchValueType, actual.BranchValueType);
                 Assert.Equal(expected.BranchValueFontSize, actual.BranchValueFontSize);
                 Assert.Equal(expected.ShowBranchDecorations, actual.ShowBranchDecorations);
-                Assert.Equal(expected.DecorationStyles, actual.DecorationStyles);
+                Assert.Equal(expected.DecorationStyles.Length, actual.DecorationStyles.Length);
                 Assert.Equal(expected.ShowScaleBar, actual.ShowScaleBar);
                 Assert.Equal(expected.ScaleBarValue, actual.ScaleBarValue);
                 Assert.Equal(expected.ScaleBarFontSize, actual.ScaleBarFontSize);
                 Assert.Equal(expected.ScaleBarThickness, actual.ScaleBarThickness);
             });
+            for (int i = 0; i < expected.DecorationStyles.Length; i++) Equal(expected.DecorationStyles[i], actual.DecorationStyles[i]);
         }
 
         /// <summary>
@@ -163,6 +165,62 @@ namespace TreeViewer.Core.Assertions
             {
                 Assert.Equal(expected.BranchColor, actual.BranchColor);
                 Assert.Equal(expected.LeafColor, actual.LeafColor);
+            });
+        }
+
+        /// <summary>
+        /// <see cref="BranchDecorationStyle"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(BranchDecorationStyle expected, BranchDecorationStyle actual)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(expected.Enabled, actual.Enabled);
+                Assert.Equal(expected.Regex?.ToString(), actual.Regex?.ToString());
+                Assert.Equal(expected.RegexPattern, actual.RegexPattern);
+                Assert.Equal(expected.ShapeSize, actual.ShapeSize);
+                Assert.Equal(expected.DecorationType, actual.DecorationType);
+                Assert.Equal(expected.ShapeColor, actual.ShapeColor);
+            });
+        }
+
+        /// <summary>
+        /// <see cref="Clade"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <remarks>親要素の比較は行いません</remarks>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(Clade expected, Clade actual)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(expected.Taxon, actual.Taxon);
+                Assert.Equal(expected.Supports, actual.Supports);
+                Assert.Equal(expected.BranchLength, actual.BranchLength);
+                Assert.Equal(expected.ChildrenInternal.Count, actual.ChildrenInternal.Count);
+                Equal(expected.Style, actual.Style);
+            });
+
+            for (int i = 0; i < expected.ChildrenInternal.Count; i++) Equal(expected.ChildrenInternal[i], actual.ChildrenInternal[i]);
+        }
+
+        /// <summary>
+        /// <see cref="Tree"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <remarks>親要素の比較は行いません</remarks>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(Tree expected, Tree actual)
+        {
+            Assert.Multiple(() =>
+            {
+                Equal(expected.Root, actual.Root);
+                Equal(expected.Style, actual.Style);
             });
         }
     }
