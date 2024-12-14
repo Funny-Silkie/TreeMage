@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using TreeViewer.Core.Drawing.Styles;
+using TreeViewer.Core.Trees;
 using Xunit.Sdk;
 
 namespace TreeViewer.Core.Assertions
@@ -183,6 +184,43 @@ namespace TreeViewer.Core.Assertions
                 Assert.Equal(expected.ShapeSize, actual.ShapeSize);
                 Assert.Equal(expected.DecorationType, actual.DecorationType);
                 Assert.Equal(expected.ShapeColor, actual.ShapeColor);
+            });
+        }
+
+        /// <summary>
+        /// <see cref="Clade"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <remarks>親要素の比較は行いません</remarks>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(Clade expected, Clade actual)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(expected.Taxon, actual.Taxon);
+                Assert.Equal(expected.Supports, actual.Supports);
+                Assert.Equal(expected.BranchLength, actual.BranchLength);
+                Assert.Equal(expected.ChildrenInternal.Count, actual.ChildrenInternal.Count);
+                Equal(expected.Style, actual.Style);
+            });
+
+            for (int i = 0; i < expected.ChildrenInternal.Count; i++) Equal(expected.ChildrenInternal[i], actual.ChildrenInternal[i]);
+        }
+
+        /// <summary>
+        /// <see cref="Tree"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <remarks>親要素の比較は行いません</remarks>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(Tree expected, Tree actual)
+        {
+            Assert.Multiple(() =>
+            {
+                Equal(expected.Root, actual.Root);
+                Equal(expected.Style, actual.Style);
             });
         }
     }

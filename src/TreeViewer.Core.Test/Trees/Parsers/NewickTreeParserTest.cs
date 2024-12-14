@@ -1,4 +1,7 @@
-﻿namespace TreeViewer.Core.Trees.Parsers
+﻿using TreeViewer.Core.Assertions;
+using TreeViewer.Core.Drawing.Styles;
+
+namespace TreeViewer.Core.Trees.Parsers
 {
     public class NewickTreeParserTest
     {
@@ -55,7 +58,8 @@
             Assert.Multiple(() =>
             {
                 Assert.Single(trees);
-                CladeTest.CompareClades(TreeTest.CreateDummyTree().Root, trees[0].Root);
+                CustomizedAssertions.Equal(TreeTest.CreateDummyTree().Root, trees[0].Root);
+                CustomizedAssertions.Equal(new TreeStyle(), trees[0].Style);
             });
         }
 

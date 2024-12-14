@@ -26,26 +26,6 @@ namespace TreeViewer.Core.Trees
 
         private Clade[] GetAllClades() => [root, leafA, cladeB, cladeBA, leafBAA, leafBAB, cladeBB, cladeBBA, leafBBAA, leafBBAB, leafBBB, leafC];
 
-        /// <summary>
-        /// 二つの<see cref="Clade"/>の等価性を検証します。
-        /// </summary>
-        /// <param name="expected">予期される値</param>
-        /// <param name="actual">実際の値</param>
-        /// <remarks>親要素の比較は行いません</remarks>
-        internal static void CompareClades(Clade expected, Clade actual)
-        {
-            Assert.Multiple(() =>
-            {
-                Assert.Equal(expected.Taxon, actual.Taxon);
-                Assert.Equal(expected.Supports, actual.Supports);
-                Assert.Equal(expected.BranchLength, actual.BranchLength);
-                Assert.Equal(expected.ChildrenInternal.Count, actual.ChildrenInternal.Count);
-                CustomizedAssertions.Equal(expected.Style, actual.Style);
-            });
-
-            for (int i = 0; i < expected.ChildrenInternal.Count; i++) CompareClades(expected.ChildrenInternal[i], actual.ChildrenInternal[i]);
-        }
-
         #region Ctors
 
         [Fact]
@@ -164,7 +144,7 @@ namespace TreeViewer.Core.Trees
 
                 Assert.Null(cloned.TreeInternal);
                 Assert.Null(cloned.Parent);
-                CompareClades(current, cloned);
+                CustomizedAssertions.Equal(current, cloned);
             }
         }
 
@@ -179,7 +159,7 @@ namespace TreeViewer.Core.Trees
                 Clade cloned = current.Clone(false);
 
                 Assert.Null(cloned.TreeInternal);
-                CompareClades(current.FindRoot(), cloned.FindRoot());
+                CustomizedAssertions.Equal(current.FindRoot(), cloned.FindRoot());
             }
         }
 
@@ -193,7 +173,7 @@ namespace TreeViewer.Core.Trees
                 var cloned = (Clade)((ICloneable)current).Clone();
 
                 Assert.Null(cloned.TreeInternal);
-                CompareClades(current.FindRoot(), cloned.FindRoot());
+                CustomizedAssertions.Equal(current.FindRoot(), cloned.FindRoot());
             }
         }
 

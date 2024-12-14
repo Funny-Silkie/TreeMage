@@ -218,7 +218,8 @@ namespace TreeViewer.Core.Trees
             Assert.Multiple(() =>
             {
                 Assert.Single(trees);
-                CladeTest.CompareClades(CreateDummyTree().Root, trees[0].Root);
+                CustomizedAssertions.Equal(CreateDummyTree().Root, trees[0].Root);
+                CustomizedAssertions.Equal(new TreeStyle(), trees[0].Style);
             });
         }
 
@@ -231,7 +232,7 @@ namespace TreeViewer.Core.Trees
         {
             Tree cloned = tree.Clone();
 
-            CladeTest.CompareClades(tree.Root, cloned.Root);
+            CustomizedAssertions.Equal(tree, cloned);
         }
 
         [Fact]
@@ -239,7 +240,7 @@ namespace TreeViewer.Core.Trees
         {
             var cloned = (Tree)((ICloneable)tree).Clone();
 
-            CladeTest.CompareClades(tree.Root, cloned.Root);
+            CustomizedAssertions.Equal(tree, cloned);
         }
 
         [Fact]
@@ -353,7 +354,7 @@ namespace TreeViewer.Core.Trees
             Tree cloned = tree.Clone();
 
             tree.Reroot(root);
-            CladeTest.CompareClades(cloned.Root, tree.Root);
+            CustomizedAssertions.Equal(cloned.Root, tree.Root);
         }
 
         [Fact]
