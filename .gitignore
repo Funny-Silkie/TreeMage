@@ -351,3 +351,5 @@ MigrationBackup/
 # TypeScript
 *.razor.js
 *.razor.js.map
+src/TreeViewer/wwwroot/js/*.js
+src/TreeViewer/wwwroot/js/*.js.map
