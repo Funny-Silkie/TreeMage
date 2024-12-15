@@ -1,4 +1,4 @@
-using ElectronNET.API;
+﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
 using System.Diagnostics;
 using TreeViewer.Core.Exporting;
@@ -15,13 +15,28 @@ namespace TreeViewer.Window
         /// <summary>
         /// インスタンスを取得します。
         /// </summary>
-        public static MainWindow Instance { get; private set; } = new MainWindow();
+        public static MainWindow Instance { get; } = new MainWindow();
 
         /// <summary>
         /// <see cref="MainWindow"/>の新しいインスタンスを初期化します。
         /// </summary>
         private MainWindow()
         {
+        }
+
+        /// <inheritdoc/>
+        protected override async Task<BrowserWindow> CreateWindowInternal()
+        {
+            BrowserWindow result = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions()
+            {
+                Width = 960,
+                Height = 720,
+                Show = false,
+                Title = "TreeViewer",
+            });
+            result.OnReadyToShow += result.Show;
+            result.OnClosed += Electron.App.Quit;
+            return result;
         }
 
         /// <summary>
@@ -34,34 +49,34 @@ namespace TreeViewer.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "ファイル(&F)",
+                    Label = "&File",
                     Accelerator = "Alt+F",
                     Submenu = [
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "新規作成(&N)",
+                            Label = "New(&N)",
                             Click = () => ViewModel.CreateNewCommand.Execute(),
                             Accelerator = "Ctrl+N",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "開く(&O)",
+                            Label = "Open(&O)",
                             Click = () => ViewModel.OpenProjectCommand.Execute(),
                             Accelerator = "Ctrl+O",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "保存(&S)",
+                            Label = "Save(&S)",
                             Click = () => ViewModel.SaveProjectCommand.Execute(false),
                             Accelerator = "Ctrl+S",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "名前を付けて保存(&A)",
+                            Label = "Save As(&A)",
                             Click = () => ViewModel.SaveProjectCommand.Execute(true),
                             Accelerator = "Ctrl+Shift+S",
                         },
@@ -72,7 +87,7 @@ namespace TreeViewer.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "インポート(&I)",
+                            Label = "Import(&I)",
                             Submenu = [
                                 new MenuItem()
                                 {
@@ -97,7 +112,7 @@ namespace TreeViewer.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "エクスポート(&E)",
+                            Label = "Export(&E)",
                             Submenu = [
                                 new MenuItem()
                                 {
@@ -151,7 +166,7 @@ namespace TreeViewer.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "終了(&X)",
+                            Label = "Exit(&X)",
                             Click = CloseWindow,
                             Accelerator = "Ctrl+W",
                         },
@@ -162,7 +177,7 @@ namespace TreeViewer.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "編集(&E)",
+                    Label = "&Edit",
                     Submenu = [
                         new MenuItem()
                         {
@@ -183,7 +198,7 @@ namespace TreeViewer.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "ツリー(&T)",
+                    Label = "&Tree",
                     Submenu = [
                         new MenuItem()
                         {
@@ -217,11 +232,42 @@ namespace TreeViewer.Window
                         },
                     ],
                 },
+
+                // Window
+                new MenuItem()
+                {
+                    Type = MenuType.normal,
+                    Label = "&Window",
+                    Submenu = [
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Edit configuration(&C)",
+                            Click = () => ShowConfigWindow().Wait(),
+                        },
+                    ],
+                },
+
+                // Help
+                new MenuItem()
+                {
+                    Type = MenuType.normal,
+                    Label = "&Help",
+                    Submenu = [
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Show Help(&H)",
+                            Click = ShowHelp,
+                            Accelerator = "F1",
+                        },
+                    ],
+                },
 #if DEBUG
                 // Debug
                 new MenuItem()
                 {
-                    Label = "デバッグ(&D)",
+                    Label = "&Debug",
                     Submenu = [
                         new MenuItem()
                         {
@@ -312,11 +358,6 @@ namespace TreeViewer.Window
             await ViewModel.ExportWithExporterCommand.ExecuteAsync((path, exportType));
         }
 
-        /// <summary>
-        /// ウィンドウを閉じます。
-        /// </summary>
-        public void CloseWindow() => Window.Close();
-
         #endregion File
 
         #region Tree
@@ -346,6 +387,39 @@ namespace TreeViewer.Window
         }
 
         #endregion Tree
+
+        #region Window
+
+        /// <summary>
+        /// コンフィグ用ウィンドウを開きます。
+        /// </summary>
+        private async Task ShowConfigWindow()
+        {
+            var child = EditConfigWindow.Instance;
+
+            await child.CreateElectronWindow();
+            child.OnClosed += ViewModel.RerenderTreeCommand.Execute;
+        }
+
+        #endregion Window
+
+        #region Help
+
+        /// <summary>
+        /// ヘルプの表示を行います。
+        /// </summary>
+        private void ShowHelp()
+        {
+            var info = new ProcessStartInfo()
+            {
+                FileName = "https://github.com/Funny-Silkie/TreeViewer/blob/master/README.md",
+                UseShellExecute = true,
+            };
+
+            Process.Start(info);
+        }
+
+        #endregion Help
 
         #endregion Menu Operations
     }

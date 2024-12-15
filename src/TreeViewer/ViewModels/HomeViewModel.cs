@@ -45,6 +45,11 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public AsyncReactiveCommand<string> SvgElementClickedCommand { get; }
 
+        /// <summary>
+        /// ツリーを強制的に再描画するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand RerenderTreeCommand { get; }
+
         #region Menu
 
         /// <summary>
@@ -281,6 +286,7 @@ namespace TreeViewer.ViewModels
             TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
             SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
                                                                          .AddTo(Disposables);
+            RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(() => OnPropertyChanged(nameof(TargetTree))).AddTo(Disposables);
 
             CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(CreateNew)
                                                          .AddTo(Disposables);
@@ -775,7 +781,7 @@ namespace TreeViewer.ViewModels
 
             IExporter exporter = IExporter.Create(type);
             using var stream = new FileStream(path, FileMode.Create);
-            await exporter.ExportAsync(tree, stream, Configurations.Instance.ToExportOptions());
+            await exporter.ExportAsync(tree, stream, Configurations.LoadOrCreate().ToExportOptions());
         }
 
         /// <summary>

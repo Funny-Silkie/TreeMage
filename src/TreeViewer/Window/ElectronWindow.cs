@@ -18,7 +18,7 @@ namespace TreeViewer.Window
         /// <summary>
         /// 対象のElectronウィンドウを取得します。
         /// </summary>
-        protected BrowserWindow Window
+        protected internal BrowserWindow Window
         {
             get
             {
@@ -67,18 +67,18 @@ namespace TreeViewer.Window
         }
 
         /// <summary>
+        /// ウィンドウの生成を行います。
+        /// </summary>
+        /// <returns>生成されたウィンドウ</returns>
+        /// <remarks><see cref="CreateElectronWindow"/>で呼び出されます</remarks>
+        protected abstract Task<BrowserWindow> CreateWindowInternal();
+
+        /// <summary>
         /// Electronのウィンドウを立ち上げます。
         /// </summary>
         public async Task CreateElectronWindow()
         {
-            window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions()
-            {
-                Width = 960,
-                Height = 720,
-                Show = false,
-            });
-            window.OnReadyToShow += window.Show;
-            window.OnClosed += Electron.App.Quit;
+            window = await CreateWindowInternal();
         }
 
         /// <summary>
@@ -88,6 +88,20 @@ namespace TreeViewer.Window
         public void SetViewModel(TViewModel viewModel)
         {
             this.viewModel = viewModel;
+        }
+
+        /// <summary>
+        /// ウィンドウを閉じます。
+        /// </summary>
+        public void CloseWindow() => Window.Close();
+
+        /// <summary>
+        /// モーダルウィンドウとして自身にフォーカスさせます。
+        /// </summary>
+        public void ModalFocus()
+        {
+            Window.Focus();
+            Electron.Shell.Beep();
         }
 
         /// <summary>

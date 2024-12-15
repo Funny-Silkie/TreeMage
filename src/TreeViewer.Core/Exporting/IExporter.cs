@@ -37,6 +37,7 @@ namespace TreeViewer.Core.Exporting
         /// </summary>
         /// <param name="tree">エクスポートするツリー</param>
         /// <param name="destination">エクスポート先のストリームオブジェクト</param>
+        /// <param name="options">エクスポート時のオプション</param>
         /// <exception cref="ArgumentNullException"><paramref name="tree"/>または<paramref name="destination"/>，<paramref name="options"/>の何れかが<see langword="null"/></exception>
         /// <exception cref="ObjectDisposedException"><paramref name="destination"/>が既に破棄されている</exception>
         Task ExportAsync(Tree tree, Stream destination, ExportOptions options);

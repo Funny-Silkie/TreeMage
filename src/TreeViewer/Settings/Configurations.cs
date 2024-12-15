@@ -9,17 +9,15 @@ namespace TreeViewer.Settings
     /// </summary>
     public class Configurations
     {
+        private static readonly JsonSerializerOptions options = new JsonSerializerOptions()
+        {
+            WriteIndented = true,
+        };
+
         /// <summary>
         /// 設定ファイルのパスを取得します。
         /// </summary>
         internal static string Location { get; }
-
-        /// <summary>
-        /// インスタンスを取得します。
-        /// </summary>
-        public static Configurations Instance => _instance ??= LoadOrCreate();
-
-        private static Configurations? _instance;
 
         /// <summary>
         /// 枝の色付けの方式を取得または設定します。
@@ -31,7 +29,7 @@ namespace TreeViewer.Settings
         /// </summary>
         static Configurations()
         {
-            Location = Path.Combine(Environment.ProcessPath!, "config.json");
+            Location = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "config.json");
         }
 
         /// <summary>
@@ -46,12 +44,12 @@ namespace TreeViewer.Settings
         /// </summary>
         /// <returns>読み込まれたインスタンス</returns>
         /// <exception cref="InvalidOperationException">読み込みに失敗した</exception>
-        internal static Configurations LoadOrCreate()
+        public static Configurations LoadOrCreate()
         {
             if (File.Exists(Location))
             {
                 using var stream = new FileStream(Location, FileMode.Open);
-                return JsonSerializer.Deserialize<Configurations>(stream) ?? throw new InvalidOperationException("設定の読み込みに失敗しました");
+                return JsonSerializer.Deserialize<Configurations>(stream, options) ?? throw new InvalidOperationException("設定の読み込みに失敗しました");
             }
 
             return new Configurations();
@@ -63,7 +61,7 @@ namespace TreeViewer.Settings
         public void Save()
         {
             using var stream = new FileStream(Location, FileMode.Create);
-            JsonSerializer.Serialize(stream, this);
+            JsonSerializer.Serialize(stream, this, options);
         }
 
         /// <summary>
@@ -72,7 +70,7 @@ namespace TreeViewer.Settings
         public async Task SaveAsync()
         {
             using var stream = new FileStream(Location, FileMode.Create);
-            await JsonSerializer.SerializeAsync(stream, this);
+            await JsonSerializer.SerializeAsync(stream, this, options);
         }
 
         /// <summary>

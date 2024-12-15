@@ -221,6 +221,8 @@
             <RadzenSplitterPane Size="calc(100% - 300px)" Style="overflow: scroll">
                 @if (ViewModel.TargetTree.Value is not null)
                 {
+                    Configurations config = Configurations.LoadOrCreate();
+
                     Tree tree = ViewModel.TargetTree.Value;
                     ViewModel.ApplyTreeStyle(tree);
                     positionManager.Reset(tree);
@@ -314,7 +316,10 @@
                                     {
                                         (double xParent, double xChild, double y) = positionManager.CalcHorizontalBranchPositions(current);
 
-                                        <line class="branch" x1="@xParent" y1="@y" x2="@xChild" y2="@y" style="stroke: @current.Style.BranchColor" />
+                                        string stroke;
+                                        if (config.BranchColoring is BranchColoringType.Both or BranchColoringType.Horizontal) stroke = current.Style.BranchColor;
+                                        else stroke = "black";
+                                        <line class="branch" x1="@xParent" y1="@y" x2="@xChild" y2="@y" style="stroke: @(stroke)" />
                                     }
 
                                     // 枝の装飾
@@ -392,7 +397,10 @@
                                         // 縦棒
                                         if (yParent != yChild)
                                         {
-                                            <line class="branch" x1="@x" y1="@yParent" x2="@x" y2="@yChild" style="stroke: @current.Style.BranchColor" />
+                                            string stroke;
+                                            if (config.BranchColoring is BranchColoringType.Both or BranchColoringType.Vertical) stroke = current.Style.BranchColor;
+                                            else stroke = "black";
+                                            <line class="branch" x1="@x" y1="@yParent" x2="@x" y2="@yChild" style="stroke: @stroke" />
                                         }
                                     }
                                 }

@@ -1,0 +1,20 @@
+﻿@page "/edit-config"
+@rendermode InteractiveServer
+@inject EditConfigViewModel ViewModel
+
+<div style="margin: 20px">
+    <RadzenStack Orientation="Orientation.Vertical">
+        <RadzenRow JustifyContent="JustifyContent.Stretch" AlignItems="AlignItems.Center">
+            <RadzenText>Branch coloring:</RadzenText>
+            <RadzenDropDown TValue="BranchColoringType" Data="Enum.GetValues<BranchColoringType>()" @bind-Value="ViewModel.BranchColoring.Value" />
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="2rem">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="OK" Click="ViewModel.CloseCommand.ToDelegate(true)" />
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Close" Click="ViewModel.CloseCommand.ToDelegate(false)" />
+        </RadzenRow>
+    </RadzenStack>
+</div>
+
+@code {
+
+}

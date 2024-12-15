@@ -58,7 +58,7 @@ namespace TreeViewer.Core.Exporting
             tree.Style.ShowBranchDecorations = false;
             tree.Style.ShowScaleBar = false;
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree);
+            SvgDocument svg = SvgExporter.CreateSvg(tree, exportOptions);
 
             Assert.Multiple(() =>
             {
@@ -81,7 +81,7 @@ namespace TreeViewer.Core.Exporting
         {
             tree.Style.ShowLeafLabels = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree);
+            SvgDocument svg = SvgExporter.CreateSvg(tree, exportOptions);
 
             Assert.Multiple(() =>
             {
@@ -104,7 +104,7 @@ namespace TreeViewer.Core.Exporting
         {
             tree.Style.ShowNodeValues = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree);
+            SvgDocument svg = SvgExporter.CreateSvg(tree, exportOptions);
 
             Assert.Multiple(() =>
             {
@@ -127,7 +127,7 @@ namespace TreeViewer.Core.Exporting
         {
             tree.Style.ShowBranchValues = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree);
+            SvgDocument svg = SvgExporter.CreateSvg(tree, exportOptions);
 
             Assert.Multiple(() =>
             {
@@ -151,7 +151,7 @@ namespace TreeViewer.Core.Exporting
             tree.Style.ShowBranchDecorations = true;
             tree.Style.DecorationStyles = [];
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree);
+            SvgDocument svg = SvgExporter.CreateSvg(tree, exportOptions);
 
             Assert.Multiple(() =>
             {
@@ -180,7 +180,7 @@ namespace TreeViewer.Core.Exporting
                 },
             ];
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree);
+            SvgDocument svg = SvgExporter.CreateSvg(tree, exportOptions);
 
             Assert.Multiple(() =>
             {
@@ -203,7 +203,7 @@ namespace TreeViewer.Core.Exporting
         {
             tree.Style.ShowScaleBar = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree);
+            SvgDocument svg = SvgExporter.CreateSvg(tree, exportOptions);
 
             Assert.Multiple(() =>
             {
@@ -239,7 +239,7 @@ namespace TreeViewer.Core.Exporting
             ];
             tree.Style.ShowScaleBar = true;
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree);
+            SvgDocument svg = SvgExporter.CreateSvg(tree, exportOptions);
 
             Assert.Multiple(() =>
             {
