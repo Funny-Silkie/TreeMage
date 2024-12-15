@@ -51,6 +51,15 @@ namespace TreeViewer.Window
                 parent.Focus();
             };
             result.SetParentWindow(parent);
+            result.SetMenu([
+                new MenuItem()
+                {
+                    Type = MenuType.normal,
+                    Label = "Exit(&X)",
+                    Click = CloseWindow,
+                    Accelerator = "Esc",
+                },
+            ]);
             result.SetMenuBarVisibility(false);
             result.Show();
 
