@@ -9,6 +9,7 @@
     "noImplicitAny": true
   },
   "include": [
-    "Components/**/*.ts"
+    "Components/**/*.ts",
+    "wwwroot/js/*.ts"
   ]
 }

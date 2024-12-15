@@ -23,6 +23,9 @@
     <Content Update="electron.manifest.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Update="Assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
 	<None Include="..\.editorconfig" Link=".editorconfig" />
 	<None Include="Components\Pages\*.razor.ts" />
     <Compile Remove="obj\**" />

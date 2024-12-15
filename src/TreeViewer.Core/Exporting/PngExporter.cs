@@ -27,7 +27,7 @@ namespace TreeViewer.Core.Exporting
             ArgumentNullException.ThrowIfNull(destination);
             ArgumentNullException.ThrowIfNull(options);
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree);
+            SvgDocument svg = SvgExporter.CreateSvg(tree, options);
 
             using Bitmap bitmap = svg.Draw();
             bitmap.Save(destination, ImageFormat.Png);

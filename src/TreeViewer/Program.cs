@@ -18,6 +18,7 @@ namespace TreeViewer
                             .AddInteractiveServerComponents();
             builder.Services.AddRadzenComponents();
             builder.Services.AddTransient<HomeViewModel>();
+            builder.Services.AddTransient<EditConfigViewModel>();
 
             WebApplication app = builder.Build();
 

@@ -29,8 +29,9 @@ namespace TreeViewer.Core.Exporting
         /// SVGオブジェクトを生成します。
         /// </summary>
         /// <param name="tree">描画するツリー</param>
+        /// <param name="options">エクスポート時のオプション</param>
         /// <returns><paramref name="tree"/>の図を表すSVGオブジェクト</returns>
-        internal static SvgDocument CreateSvg(Tree tree)
+        internal static SvgDocument CreateSvg(Tree tree, ExportOptions options)
         {
             var positionManager = new PositionManager(tree);
 
@@ -129,7 +130,7 @@ namespace TreeViewer.Core.Exporting
                             StartY = (SvgUnit)y,
                             EndX = (SvgUnit)xChild,
                             EndY = (SvgUnit)y,
-                            Stroke = DrawHelpers.CreateSvgColor(current.Style.BranchColor),
+                            Stroke = DrawHelpers.CreateSvgColor(options.BranchColoring is BranchColoringType.Both or BranchColoringType.Horizontal ? current.Style.BranchColor : "black"),
                             StrokeWidth = tree.Style.BranchThickness,
                         };
                         horizontalLine.AddTo(branchesGroup);
@@ -207,7 +208,7 @@ namespace TreeViewer.Core.Exporting
                     if (tree.Style.ShowBranchValues)
                     {
                         string branchValue = DrawHelpers.SelectShowValue(current, tree.Style.BranchValueType);
-                        if (branchValue.Length > 0)
+                        if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
                         {
                             (double x, double y) = positionManager.CalcBranchValuePosition(current);
 
@@ -241,7 +242,7 @@ namespace TreeViewer.Core.Exporting
                                 StartY = (SvgUnit)yChild,
                                 EndX = (SvgUnit)x,
                                 EndY = (SvgUnit)yParent,
-                                Stroke = DrawHelpers.CreateSvgColor(current.Style.BranchColor),
+                                Stroke = DrawHelpers.CreateSvgColor(options.BranchColoring is BranchColoringType.Both or BranchColoringType.Vertical ? current.Style.BranchColor : "black"),
                                 StrokeWidth = tree.Style.BranchThickness,
                             };
                             branchesGroup.Children.Add(verticalLine);
@@ -300,7 +301,7 @@ namespace TreeViewer.Core.Exporting
             ArgumentNullException.ThrowIfNull(destination);
             ArgumentNullException.ThrowIfNull(options);
 
-            SvgDocument svg = CreateSvg(tree);
+            SvgDocument svg = CreateSvg(tree, options);
             svg.Write(destination);
         }
 

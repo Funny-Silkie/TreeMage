@@ -8,6 +8,7 @@ using TreeViewer.Core.ProjectData;
 using TreeViewer.Core.Trees;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
+using TreeViewer.Settings;
 using TreeViewer.Window;
 
 namespace TreeViewer.ViewModels
@@ -15,10 +16,9 @@ namespace TreeViewer.ViewModels
     /// <summary>
     /// ホーム画面のViewModelのクラスです。
     /// </summary>
-    public class HomeViewModel : ViewModelBase
+    public class HomeViewModel : WindowViewModel<MainWindow, HomeViewModel>
     {
         private string? projectPath;
-        private readonly MainWindow window;
 
         /// <summary>
         /// スタイル編集用のViewModelを取得します。
@@ -44,6 +44,11 @@ namespace TreeViewer.ViewModels
         /// SVG要素のクリック時に実行されるコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<string> SvgElementClickedCommand { get; }
+
+        /// <summary>
+        /// ツリーを強制的に再描画するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand RerenderTreeCommand { get; }
 
         #region Menu
 
@@ -216,6 +221,11 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public ReactivePropertySlim<int> BranchValueFontSize { get; }
 
+        /// <summary>
+        /// 非表示にする枝の値の正規表現パターンのプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<string?> BranchValueHideRegexPattern { get; }
+
         #endregion BranchValues
 
         #region BranchDecorations
@@ -266,11 +276,8 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// <see cref="HomeViewModel"/>の新しいインスタンスを初期化します。
         /// </summary>
-        public HomeViewModel()
+        public HomeViewModel() : base(MainWindow.Instance)
         {
-            window = MainWindow.Instance;
-            window.SetViewModel(this);
-
             Trees = new ReactiveCollection<Tree>().AddTo(Disposables);
             TreeIndex = new ReactivePropertySlim<int>(1).WithSubscribe(OnTreeIndexChanged)
                                                         .AddTo(Disposables);
@@ -279,6 +286,7 @@ namespace TreeViewer.ViewModels
             TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
             SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
                                                                          .AddTo(Disposables);
+            RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(() => OnPropertyChanged(nameof(TargetTree))).AddTo(Disposables);
 
             CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(CreateNew)
                                                          .AddTo(Disposables);
@@ -324,6 +332,7 @@ namespace TreeViewer.ViewModels
             ShowBranchValues = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
             BranchValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).AddTo(Disposables);
             BranchValueFontSize = new ReactivePropertySlim<int>(15).AddTo(Disposables);
+            BranchValueHideRegexPattern = new ReactivePropertySlim<string?>().AddTo(Disposables);
 
             ShowBranchDecorations = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
             BranchDecorations = new ReactiveCollection<BranchDecorationViewModel>().AddTo(Disposables);
@@ -355,6 +364,7 @@ namespace TreeViewer.ViewModels
             tree.Style.ShowBranchValues = ShowBranchValues.Value;
             tree.Style.BranchValueType = BranchValueType.Value;
             tree.Style.BranchValueFontSize = BranchValueFontSize.Value;
+            tree.Style.BranchValueHideRegexPattern = BranchValueHideRegexPattern.Value;
             tree.Style.ShowBranchDecorations = ShowBranchDecorations.Value;
             tree.Style.DecorationStyles = BranchDecorations.Select(x => new BranchDecorationStyle()
             {
@@ -387,6 +397,7 @@ namespace TreeViewer.ViewModels
             ShowBranchValues.Value = tree.Style.ShowBranchValues;
             BranchValueType.Value = tree.Style.BranchValueType;
             BranchValueFontSize.Value = tree.Style.BranchValueFontSize;
+            BranchValueHideRegexPattern.Value = tree.Style.BranchValueHideRegexPattern;
             ShowBranchDecorations.Value = tree.Style.ShowBranchDecorations;
             BranchDecorations.ClearOnScheduler();
             BranchDecorations.AddRangeOnScheduler(tree.Style.DecorationStyles.Select(x =>
@@ -648,7 +659,7 @@ namespace TreeViewer.ViewModels
         /// </summary>
         private async Task OpenProject()
         {
-            string? path = await window.ShowSingleFileOpenDialog([new FileFilter()
+            string? path = await Window.ShowSingleFileOpenDialog([new FileFilter()
             {
                 Name = "Tree viewer project file",
                 Extensions = ["treeprj"],
@@ -680,7 +691,7 @@ namespace TreeViewer.ViewModels
             }
             catch (Exception e)
             {
-                await window.ShowErrorMessage(e);
+                await Window.ShowErrorMessage(e);
                 projectPath = null;
             }
         }
@@ -693,7 +704,7 @@ namespace TreeViewer.ViewModels
         {
             if (asNew || projectPath is null)
             {
-                string? selectedPath = await window.ShowFileSaveDialog([new FileFilter()
+                string? selectedPath = await Window.ShowFileSaveDialog([new FileFilter()
                 {
                     Name = "Tree viewer project file",
                     Extensions = ["treeprj"],
@@ -716,7 +727,7 @@ namespace TreeViewer.ViewModels
             }
             catch (Exception e)
             {
-                await window.ShowErrorMessage(e);
+                await Window.ShowErrorMessage(e);
             }
         }
 
@@ -770,7 +781,7 @@ namespace TreeViewer.ViewModels
 
             IExporter exporter = IExporter.Create(type);
             using var stream = new FileStream(path, FileMode.Create);
-            await exporter.ExportAsync(tree, stream, new ExportOptions());
+            await exporter.ExportAsync(tree, stream, Configurations.LoadOrCreate().ToExportOptions());
         }
 
         /// <summary>

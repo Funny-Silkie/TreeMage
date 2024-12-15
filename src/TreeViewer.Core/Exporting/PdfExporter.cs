@@ -34,8 +34,9 @@ namespace TreeViewer.Core.Exporting
         /// PDFオブジェクトを生成します。
         /// </summary>
         /// <param name="tree">描画するツリー</param>
+        /// <param name="options">エクスポート時のオプション</param>
         /// <returns><paramref name="tree"/>の図を表すPDFオブジェクト</returns>
-        internal static PdfDocument CreatePdf(Tree tree)
+        internal static PdfDocument CreatePdf(Tree tree, ExportOptions options)
         {
             var result = new PdfDocument();
             result.Info.Creator = "TreeViewer";
@@ -62,9 +63,6 @@ namespace TreeViewer.Core.Exporting
 
                 foreach (Clade current in tree.GetAllClades())
                 {
-                    XPen branchPen = DrawHelpers.CreatePdfColor(current.Style.BranchColor)
-                                                  .ToPen(tree.Style.BranchThickness);
-
                     if (current.IsLeaf)
                     {
                         // 系統名
@@ -102,7 +100,9 @@ namespace TreeViewer.Core.Exporting
                         {
                             (double xParent, double xChild, double y) = positionManager.CalcHorizontalBranchPositions(current);
 
-                            graphics.DrawLine(branchPen,
+                            XColor branchColor = options.BranchColoring is BranchColoringType.Both or BranchColoringType.Horizontal ? DrawHelpers.CreatePdfColor(current.Style.BranchColor) : XColor.FromArgb(0, 0, 0);
+
+                            graphics.DrawLine(branchColor.ToPen(tree.Style.BranchThickness),
                                               new XPoint(xParent, y),
                                               new XPoint(xChild, y));
                         }
@@ -150,7 +150,7 @@ namespace TreeViewer.Core.Exporting
                         if (tree.Style.ShowBranchValues)
                         {
                             string branchValue = DrawHelpers.SelectShowValue(current, tree.Style.BranchValueType);
-                            if (branchValue.Length > 0)
+                            if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
                             {
                                 (double x, double y) = positionManager.CalcBranchValuePosition(current);
 
@@ -177,7 +177,9 @@ namespace TreeViewer.Core.Exporting
                             // 縦棒
                             if (yParent != yChild)
                             {
-                                graphics.DrawLine(branchPen,
+                                XColor branchColor = options.BranchColoring is BranchColoringType.Both or BranchColoringType.Vertical ? DrawHelpers.CreatePdfColor(current.Style.BranchColor) : XColor.FromArgb(0, 0, 0);
+
+                                graphics.DrawLine(branchColor.ToPen(tree.Style.BranchThickness),
                                                   new XPoint(x, yChild),
                                                   new XPoint(x, yParent));
                             }
@@ -224,7 +226,7 @@ namespace TreeViewer.Core.Exporting
             ArgumentNullException.ThrowIfNull(destination);
             ArgumentNullException.ThrowIfNull(options);
 
-            using PdfDocument document = CreatePdf(tree);
+            using PdfDocument document = CreatePdf(tree, options);
             document.Save(destination);
         }
 

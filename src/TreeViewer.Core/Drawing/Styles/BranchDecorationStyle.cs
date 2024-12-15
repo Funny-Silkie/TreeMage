@@ -31,7 +31,6 @@ namespace TreeViewer.Core.Drawing.Styles
                 if (value == _regexPattern) return;
                 if (string.IsNullOrEmpty(value)) Regex = null;
                 else
-                {
                     try
                     {
                         Regex = new Regex(value);
@@ -40,7 +39,6 @@ namespace TreeViewer.Core.Drawing.Styles
                     {
                         Regex = null;
                     }
-                }
                 _regexPattern = value;
             }
         }
