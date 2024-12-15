@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 560 560">
+    <style>
+        .branch {
+            fill: none;
+            stroke: white;
+            stroke-width: 20px;
+        }
+
+        .dot {
+            fill: white;
+            stroke: none;
+            r: 25px;
+        }
+    </style>
+    <rect width="100%" height="100%" fill="black" />
+    <g transform="translate(0, 30)">
+        <line class="branch" x1="162" y1="30" x2="498" y2="30" />
+        <line class="branch" x1="162" y1="92" x2="530" y2="92" />
+        <line class="branch" x1="74" y1="61" x2="169" y2="61" />
+        <line class="branch" x1="237" y1="155" x2="462" y2="155" />
+        <line class="branch" x1="237" y1="217" x2="298" y2="217" />
+        <line class="branch" x1="74" y1="186" x2="244" y2="186" />
+        <line class="branch" x1="23" y1="123" x2="81" y2="123" />
+        <line class="branch" x1="100" y1="280" x2="339" y2="280" />
+        <line class="branch" x1="100" y1="342" x2="160" y2="342" />
+        <line class="branch" x1="29" y1="311" x2="107" y2="311" />
+        <line class="branch" x1="143" y1="405" x2="295" y2="405" />
+        <line class="branch" x1="143" y1="467" x2="252" y2="467" />
+        <line class="branch" x1="29" y1="436" x2="150" y2="436" />
+        <line class="branch" x1="23" y1="373" x2="36" y2="373" />
+        <line class="branch" x1="169" y1="30" x2="169" y2="92" />
+        <line class="branch" x1="244" y1="155" x2="244" y2="217" />
+        <line class="branch" x1="81" y1="61" x2="81" y2="186" />
+        <line class="branch" x1="107" y1="280" x2="107" y2="342" />
+        <line class="branch" x1="150" y1="405" x2="150" y2="467" />
+        <line class="branch" x1="36" y1="311" x2="36" y2="436" />
+        <line class="branch" x1="30" y1="123" x2="30" y2="373" />
+        <circle class="dot" cx="124" cy="61" />
+        <circle class="dot" cx="161" cy="186" />
+        <circle class="dot" cx="92" cy="436" />
+    </g>
+</svg>
