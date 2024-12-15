@@ -183,12 +183,14 @@ namespace TreeViewer.Window
                         {
                             Type = MenuType.normal,
                             Label = "Undo(&U)",
+                            Click = () => ViewModel.UndoCommand.Execute(),
                             Accelerator = "Ctrl+Z",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
                             Label = "Redo(&R)",
+                            Click = () => ViewModel.RedoCommand.Execute(),
                             Accelerator = "Ctrl+Shift+Z",
                         },
                     ],
