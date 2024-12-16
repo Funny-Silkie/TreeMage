@@ -165,6 +165,26 @@ namespace TreeViewer.Core.Trees
         }
 
         /// <summary>
+        /// リルートされたツリーを生成します。
+        /// </summary>
+        /// <param name="clade">リルート対象のクレード</param>
+        /// <returns>リルート後のツリー</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        /// <exception cref="ArgumentException"><paramref name="clade"/>がインスタンスに属していない</exception>
+        public Tree Rerooted(Clade clade)
+        {
+            int[] indexes = GetIndexes(clade);
+
+            if (clade.IsLeaf) throw new ArgumentException("葉を起点にリルートはできません", nameof(clade));
+            Tree result = Clone();
+            Clade nextRoot = result.Root;
+            for (int i = 0; i < indexes.Length; i++) nextRoot = nextRoot.ChildrenInternal[indexes[i]];
+
+            result.Reroot(nextRoot);
+            return result;
+        }
+
+        /// <summary>
         /// 枝長を基に枝を並び替えます。
         /// </summary>
         /// <param name="descending">降順で並び替えるかどうかを表す値</param>
