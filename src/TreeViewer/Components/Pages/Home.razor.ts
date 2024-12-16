@@ -12,6 +12,9 @@ export function bypassShortcuts(page: DotNetRazorComponent): void {
  * @param page 呼び出し元のページオブジェクト
  */
 function onKeyDown(event: KeyboardEvent, page: DotNetRazorComponent): void {
+    const target: HTMLElement = event.target as HTMLElement;
+    const isInput: boolean = target.tagName == "INPUT";
+
     // Ctrl+N
     if (event.ctrlKey && event.code == "KeyN") {
         event.preventDefault();
@@ -19,10 +22,23 @@ function onKeyDown(event: KeyboardEvent, page: DotNetRazorComponent): void {
         page.invokeMethodAsync("CreateNew");
         return;
     }
+    // Ctrl+Shift+Z or Ctrl+Y
+    if (event.ctrlKey && (event.code == "KeyY" || (event.shiftKey && event.code == "KeyZ"))) {
+        event.preventDefault();
+
+        if (!isInput) page.invokeMethodAsync("Redo");
+        return;
+    }
+    // Ctrl+Z
+    if (event.ctrlKey && event.code == "KeyZ") {
+        event.preventDefault();
+
+        if (!isInput) page.invokeMethodAsync("Undo");
+        return;
+    }
 
     // textboxなどではショートカットを潰さないようにするために対象の要素に応じて挙動を切り替え
-    const target: HTMLElement = event.target as HTMLElement;
-    if (target.tagName != "INPUT") {
+    if (!isInput) {
         // Ctrl+A
         if (event.ctrlKey && event.code == "KeyA") {
             event.preventDefault();

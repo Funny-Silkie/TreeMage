@@ -520,6 +520,24 @@
     }
 
     /// <summary>
+    /// undoを実行します。
+    /// </summary>
+    [JSInvokable]
+    public void Undo()
+    {
+        ViewModel.UndoCommand.Execute();
+    }
+
+    /// <summary>
+    /// redoを実行します。
+    /// </summary>
+    [JSInvokable]
+    public void Redo()
+    {
+        ViewModel.RedoCommand.Execute();
+    }
+
+    /// <summary>
     /// 全てを選択します。
     /// </summary>
     [JSInvokable]
