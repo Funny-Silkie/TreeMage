@@ -38,7 +38,7 @@ namespace TreeViewer.ViewModels
             SelectionTarget = homeViewModel.SelectionTarget.ToReadOnlyReactivePropertySlim()
                                                            .AddTo(Disposables);
             FocusedCount = new ReactivePropertySlim<int>(0).AddTo(Disposables);
-            Color = new ReactivePropertySlim<string?>("black").WithSubscribe(OnColorChanged)
+            Color = new ReactivePropertySlim<string?>("black", ReactivePropertyMode.DistinctUntilChanged).WithSubscribe(OnColorChanged)
                                                               .AddTo(Disposables);
         }
 

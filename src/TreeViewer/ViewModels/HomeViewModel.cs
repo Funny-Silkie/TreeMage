@@ -1,6 +1,7 @@
 ﻿using ElectronNET.API.Entities;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Exporting;
@@ -20,7 +21,7 @@ namespace TreeViewer.ViewModels
     public class HomeViewModel : WindowViewModel<MainWindow, HomeViewModel>
     {
         private string? projectPath;
-        private bool onUndoOperation { get; set; } = false;
+        private bool onUndoOperation = false;
         private readonly UndoService undoService = new UndoService();
 
         /// <summary>
@@ -354,7 +355,19 @@ namespace TreeViewer.ViewModels
 
                 OnPropertyChanged(nameof(TargetTree));
             }, (before: TargetTree.Value?.Style?.YScale ?? 0, after: v))).AddTo(Disposables);
-            BranchThickness = new ReactivePropertySlim<int>(1).AddTo(Disposables);
+            BranchThickness = new ReactivePropertySlim<int>(1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.BranchThickness = arg.after;
+                BranchThickness!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.BranchThickness = arg.before;
+                BranchThickness!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.BranchThickness ?? 0, after: v))).AddTo(Disposables);
 
             SearchQuery = new ReactivePropertySlim<string>(string.Empty).AddTo(Disposables);
             SearchTarget = new ReactivePropertySlim<TreeSearchTarget>().AddTo(Disposables);
@@ -363,27 +376,195 @@ namespace TreeViewer.ViewModels
             SearchCommand = new AsyncReactiveCommand().WithSubscribe(Search)
                                                       .AddTo(Disposables);
 
-            ShowLeafLabels = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
-            LeafLabelsFontSize = new ReactivePropertySlim<int>(20).AddTo(Disposables);
+            ShowLeafLabels = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.ShowLeafLabels = arg.after;
+                ShowLeafLabels!.Value = arg.after;
 
-            ShowNodeValues = new ReactivePropertySlim<bool>(false).AddTo(Disposables);
-            NodeValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).AddTo(Disposables);
-            NodeValueFontSize = new ReactivePropertySlim<int>(15).AddTo(Disposables);
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.ShowLeafLabels = arg.before;
+                ShowLeafLabels!.Value = arg.before;
 
-            ShowBranchValues = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
-            BranchValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).AddTo(Disposables);
-            BranchValueFontSize = new ReactivePropertySlim<int>(15).AddTo(Disposables);
-            BranchValueHideRegexPattern = new ReactivePropertySlim<string?>().AddTo(Disposables);
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.ShowLeafLabels ?? false, after: v))).AddTo(Disposables);
+            LeafLabelsFontSize = new ReactivePropertySlim<int>(20).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.LeafLabelsFontSize = arg.after;
+                LeafLabelsFontSize!.Value = arg.after;
 
-            ShowBranchDecorations = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.LeafLabelsFontSize = arg.before;
+                LeafLabelsFontSize!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.LeafLabelsFontSize ?? 0, after: v))).AddTo(Disposables);
+
+            ShowNodeValues = new ReactivePropertySlim<bool>(false).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.ShowNodeValues = arg.after;
+                ShowNodeValues!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.ShowNodeValues = arg.before;
+                ShowNodeValues!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.ShowNodeValues ?? false, after: v))).AddTo(Disposables);
+            NodeValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.NodeValueType = arg.after;
+                NodeValueType!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.NodeValueType = arg.before;
+                NodeValueType!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.NodeValueType ?? CladeValueType.BranchLength, after: v))).AddTo(Disposables);
+            NodeValueFontSize = new ReactivePropertySlim<int>(15).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.NodeValueFontSize = arg.after;
+                NodeValueFontSize!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.NodeValueFontSize = arg.before;
+                NodeValueFontSize!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.NodeValueFontSize ?? 0, after: v))).AddTo(Disposables);
+
+            ShowBranchValues = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.ShowBranchValues = arg.after;
+                ShowBranchValues!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.ShowBranchValues = arg.before;
+                ShowBranchValues!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.ShowBranchValues ?? false, after: v))).AddTo(Disposables);
+            BranchValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.BranchValueType = arg.after;
+                BranchValueType!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.BranchValueType = arg.before;
+                BranchValueType!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.BranchValueType ?? CladeValueType.BranchLength, after: v))).AddTo(Disposables);
+            BranchValueFontSize = new ReactivePropertySlim<int>(15).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.BranchValueFontSize = arg.after;
+                BranchValueFontSize!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.BranchValueFontSize = arg.before;
+                BranchValueFontSize!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.BranchValueFontSize ?? 0, after: v))).AddTo(Disposables);
+            BranchValueHideRegexPattern = new ReactivePropertySlim<string?>().WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.BranchValueHideRegexPattern = arg.after;
+                BranchValueHideRegexPattern!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.BranchValueHideRegexPattern = arg.before;
+                BranchValueHideRegexPattern!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.BranchValueHideRegexPattern, after: v))).AddTo(Disposables);
+
+            ShowBranchDecorations = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.ShowBranchDecorations = arg.after;
+                ShowBranchDecorations!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.ShowBranchDecorations = arg.before;
+                ShowBranchDecorations!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.ShowBranchDecorations ?? false, after: v))).AddTo(Disposables);
             BranchDecorations = new ReactiveCollection<BranchDecorationViewModel>().AddTo(Disposables);
             AddBranchDecorationCommand = new AsyncReactiveCommand().WithSubscribe(AddNewBranchDecoration)
                                                                    .AddTo(Disposables);
 
-            ShowScaleBar = new ReactivePropertySlim<bool>(true).AddTo(Disposables);
-            ScaleBarValue = new ReactivePropertySlim<double>(0.1).AddTo(Disposables);
-            ScaleBarFontSize = new ReactivePropertySlim<int>(25).AddTo(Disposables);
-            ScaleBarThickness = new ReactivePropertySlim<int>(5).AddTo(Disposables);
+            ShowScaleBar = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.ShowScaleBar = arg.after;
+                ShowScaleBar!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.ShowScaleBar = arg.before;
+                ShowScaleBar!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.ShowScaleBar ?? false, after: v))).AddTo(Disposables);
+            ScaleBarValue = new ReactivePropertySlim<double>(0.1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.ScaleBarValue = arg.after;
+                ScaleBarValue!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.ScaleBarValue = arg.before;
+                ScaleBarValue!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.ScaleBarValue ?? 0.1, after: v))).AddTo(Disposables);
+            ScaleBarFontSize = new ReactivePropertySlim<int>(25).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.ScaleBarFontSize = arg.after;
+                ScaleBarFontSize!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.ScaleBarFontSize = arg.before;
+                ScaleBarFontSize!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.ScaleBarFontSize ?? 0, after: v))).AddTo(Disposables);
+            ScaleBarThickness = new ReactivePropertySlim<int>(5).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.ScaleBarThickness = arg.after;
+                ScaleBarThickness!.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.Style.ScaleBarThickness = arg.before;
+                ScaleBarThickness!.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (before: TargetTree.Value?.Style?.ScaleBarThickness ?? 0, after: v))).AddTo(Disposables);
 
             StyleSidebarViewModel = new StyleSidebarViewModel(this);
 
@@ -397,7 +578,51 @@ namespace TreeViewer.ViewModels
         /// <param name="operation">処理</param>
         /// <param name="undoOperation">undo処理</param>
         /// <param name="argument">引数</param>
-        private void OperateAsUndoable<T>(Action<T, Tree> operation, Action<T, Tree> undoOperation, T argument)
+        public void OperateAsUndoable<T>(Action<T> operation, Action<T> undoOperation, T argument)
+        {
+            if (onUndoOperation) return;
+
+            onUndoOperation = true;
+
+            async Task AsyncOperation(T x)
+            {
+                onUndoOperation = true;
+
+                operation.Invoke(x);
+
+                onUndoOperation = false;
+                await Task.CompletedTask;
+            }
+            async Task AsyncUndoOperation(T x)
+            {
+                onUndoOperation = true;
+
+                undoOperation.Invoke(x);
+
+                onUndoOperation = false;
+                await Task.CompletedTask;
+            }
+
+            try
+            {
+                operation.Invoke(argument);
+
+                undoService.AddOperation(AsyncUndoOperation, AsyncOperation, argument);
+            }
+            finally
+            {
+                onUndoOperation = false;
+            }
+        }
+
+        /// <summary>
+        /// undo/redo可能な処理を実行し，<see cref="undoService"/>に登録します。
+        /// </summary>
+        /// <typeparam name="T">引数の型</typeparam>
+        /// <param name="operation">処理</param>
+        /// <param name="undoOperation">undo処理</param>
+        /// <param name="argument">引数</param>
+        public void OperateAsUndoable<T>(Action<T, Tree> operation, Action<T, Tree> undoOperation, T argument)
         {
             if (onUndoOperation) return;
 
@@ -444,7 +669,7 @@ namespace TreeViewer.ViewModels
         /// <param name="operation">処理</param>
         /// <param name="undoOperation">undo処理</param>
         /// <param name="argument">引数</param>
-        private async Task OperateAsUndoable<T>(Func<T, Tree, Task> operation, Func<T, Tree, Task> undoOperation, T argument)
+        public async Task OperateAsUndoable<T>(Func<T, Tree, Task> operation, Func<T, Tree, Task> undoOperation, T argument)
         {
             if (onUndoOperation) return;
 
@@ -502,14 +727,7 @@ namespace TreeViewer.ViewModels
             tree.Style.BranchValueFontSize = BranchValueFontSize.Value;
             tree.Style.BranchValueHideRegexPattern = BranchValueHideRegexPattern.Value;
             tree.Style.ShowBranchDecorations = ShowBranchDecorations.Value;
-            tree.Style.DecorationStyles = BranchDecorations.Select(x => new BranchDecorationStyle()
-            {
-                Enabled = x.Visible.Value,
-                RegexPattern = x.TargetRegexPattern.Value,
-                ShapeSize = x.ShapeSize.Value,
-                ShapeColor = x.ShapeColor.Value,
-                DecorationType = x.DecorationType.Value,
-            }).ToArray();
+            tree.Style.DecorationStyles = BranchDecorations.Select(x => x.Style).ToArray();
             tree.Style.ShowScaleBar = ShowScaleBar.Value;
             tree.Style.ScaleBarValue = ScaleBarValue.Value;
             tree.Style.ScaleBarFontSize = ScaleBarFontSize.Value;
@@ -536,17 +754,7 @@ namespace TreeViewer.ViewModels
             BranchValueHideRegexPattern.Value = tree.Style.BranchValueHideRegexPattern;
             ShowBranchDecorations.Value = tree.Style.ShowBranchDecorations;
             BranchDecorations.ClearOnScheduler();
-            BranchDecorations.AddRangeOnScheduler(tree.Style.DecorationStyles.Select(x =>
-            {
-                var result = new BranchDecorationViewModel(this);
-                result.Visible.Value = x.Enabled;
-                result.TargetRegexPattern.Value = x.RegexPattern;
-                result.ShapeSize.Value = x.ShapeSize;
-                result.ShapeColor.Value = x.ShapeColor;
-                result.DecorationType.Value = x.DecorationType;
-
-                return result;
-            }));
+            BranchDecorations.AddRangeOnScheduler(tree.Style.DecorationStyles.Select(x => new BranchDecorationViewModel(this, x)));
             ShowScaleBar.Value = tree.Style.ShowScaleBar;
             ScaleBarValue.Value = tree.Style.ScaleBarValue;
             ScaleBarFontSize.Value = tree.Style.ScaleBarFontSize;
@@ -559,17 +767,46 @@ namespace TreeViewer.ViewModels
         /// <param name="value">変更後の値</param>
         private void OnTreeIndexChanged(int value)
         {
+            if (onUndoOperation) return;
+
             value--;
             if ((uint)value >= (uint)Trees.Count) return;
 
             Tree? prevTree = TargetTree.Value;
-            if (prevTree is not null) ApplyTreeStyle(prevTree);
-
-            UnfocusAll();
             Tree nextTree = Trees[value];
-            TargetTree.Value = nextTree;
+            if (prevTree is null)
+            {
+                TargetTree.Value = Trees[value];
+                LoadTreeStyle(nextTree);
+            }
+            else
+            {
+                int prevIndex = Trees.IndexOf(prevTree);
 
-            LoadTreeStyle(nextTree);
+                OperateAsUndoable(arg =>
+                {
+                    ApplyTreeStyle(arg.prevTree);
+
+                    UnfocusAll();
+                    TargetTree.Value = arg.nextTree;
+
+                    LoadTreeStyle(arg.nextTree);
+
+                    TreeIndex.Value = arg.nextIndex + 1;
+                    OnPropertyChanged(nameof(TargetTree));
+                }, arg =>
+                {
+                    ApplyTreeStyle(arg.nextTree);
+
+                    UnfocusAll();
+                    TargetTree.Value = arg.prevTree;
+
+                    LoadTreeStyle(arg.prevTree);
+
+                    TreeIndex.Value = arg.prevIndex + 1;
+                    OnPropertyChanged(nameof(TargetTree));
+                }, (prevTree, nextTree, prevIndex, nextIndex: value));
+            }
         }
 
         /// <summary>
@@ -692,12 +929,23 @@ namespace TreeViewer.ViewModels
             Clade clade = CladeIdManager.FromId(focusedElement);
             if (clade.IsLeaf || clade.Tree != tree) return;
 
-            tree.Reroot(clade);
-            TargetTree.Value = tree.Clone();
-            Trees[TreeIndex.Value - 1] = tree;
+            Tree rerooted = tree.Rerooted(clade);
 
-            OnPropertyChanged(nameof(TargetTree));
-            UnfocusAll();
+            OperateAsUndoable(arg =>
+            {
+                UnfocusAll();
+                TargetTree.Value = arg.rerooted;
+                Trees[TreeIndex.Value - 1] = arg.rerooted;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, arg =>
+            {
+                UnfocusAll();
+                TargetTree.Value = arg.prev;
+                Trees[TreeIndex.Value - 1] = arg.prev;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (prev: tree, rerooted));
         }
 
         /// <summary>
@@ -711,11 +959,23 @@ namespace TreeViewer.ViewModels
             Tree cloned = tree.Clone();
             cloned.OrderByLength();
 
-            TargetTree.Value = cloned;
-            Trees[TreeIndex.Value - 1] = cloned;
+            int targetIndex = TreeIndex.Value - 1;
 
-            UnfocusAll();
-            OnPropertyChanged(nameof(TargetTree));
+            OperateAsUndoable(arg =>
+            {
+                TargetTree.Value = arg.next;
+                Trees[arg.targetIndex] = arg.next;
+
+                UnfocusAll();
+                OnPropertyChanged(nameof(TargetTree));
+            }, arg =>
+            {
+                TargetTree.Value = arg.prev;
+                Trees[arg.targetIndex] = arg.prev;
+
+                UnfocusAll();
+                OnPropertyChanged(nameof(TargetTree));
+            }, (prev: tree, next: cloned, targetIndex));
         }
 
         /// <summary>
@@ -785,6 +1045,7 @@ namespace TreeViewer.ViewModels
             TargetTree.Value = null;
             Trees.ClearOnScheduler();
             TreeIndex.Value = 1;
+            undoService.Clear();
 
             OnPropertyChanged(nameof(TargetTree));
             OnPropertyChanged(nameof(Trees));
@@ -821,6 +1082,8 @@ namespace TreeViewer.ViewModels
                     TargetTree.Value = mainTree;
                     LoadTreeStyle(mainTree);
                 }
+
+                undoService.Clear();
 
                 OnPropertyChanged(nameof(TargetTree));
                 OnPropertyChanged(nameof(Trees));
@@ -925,7 +1188,22 @@ namespace TreeViewer.ViewModels
         /// </summary>
         private void AddNewBranchDecoration()
         {
-            BranchDecorations.AddOnScheduler(new BranchDecorationViewModel(this));
+            var style = new BranchDecorationStyle();
+            var decorationViewModel = new BranchDecorationViewModel(this, style);
+
+            OperateAsUndoable((arg, tree) =>
+            {
+                BranchDecorations.AddOnScheduler(arg.vm);
+                tree.Style.DecorationStyles = [.. tree.Style.DecorationStyles, arg.style];
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                BranchDecorations.RemoveOnScheduler(arg.vm);
+                tree.Style.DecorationStyles = tree.Style.DecorationStyles[..^1];
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (vm: decorationViewModel, style));
         }
 
         /// <summary>
@@ -934,20 +1212,53 @@ namespace TreeViewer.ViewModels
         /// <param name="color">更新する色</param>
         public void SetColorToFocusedObject(string color)
         {
-            foreach (Clade currentClade in FocusedSvgElementIdList.Select(CladeIdManager.FromId))
-                switch (SelectionTarget.Value)
+            (CladeStyle style, string before)[] targets = FocusedSvgElementIdList.Select(x =>
+            {
+                CladeStyle style = CladeIdManager.FromId(x).Style;
+                string before = SelectionTarget.Value switch
                 {
-                    case SelectionMode.Node:
-                    case SelectionMode.Clade:
-                        currentClade.Style.BranchColor = color;
-                        break;
+                    SelectionMode.Node or SelectionMode.Clade => style.BranchColor,
+                    SelectionMode.Taxa => style.LeafColor,
+                    _ => "black",
+                };
+                return (style, before);
+            }).ToArray();
 
-                    case SelectionMode.Taxa:
-                        currentClade.Style.LeafColor = color;
-                        break;
-                }
+            OperateAsUndoable(arg =>
+            {
+                foreach ((CladeStyle style, string before) in arg.targets)
+                    switch (arg.selectionTarget)
+                    {
+                        case SelectionMode.Node:
+                        case SelectionMode.Clade:
+                            style.BranchColor = arg.after;
+                            break;
 
-            OnPropertyChanged(nameof(TargetTree));
+                        case SelectionMode.Taxa:
+                            style.LeafColor = arg.after;
+                            break;
+                    }
+
+                OnPropertyChanged(nameof(TargetTree));
+                StyleSidebarViewModel.Update();
+            }, arg =>
+            {
+                foreach ((CladeStyle style, string before) in arg.targets)
+                    switch (arg.selectionTarget)
+                    {
+                        case SelectionMode.Node:
+                        case SelectionMode.Clade:
+                            style.BranchColor = before;
+                            break;
+
+                        case SelectionMode.Taxa:
+                            style.LeafColor = before;
+                            break;
+                    }
+
+                StyleSidebarViewModel.Update();
+                OnPropertyChanged(nameof(TargetTree));
+            }, (targets, after: color, selectionTarget: SelectionTarget.Value));
         }
     }
 }
