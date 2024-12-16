@@ -1,0 +1,22 @@
+﻿@using System.Diagnostics;
+@using System.Reflection;
+@page "/versions"
+@inject VersionViewModel ViewModel
+
+<div style="margin: 20px; user-select: none">
+    <RadzenStack Orientation="Orientation.Vertical" Gap="0px">
+        <RadzenText>@Assembly.GetExecutingAssembly().GetName().Name</RadzenText>
+        <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+            <RadzenText>Version:</RadzenText>
+            <RadzenText>1.0.0-alpha</RadzenText>
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+            <RadzenText>Author:</RadzenText>
+            <RadzenText>Funny_Silkie</RadzenText>
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+            <RadzenText>GitHub:</RadzenText>
+            <RadzenText Text="https://github.com/Funny-Silkie/TreeViewer" Style="user-select: text" />
+        </RadzenRow>
+    </RadzenStack>
+</div>

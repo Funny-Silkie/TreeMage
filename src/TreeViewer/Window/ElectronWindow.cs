@@ -16,6 +16,11 @@ namespace TreeViewer.Window
         private TViewModel? viewModel;
 
         /// <summary>
+        /// 現在表示されているかどうかを表す値を取得します。
+        /// </summary>
+        public bool IsShown { get; private set; }
+
+        /// <summary>
         /// 対象のElectronウィンドウを取得します。
         /// </summary>
         protected internal BrowserWindow Window
@@ -74,11 +79,27 @@ namespace TreeViewer.Window
         protected abstract Task<BrowserWindow> CreateWindowInternal();
 
         /// <summary>
+        /// URLを生成します。
+        /// </summary>
+        /// <param name="relative">相対パス</param>
+        /// <returns>URL</returns>
+        protected string CreateUrl(string relative)
+        {
+            string baseUrl = $"http://localhost:{BridgeSettings.WebPort}";
+            if (relative.StartsWith('/')) return baseUrl + relative;
+            return baseUrl + '/' + relative;
+        }
+
+        /// <summary>
         /// Electronのウィンドウを立ち上げます。
         /// </summary>
         public async Task CreateElectronWindow()
         {
+            if (IsShown) return;
             window = await CreateWindowInternal();
+
+            IsShown = true;
+            window.OnClosed += () => IsShown = false;
         }
 
         /// <summary>

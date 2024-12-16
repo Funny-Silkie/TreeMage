@@ -263,6 +263,12 @@ namespace TreeViewer.Window
                             Click = ShowHelp,
                             Accelerator = "F1",
                         },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Version Information(&A)",
+                            Click = () => ShowVersionWindow().Wait(),
+                        },
                     ],
                 },
 #if DEBUG
@@ -397,7 +403,7 @@ namespace TreeViewer.Window
         /// </summary>
         private async Task ShowConfigWindow()
         {
-            var child = EditConfigWindow.Instance;
+            EditConfigWindow child = EditConfigWindow.Instance;
 
             await child.CreateElectronWindow();
             child.OnClosed += ViewModel.RerenderTreeCommand.Execute;
@@ -419,6 +425,16 @@ namespace TreeViewer.Window
             };
 
             Process.Start(info);
+        }
+
+        /// <summary>
+        /// バージョンウィンドウを開きます。
+        /// </summary>
+        private static async Task ShowVersionWindow()
+        {
+            VersionWindow child = VersionWindow.Instance;
+
+            await child.CreateElectronWindow();
         }
 
         #endregion Help
