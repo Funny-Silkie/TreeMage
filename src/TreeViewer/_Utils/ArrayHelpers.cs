@@ -17,12 +17,12 @@
         {
             if (array.Length == 0) return [item];
             if (index == 0) return array.Prepend(item).ToArray();
-            if (index == array.Length - 1) return [.. array, item];
+            if (index == array.Length) return [.. array, item];
 
             var result = new T[array.Length + 1];
             Span<T> resultSpan = result.AsSpan();
             array.AsSpan(0, index).CopyTo(resultSpan);
-            result[index] = item;
+            resultSpan[index] = item;
             array.AsSpan(index).CopyTo(resultSpan[(index + 1)..]);
 
             return result;
