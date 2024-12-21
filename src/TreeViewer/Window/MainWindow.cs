@@ -34,6 +34,7 @@ namespace TreeViewer.Window
                 Show = false,
                 Title = "TreeViewer",
             });
+            await result.WebContents.Session.ClearCacheAsync();
             result.OnReadyToShow += result.Show;
             result.OnClosed += Electron.App.Quit;
             return result;
@@ -223,12 +224,6 @@ namespace TreeViewer.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Reroot",
-                            Click = () => Reroot().Wait(),
-                        },
-                        new MenuItem()
-                        {
-                            Type = MenuType.normal,
                             Label = "Order by branch length",
                             Click = () => ViewModel.OrderByBranchLengthCommand.ExecuteAsync().Wait(),
                         },
@@ -384,14 +379,6 @@ namespace TreeViewer.Window
         private async Task UnfocusAll()
         {
             await ViewModel.UnfocusAllCommand.ExecuteAsync();
-        }
-
-        /// <summary>
-        /// リルートを行います。
-        /// </summary>
-        private async Task Reroot()
-        {
-            await ViewModel.RerootCommand.ExecuteAsync();
         }
 
         #endregion Tree

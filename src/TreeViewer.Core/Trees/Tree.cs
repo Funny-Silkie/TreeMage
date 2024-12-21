@@ -131,6 +131,7 @@ namespace TreeViewer.Core.Trees
             if (clade.IsRoot) return;
 
             Clade child = CreateClade(clade);
+            Root.TreeInternal = null;
             child.Parent = clade;
             clade.ChildrenInternal.Insert(0, child);
             clade.Parent = null;
@@ -138,6 +139,7 @@ namespace TreeViewer.Core.Trees
             clade.BranchLength = double.NaN;
             clade.Supports = null;
             Root = clade;
+            Root.TreeInternal = this;
 
             static Clade CreateClade(Clade target)
             {

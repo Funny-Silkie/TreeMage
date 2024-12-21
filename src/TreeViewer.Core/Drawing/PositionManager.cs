@@ -274,6 +274,25 @@ namespace TreeViewer.Core.Drawing
         }
 
         /// <summary>
+        /// 結節点の装飾の矩形領域を算出します。
+        /// </summary>
+        /// <param name="clade">計算対象</param>
+        /// <returns><paramref name="clade"/>の結節点の装飾の矩形領域</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        public (double x, double y, double width, double height) CalcNodeDecorationRectangleArea(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            const int size = 5;
+
+            double x = CalcX2(clade) - size;
+            double y = CalcY1(clade) - size;
+            double length = size * 2;
+
+            return (x, y, length, length);
+        }
+
+        /// <summary>
         /// 枝の値の座標を算出します。
         /// </summary>
         /// <param name="clade">計算対象</param>

@@ -10,20 +10,30 @@
             <RadzenSidebarToggle Click="() => toggleExpanded = !toggleExpanded" />
             <RadzenText>Tree No.</RadzenText>
             <RadzenNumeric TValue="int" Min="1" Max="Math.Max(ViewModel.MaxTreeIndex.Value, 1)" @bind-Value="ViewModel.TreeIndex.Value" Disabled="@(ViewModel.MaxTreeIndex.Value == 0)" Style="width: 50px" />
-            <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" Gap="0">
-                <RadzenStack>
-                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
-                        <RadzenRadioButtonList TValue="SelectionMode" @bind-Value="ViewModel.SelectionTarget.Value">
-                            <Items>
-                                <RadzenRadioButtonListItem Text="Node" Value="SelectionMode.Node" />
-                                <RadzenRadioButtonListItem Text="Clade" Value="SelectionMode.Clade" />
-                                <RadzenRadioButtonListItem Text="Taxa" Value="SelectionMode.Taxa" />
-                            </Items>
-                        </RadzenRadioButtonList>
+            <RadzenRadioButtonList TValue="TreeEditMode" @bind-Value="ViewModel.EditMode.Value">
+                <Items>
+                    <RadzenRadioButtonListItem Text="Select" Value="TreeEditMode.Select" />
+                    <RadzenRadioButtonListItem Text="Reroot" Value="TreeEditMode.Reroot" />
+                    @* <RadzenRadioButtonListItem Text="Swap" Value="TreeEditMode.Swap" /> *@
+                </Items>
+            </RadzenRadioButtonList>
+            @if (ViewModel.EditMode.Value == TreeEditMode.Select)
+            {
+                <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Center" Gap="0">
+                    <RadzenStack>
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                            <RadzenRadioButtonList TValue="SelectionMode" @bind-Value="ViewModel.SelectionTarget.Value">
+                                <Items>
+                                    <RadzenRadioButtonListItem Text="Node" Value="SelectionMode.Node" />
+                                    <RadzenRadioButtonListItem Text="Clade" Value="SelectionMode.Clade" />
+                                    <RadzenRadioButtonListItem Text="Taxa" Value="SelectionMode.Taxa" />
+                                </Items>
+                            </RadzenRadioButtonList>
+                        </RadzenStack>
                     </RadzenStack>
+                    <RadzenText>Selection Mode</RadzenText>
                 </RadzenStack>
-                <RadzenText>Selection Mode</RadzenText>
-            </RadzenStack>
+            }
         </RadzenStack>
     </RadzenHeader>
     <RadzenSidebar Responsive="false" @bind-Expanded="toggleExpanded" Style="width: 300px">
@@ -98,13 +108,16 @@
                                         @svgText
 
                                         // クリックエリア
-                                        string id = current.GetId("leaf");
-                                        string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
-                                        double width = current.Taxon.Length * ViewModel.LeafLabelsFontSize.Value / 2;
-                                        double height = ViewModel.LeafLabelsFontSize.Value;
+                                        if (ViewModel.EditMode.Value == TreeEditMode.Select)
+                                        {
+                                            string id = current.GetId("leaf");
+                                            string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
+                                            double width = current.Taxon.Length * ViewModel.LeafLabelsFontSize.Value / 2;
+                                            double height = ViewModel.LeafLabelsFontSize.Value;
 
-                                        <rect id="@id" class="clickable-leaf" x="@(x - 2)" y="@(positionManager.CalcY1(current) - ViewModel.LeafLabelsFontSize.Value / 2.5 - 2)" width="@width" height="@height"
-                                              style="fill: @fillColor" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+                                            <rect id="@id" class="clickable-leaf" x="@(x - 2)" y="@(positionManager.CalcY1(current) - ViewModel.LeafLabelsFontSize.Value / 2.5 - 2)" width="@width" height="@height"
+                                                  style="fill: @fillColor" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+                                        }
                                     }
                                 }
                                 else
@@ -219,6 +232,7 @@
                                 }
 
                                 // 枝クリックエリア
+                                if (ViewModel.EditMode.Value == TreeEditMode.Select)
                                 {
                                     double x2 = positionManager.CalcX2(current);
 
@@ -239,6 +253,15 @@
                                               style="stroke: @strokeColor; stroke-width: @(ViewModel.BranchThickness.Value + 4)"
                                               onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
                                     }
+                                }
+
+                                // 結節点クリックエリア
+                                if (ViewModel.EditMode.Value == TreeEditMode.Reroot && !current.IsLeaf && !current.IsRoot)
+                                {
+                                    string id = current.GetId("node");
+                                    (double x, double y, double width, double height) = positionManager.CalcNodeDecorationRectangleArea(current);
+
+                                    <rect id="@id" x="@x" y="@y" width="@width" height="@height" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
                                 }
                             }
                         </g>

@@ -363,42 +363,45 @@ namespace TreeViewer.Core.Trees
             tree.Reroot(this.cladeBB);
 
             Clade root = tree.Root;
-            CheckBipartiton(root, double.NaN, null, 3, null);
+            CheckBipartition(tree, root, double.NaN, null, 3, null);
 
             Clade cladeBB = root.ChildrenInternal[0];
-            CheckBipartiton(cladeBB, 2, "100/100", 2, root);
+            CheckBipartition(tree, cladeBB, 2, "100/100", 2, root);
 
             Clade cladeB = cladeBB.ChildrenInternal[0];
-            CheckBipartiton(cladeB, 2, "30/45", 2, cladeBB);
+            CheckBipartition(tree, cladeB, 2, "30/45", 2, cladeBB);
 
             Clade leafA = cladeB.ChildrenInternal[0];
-            CheckLeaf(leafA, 2, "A", cladeB);
+            CheckLeaf(tree, leafA, 2, "A", cladeB);
             Clade leafC = cladeB.ChildrenInternal[1];
-            CheckLeaf(leafC, 1, "C", cladeB);
+            CheckLeaf(tree, leafC, 1, "C", cladeB);
 
             Clade cladeBA = cladeBB.ChildrenInternal[1];
-            CheckBipartiton(cladeBA, 1, "20/30", 2, cladeBB);
+            CheckBipartition(tree, cladeBA, 1, "20/30", 2, cladeBB);
 
             Clade leafBAA = cladeBA.ChildrenInternal[0];
-            CheckLeaf(leafBAA, 5, "BAA", cladeBA);
+            CheckLeaf(tree, leafBAA, 5, "BAA", cladeBA);
             Clade leafBAB = cladeBA.ChildrenInternal[1];
-            CheckLeaf(leafBAB, 3, "BAB", cladeBA);
+            CheckLeaf(tree, leafBAB, 3, "BAB", cladeBA);
 
             Clade cladeBBA = root.ChildrenInternal[1];
-            CheckBipartiton(cladeBBA, 1, "85/95", 2, root);
+            CheckBipartition(tree, cladeBBA, 1, "85/95", 2, root);
 
             Clade leafBBAA = cladeBBA.ChildrenInternal[0];
-            CheckLeaf(leafBBAA, 2, "BBAA", cladeBBA);
+            CheckLeaf(tree, leafBBAA, 2, "BBAA", cladeBBA);
             Clade leafBBAB = cladeBBA.ChildrenInternal[1];
-            CheckLeaf(leafBBAB, 1, "BBAB", cladeBBA);
+            CheckLeaf(tree, leafBBAB, 1, "BBAB", cladeBBA);
 
             Clade leafBBB = root.ChildrenInternal[2];
-            CheckLeaf(leafBBB, 3, "BBB", root);
+            CheckLeaf(tree, leafBBB, 3, "BBB", root);
 
-            static void CheckBipartiton(Clade clade, double branchLength, string? supports, int childCount, Clade? parent)
+            static void CheckBipartition(Tree tree, Clade clade, double branchLength, string? supports, int childCount, Clade? parent)
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.Same(tree, clade.Tree);
+                    if (clade.IsRoot) Assert.Same(tree, clade.TreeInternal);
+                    else Assert.Null(clade.TreeInternal);
                     Assert.Equal(branchLength, clade.BranchLength);
                     Assert.Equal(supports, clade.Supports);
                     Assert.Null(clade.Taxon);
@@ -407,10 +410,12 @@ namespace TreeViewer.Core.Trees
                 });
             }
 
-            static void CheckLeaf(Clade clade, double branchLength, string? taxon, Clade parent)
+            static void CheckLeaf(Tree tree, Clade clade, double branchLength, string? taxon, Clade parent)
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.Same(tree, clade.Tree);
+                    Assert.Null(clade.TreeInternal);
                     Assert.Equal(branchLength, clade.BranchLength);
                     Assert.Null(clade.Supports);
                     Assert.Equal(taxon, clade.Taxon);
@@ -476,42 +481,45 @@ namespace TreeViewer.Core.Trees
             });
 
             Clade root = rerooted.Root;
-            CheckBipartiton(root, double.NaN, null, 3, null);
+            CheckBipartition(rerooted, root, double.NaN, null, 3, null);
 
             Clade cladeBB = root.ChildrenInternal[0];
-            CheckBipartiton(cladeBB, 2, "100/100", 2, root);
+            CheckBipartition(rerooted, cladeBB, 2, "100/100", 2, root);
 
             Clade cladeB = cladeBB.ChildrenInternal[0];
-            CheckBipartiton(cladeB, 2, "30/45", 2, cladeBB);
+            CheckBipartition(rerooted, cladeB, 2, "30/45", 2, cladeBB);
 
             Clade leafA = cladeB.ChildrenInternal[0];
-            CheckLeaf(leafA, 2, "A", cladeB);
+            CheckLeaf(rerooted, leafA, 2, "A", cladeB);
             Clade leafC = cladeB.ChildrenInternal[1];
-            CheckLeaf(leafC, 1, "C", cladeB);
+            CheckLeaf(rerooted, leafC, 1, "C", cladeB);
 
             Clade cladeBA = cladeBB.ChildrenInternal[1];
-            CheckBipartiton(cladeBA, 1, "20/30", 2, cladeBB);
+            CheckBipartition(rerooted, cladeBA, 1, "20/30", 2, cladeBB);
 
             Clade leafBAA = cladeBA.ChildrenInternal[0];
-            CheckLeaf(leafBAA, 5, "BAA", cladeBA);
+            CheckLeaf(rerooted, leafBAA, 5, "BAA", cladeBA);
             Clade leafBAB = cladeBA.ChildrenInternal[1];
-            CheckLeaf(leafBAB, 3, "BAB", cladeBA);
+            CheckLeaf(rerooted, leafBAB, 3, "BAB", cladeBA);
 
             Clade cladeBBA = root.ChildrenInternal[1];
-            CheckBipartiton(cladeBBA, 1, "85/95", 2, root);
+            CheckBipartition(rerooted, cladeBBA, 1, "85/95", 2, root);
 
             Clade leafBBAA = cladeBBA.ChildrenInternal[0];
-            CheckLeaf(leafBBAA, 2, "BBAA", cladeBBA);
+            CheckLeaf(rerooted, leafBBAA, 2, "BBAA", cladeBBA);
             Clade leafBBAB = cladeBBA.ChildrenInternal[1];
-            CheckLeaf(leafBBAB, 1, "BBAB", cladeBBA);
+            CheckLeaf(rerooted, leafBBAB, 1, "BBAB", cladeBBA);
 
             Clade leafBBB = root.ChildrenInternal[2];
-            CheckLeaf(leafBBB, 3, "BBB", root);
+            CheckLeaf(rerooted, leafBBB, 3, "BBB", root);
 
-            static void CheckBipartiton(Clade clade, double branchLength, string? supports, int childCount, Clade? parent)
+            static void CheckBipartition(Tree tree, Clade clade, double branchLength, string? supports, int childCount, Clade? parent)
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.Same(tree, clade.Tree);
+                    if (clade.IsRoot) Assert.Same(tree, clade.TreeInternal);
+                    else Assert.Null(clade.TreeInternal);
                     Assert.Equal(branchLength, clade.BranchLength);
                     Assert.Equal(supports, clade.Supports);
                     Assert.Null(clade.Taxon);
@@ -520,10 +528,12 @@ namespace TreeViewer.Core.Trees
                 });
             }
 
-            static void CheckLeaf(Clade clade, double branchLength, string? taxon, Clade parent)
+            static void CheckLeaf(Tree tree, Clade clade, double branchLength, string? taxon, Clade parent)
             {
                 Assert.Multiple(() =>
                 {
+                    Assert.Same(tree, clade.Tree);
+                    Assert.Null(clade.TreeInternal);
                     Assert.Equal(branchLength, clade.BranchLength);
                     Assert.Null(clade.Supports);
                     Assert.Equal(taxon, clade.Taxon);
