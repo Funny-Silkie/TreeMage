@@ -29,6 +29,16 @@ namespace TreeViewer
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+
+                app.UseStaticFiles(new StaticFileOptions()
+                {
+                    OnPrepareResponse = context =>
+                    {
+                        context.Context.Response.Headers.CacheControl = "no-cache, no-store, must-revalidate";
+                        context.Context.Response.Headers.Pragma = "no-cache";
+                        context.Context.Response.Headers.Expires = "0";
+                    },
+                });
             }
 
             app.UseHttpsRedirection();
