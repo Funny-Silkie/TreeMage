@@ -13,7 +13,7 @@ namespace TreeViewer.Core.Exporting
     /// </summary>
     public class SvgExporter : IExporter
     {
-        private const string FontFamily = "Arial, Helvetica, sans-serif";
+        internal const string FontFamily = "Arial, Helvetica, sans-serif";
 
         /// <inheritdoc/>
         public ExportType Type => ExportType.Svg;
@@ -82,7 +82,7 @@ namespace TreeViewer.Core.Exporting
                     // 系統名
                     if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
                     {
-                        (double x, double y) = positionManager.CalcLeafPosition(current);
+                        (double x, double y, _, _) = positionManager.CalcLeafPosition(current);
 
                         var leafText = new SvgText(current.Taxon)
                         {
@@ -103,7 +103,7 @@ namespace TreeViewer.Core.Exporting
                         string nodeValue = DrawHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                         if (nodeValue.Length > 0)
                         {
-                            (double x, double y) = positionManager.CalcNodeValuePosition(current);
+                            (double x, double y) = positionManager.CalcNodeValuePosition(current, nodeValue);
 
                             var nodeValueText = new SvgText(nodeValue)
                             {
@@ -210,7 +210,7 @@ namespace TreeViewer.Core.Exporting
                         string branchValue = DrawHelpers.SelectShowValue(current, tree.Style.BranchValueType);
                         if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
                         {
-                            (double x, double y) = positionManager.CalcBranchValuePosition(current);
+                            (double x, double y) = positionManager.CalcBranchValuePosition(current, branchValue);
 
                             var branchValueText = new SvgText(branchValue)
                             {

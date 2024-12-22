@@ -129,7 +129,7 @@ namespace TreeViewer.Window
         /// エラーメッセージを表示します。
         /// </summary>
         /// <param name="exception">例外</param>
-        public async Task ShowErrorMessage(Exception exception)
+        public async Task ShowErrorMessageAsync(Exception exception)
         {
             string message =
 #if DEBUG

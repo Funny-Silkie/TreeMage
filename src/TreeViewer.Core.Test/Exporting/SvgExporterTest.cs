@@ -243,8 +243,8 @@ namespace TreeViewer.Core.Exporting
 
             Assert.Multiple(() =>
             {
-                Assert.Equal(404, svg.Width);
-                Assert.Equal(310, svg.Height);
+                Assert.Equal(392, svg.Width, 0.1);
+                Assert.Equal(348, svg.Height, 0.1);
 
                 SvgElement branchesGroup = svg.GetElementById("branches");
                 Assert.NotNull(branchesGroup);

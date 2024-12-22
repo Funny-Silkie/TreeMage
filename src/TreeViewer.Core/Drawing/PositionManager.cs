@@ -1,4 +1,5 @@
 ﻿using TreeViewer.Core.Drawing.Styles;
+using TreeViewer.Core.Exporting;
 using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Drawing
@@ -44,6 +45,23 @@ namespace TreeViewer.Core.Drawing
             indexTable = tree.GetAllLeaves()
                              .Select((x, i) => (x, i))
                              .ToDictionary();
+        }
+
+        /// <summary>
+        /// テキストのサイズを算出します。
+        /// </summary>
+        /// <param name="text">テキスト内容</param>
+        /// <param name="fontSize">フォントサイズ</param>
+        /// <returns>テキストエリアのサイズ</returns>
+        public static (double width, double height) CalcTextSize(string? text, int fontSize)
+        {
+            var svg = new Svg.SvgText(text)
+            {
+                FontSize = fontSize,
+                FontFamily = SvgExporter.FontFamily,
+            };
+            System.Drawing.SizeF size = svg.Bounds.Size;
+            return (size.Width, size.Height);
         }
 
         /// <summary>
@@ -202,9 +220,10 @@ namespace TreeViewer.Core.Drawing
         public (double width, double height) CalcDocumentSize()
         {
             double width = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * treeStyle.XScale + 100;
-            if (treeStyle.ShowLeafLabels) width += allLeaves.Select(x => (x.Taxon ?? string.Empty).Length).Max() * treeStyle.LeafLabelsFontSize / 1.25;
+            if (treeStyle.ShowLeafLabels) width += allLeaves.Select(x => CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize).width).Max();
 
             double height = allLeaves.Length * treeStyle.YScale + 100;
+            if (treeStyle.ShowScaleBar) height += CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize).height + 20;
 
             return (width, height);
         }
@@ -215,14 +234,16 @@ namespace TreeViewer.Core.Drawing
         /// <param name="clade">計算対象</param>
         /// <returns><paramref name="clade"/>における葉の座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double x, double y) CalcLeafPosition(Clade clade)
+        public (double x, double y, double width, double height) CalcLeafPosition(Clade clade)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
-            double x = CalcTotalBranchLength(clade) * treeStyle.XScale + 5;
-            double y = CalcY1(clade) + treeStyle.LeafLabelsFontSize / 2.5;
+            (double width, double height) = CalcTextSize(clade.Taxon, treeStyle.LeafLabelsFontSize);
 
-            return (x, y);
+            double x = CalcTotalBranchLength(clade) * treeStyle.XScale + 5;
+            double y = CalcY1(clade) + height / 2;
+
+            return (x, y, width, height);
         }
 
         /// <summary>
@@ -260,15 +281,18 @@ namespace TreeViewer.Core.Drawing
         /// 結節点の値の座標を算出します。
         /// </summary>
         /// <param name="clade">計算対象</param>
+        /// <param name="text">表示する値</param>
         /// <returns><paramref name="clade"/>における結節点の値の座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double x, double y) CalcNodeValuePosition(Clade clade)
+        public (double x, double y) CalcNodeValuePosition(Clade clade, string text)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
             double x = CalcTotalBranchLength(clade) * treeStyle.XScale + 5;
-            double y = CalcY1(clade) + treeStyle.NodeValueFontSize / 2.5;
-            if (clade.ChildrenInternal.Count % 2 == 1) y += treeStyle.BranchThickness / 2 + treeStyle.NodeValueFontSize / 2.5 + 3;
+            (_, double height) = CalcTextSize(text, treeStyle.NodeValueFontSize);
+            double y = CalcY1(clade) + height / 2;
+
+            if (clade.ChildrenInternal.Count % 2 == 1) y += treeStyle.BranchThickness / 2 + height / 2 + 3;
 
             return (x, y);
         }
@@ -296,14 +320,16 @@ namespace TreeViewer.Core.Drawing
         /// 枝の値の座標を算出します。
         /// </summary>
         /// <param name="clade">計算対象</param>
+        /// <param name="text">表示する値</param>
         /// <returns><paramref name="clade"/>における枝の値の座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double x, double y) CalcBranchValuePosition(Clade clade)
+        public (double x, double y) CalcBranchValuePosition(Clade clade, string text)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
             double x = (CalcX1(clade) + CalcX2(clade)) / 2;
-            double y = CalcY1(clade) - treeStyle.BranchValueFontSize / 2.5 - treeStyle.BranchThickness / 2;
+            (_, double height) = CalcTextSize(text, treeStyle.BranchValueFontSize);
+            double y = CalcY1(clade) - height / 2 - treeStyle.BranchThickness / 2;
 
             return (x, y);
         }
@@ -358,9 +384,10 @@ namespace TreeViewer.Core.Drawing
         /// <returns>スケールバーの座標オフセット</returns>
         public (double x, double y) CalcScaleBarOffset()
         {
-            double y = indexTable.Count * treeStyle.YScale + 30 + treeStyle.ScaleBarFontSize;
+            (double textWidth, double textHeight) = CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize);
+            double y = indexTable.Count * treeStyle.YScale + 30 + textHeight;
 
-            return (50, y);
+            return (50 + textWidth / 2, 20 + y);
         }
 
         /// <summary>

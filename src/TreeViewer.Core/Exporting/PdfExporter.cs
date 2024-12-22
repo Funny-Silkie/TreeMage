@@ -68,7 +68,7 @@ namespace TreeViewer.Core.Exporting
                         // 系統名
                         if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
                         {
-                            (double x, double y) = positionManager.CalcLeafPosition(current);
+                            (double x, double y, _, _) = positionManager.CalcLeafPosition(current);
 
                             graphics.DrawString(current.Taxon,
                                                 leafFont,
@@ -84,7 +84,7 @@ namespace TreeViewer.Core.Exporting
                             string nodeValue = DrawHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                             if (nodeValue.Length > 0)
                             {
-                                (double x, double y) = positionManager.CalcNodeValuePosition(current);
+                                (double x, double y) = positionManager.CalcNodeValuePosition(current, nodeValue);
 
                                 graphics.DrawString(nodeValue,
                                                     nodeValuesFont,
@@ -152,7 +152,7 @@ namespace TreeViewer.Core.Exporting
                             string branchValue = DrawHelpers.SelectShowValue(current, tree.Style.BranchValueType);
                             if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
                             {
-                                (double x, double y) = positionManager.CalcBranchValuePosition(current);
+                                (double x, double y) = positionManager.CalcBranchValuePosition(current, branchValue);
 
                                 graphics.DrawString(branchValue,
                                                     branchValuesFont,

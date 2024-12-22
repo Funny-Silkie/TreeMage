@@ -832,39 +832,47 @@ namespace TreeViewer.ViewModels
         /// <param name="id">SVG要素のID</param>
         private void OnSvgElementClicked(string id)
         {
-            switch (EditMode.Value)
+            try
             {
-                case TreeEditMode.Select:
-                    switch (SelectionTarget.Value)
-                    {
-                        case SelectionMode.Node:
-                            {
-                                Focus(CladeIdManager.FromId(id));
-                            }
-                            break;
+                switch (EditMode.Value)
+                {
+                    case TreeEditMode.Select:
+                        switch (SelectionTarget.Value)
+                        {
+                            case SelectionMode.Node:
+                                {
+                                    Focus(CladeIdManager.FromId(id));
+                                }
+                                break;
 
-                        case SelectionMode.Clade:
-                            {
-                                Clade target = CladeIdManager.FromId(id);
-                                Focus(target.GetDescendants().Prepend(target));
-                            }
-                            break;
+                            case SelectionMode.Clade:
+                                {
+                                    Clade target = CladeIdManager.FromId(id);
+                                    Focus(target.GetDescendants().Prepend(target));
+                                }
+                                break;
 
-                        case SelectionMode.Taxa:
-                            {
-                                Clade target = CladeIdManager.FromId(id);
-                                if (target.IsLeaf) Focus(target);
-                                else Focus(target.GetDescendants().Where(x => x.IsLeaf));
-                            }
-                            break;
-                    }
+                            case SelectionMode.Taxa:
+                                {
+                                    Clade target = CladeIdManager.FromId(id);
+                                    if (target.IsLeaf) Focus(target);
+                                    else Focus(target.GetDescendants().Where(x => x.IsLeaf));
+                                }
+                                break;
+                        }
 
-                    OnPropertyChanged(nameof(FocusedSvgElementIdList));
-                    break;
+                        OnPropertyChanged(nameof(FocusedSvgElementIdList));
+                        break;
 
-                case TreeEditMode.Reroot:
-                    if (id.EndsWith("-node")) Reroot(CladeIdManager.FromId(id));
-                    break;
+                    case TreeEditMode.Reroot:
+                        if (id.EndsWith("-node")) Reroot(CladeIdManager.FromId(id));
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Window.ShowErrorMessageAsync(e).Wait();
             }
         }
 
@@ -1134,7 +1142,7 @@ namespace TreeViewer.ViewModels
             }
             catch (Exception e)
             {
-                await Window.ShowErrorMessage(e);
+                await Window.ShowErrorMessageAsync(e);
                 projectPath = null;
             }
         }
@@ -1170,7 +1178,7 @@ namespace TreeViewer.ViewModels
             }
             catch (Exception e)
             {
-                await Window.ShowErrorMessage(e);
+                await Window.ShowErrorMessageAsync(e);
             }
         }
 

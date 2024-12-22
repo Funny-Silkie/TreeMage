@@ -102,7 +102,7 @@
                                     // 系統名
                                     if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
                                     {
-                                        (double x, double y) = positionManager.CalcLeafPosition(current);
+                                        (double x, double y, double width, double height) = positionManager.CalcLeafPosition(current);
 
                                         var svgText = new MarkupString($"<text class=\"leaf\" x=\"{x}\" y=\"{y}\" style=\"fill: {current.Style.LeafColor}\">{current.Taxon}</text>");
                                         @svgText
@@ -112,10 +112,9 @@
                                         {
                                             string id = current.GetId("leaf");
                                             string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
-                                            double width = current.Taxon.Length * ViewModel.LeafLabelsFontSize.Value / 2;
-                                            double height = ViewModel.LeafLabelsFontSize.Value;
+                                            const int margin = 3;
 
-                                            <rect id="@id" class="clickable-leaf" x="@(x - 2)" y="@(positionManager.CalcY1(current) - ViewModel.LeafLabelsFontSize.Value / 2.5 - 2)" width="@width" height="@height"
+                                            <rect id="@id" class="clickable-leaf" x="@(x - margin)" y="@(y - height - margin)" width="@(width + margin * 2)" height="@(height + margin * 2)"
                                                   style="fill: @fillColor" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
                                         }
                                     }
@@ -128,7 +127,7 @@
                                         string nodeValue = SelectShowValue(current, ViewModel.NodeValueType.Value);
                                         if (nodeValue.Length > 0)
                                         {
-                                            (double x, double y) = positionManager.CalcNodeValuePosition(current);
+                                            (double x, double y) = positionManager.CalcNodeValuePosition(current, nodeValue);
 
                                             var svgText = new MarkupString($"<text class=\"node-value\" x=\"{x}\" y=\"{y}\" style=\"fill: {current.Style.BranchColor}\">{nodeValue}</text>");
                                             @svgText
@@ -205,7 +204,7 @@
                                         string branchValue = SelectShowValue(current, ViewModel.BranchValueType.Value);
                                         if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
                                         {
-                                            (double x, double y) = positionManager.CalcBranchValuePosition(current);
+                                            (double x, double y) = positionManager.CalcBranchValuePosition(current, branchValue);
 
                                             var svgText = new MarkupString($"<text class=\"branch-value\" x=\"{x}\" y=\"{y}\" text-anchor=\"middle\" style=\"fill: {current.Style.BranchColor}\">{branchValue}</text>");
                                             @svgText
