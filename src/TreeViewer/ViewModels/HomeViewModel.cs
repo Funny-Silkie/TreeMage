@@ -54,6 +54,11 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public AsyncReactiveCommand RerenderTreeCommand { get; }
 
+        /// <summary>
+        /// 姉妹同士の交換を行うコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<(Clade target1, Clade target2)> SwapSisterCommand { get; }
+
         #region Menu
 
         /// <summary>
@@ -313,6 +318,8 @@ namespace TreeViewer.ViewModels
             SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
                                                                          .AddTo(Disposables);
             RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(() => OnPropertyChanged(nameof(TargetTree))).AddTo(Disposables);
+            SwapSisterCommand = new AsyncReactiveCommand<(Clade target1, Clade target2)>().WithSubscribe(x => SwapSisters(x.target1, x.target2))
+                                                                                          .AddTo(Disposables);
 
             CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(CreateNew)
                                                          .AddTo(Disposables);
@@ -857,10 +864,6 @@ namespace TreeViewer.ViewModels
 
                 case TreeEditMode.Reroot:
                     if (id.EndsWith("-node")) Reroot(CladeIdManager.FromId(id));
-
-                    break;
-
-                case TreeEditMode.Swap:
                     break;
             }
         }
@@ -965,6 +968,28 @@ namespace TreeViewer.ViewModels
                 UnfocusAll();
                 OnPropertyChanged(nameof(TargetTree));
             }, (prev: tree, rerooted, targetIndex));
+        }
+
+        /// <summary>
+        /// 姉妹の入れ替えを行います。
+        /// </summary>
+        /// <param name="target1">選択したクレード1</param>
+        /// <param name="target2">選択したクレード2</param>
+        private void SwapSisters(Clade target1, Clade target2)
+        {
+            if (target1.IsRoot || target2.IsRoot || target1 == target2) return;
+
+            OperateAsUndoable((arg, tree) =>
+            {
+                tree.SwapSisters(arg.target1, arg.target2);
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                tree.SwapSisters(arg.target1, arg.target2);
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (target1, target2));
         }
 
         /// <summary>

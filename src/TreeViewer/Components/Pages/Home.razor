@@ -14,7 +14,7 @@
                 <Items>
                     <RadzenRadioButtonListItem Text="Select" Value="TreeEditMode.Select" />
                     <RadzenRadioButtonListItem Text="Reroot" Value="TreeEditMode.Reroot" />
-                    @* <RadzenRadioButtonListItem Text="Swap" Value="TreeEditMode.Swap" /> *@
+                    <RadzenRadioButtonListItem Text="Swap" Value="TreeEditMode.Swap" />
                 </Items>
             </RadzenRadioButtonList>
             @if (ViewModel.EditMode.Value == TreeEditMode.Select)
@@ -262,6 +262,21 @@
                                     (double x, double y, double width, double height) = positionManager.CalcNodeDecorationRectangleArea(current);
 
                                     <rect id="@id" x="@x" y="@y" width="@width" height="@height" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+                                }
+                                else if (ViewModel.EditMode.Value == TreeEditMode.Swap && !current.IsRoot)
+                                {
+                                    string id = current.GetId();
+                                    int index = current.Parent.Children.IndexOf(current);
+
+                                    if (index < current.Parent.Children.Count - 1)
+                                    {
+                                        Clade sister = current.Parent.Children[index + 1];
+
+                                        double x = positionManager.CalcX1(current) - 5;
+                                        double y = (positionManager.CalcY1(current) + positionManager.CalcY1(sister)) / 2 - 5;
+
+                                        <rect id="@id" x="@x" y="@y" width="10" height="10" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.SwapSisterCommand.ToDelegate((current, sister))" />
+                                    }
                                 }
                             }
                         </g>

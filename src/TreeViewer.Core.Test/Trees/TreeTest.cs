@@ -544,6 +544,51 @@ namespace TreeViewer.Core.Trees
         }
 
         [Fact]
+        public void SwapSisters_WithNullClade()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentNullException>(() => tree.SwapSisters(null!, cladeB));
+                Assert.Throws<ArgumentNullException>(() => tree.SwapSisters(cladeB, null!));
+            });
+        }
+
+        [Fact]
+        public void SwapSisters_WithSameClade()
+        {
+            Assert.Throws<ArgumentException>(() => tree.SwapSisters(cladeB, cladeB));
+        }
+
+        [Fact]
+        public void SwapSisters_WithOutsiderClades()
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Throws<ArgumentException>(() => tree.SwapSisters(cladeB, new Clade()));
+                Assert.Throws<ArgumentException>(() => tree.SwapSisters(new Clade(), cladeB));
+            });
+        }
+
+        [Fact]
+        public void SwapSisters_WithNonSisterClades()
+        {
+            Assert.Throws<ArgumentException>(() => tree.SwapSisters(cladeB, cladeBA));
+        }
+
+        [Fact]
+        public void SwapSisters_AsPositive()
+        {
+            tree.SwapSisters(cladeBA, cladeBB);
+
+            Assert.Multiple(() =>
+            {
+                Assert.Same(cladeB, cladeBA.Parent);
+                Assert.Same(cladeB, cladeBB.Parent);
+                Assert.Equal(cladeB.ChildrenInternal, [cladeBB, cladeBA]);
+            });
+        }
+
+        [Fact]
         public void OrderByLength_AsAscending()
         {
             tree.OrderByLength(false);

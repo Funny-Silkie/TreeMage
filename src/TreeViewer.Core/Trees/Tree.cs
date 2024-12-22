@@ -1,4 +1,5 @@
-﻿using TreeViewer.Core.Drawing.Styles;
+﻿using System.Diagnostics;
+using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees.Parsers;
 
 namespace TreeViewer.Core.Trees
@@ -184,6 +185,42 @@ namespace TreeViewer.Core.Trees
 
             result.Reroot(nextRoot);
             return result;
+        }
+
+        /// <summary>
+        /// 指定した姉妹クレード同士を交換します。
+        /// </summary>
+        /// <param name="target1">入れ替えるクレード1</param>
+        /// <param name="target2">入れ替えるクレード2</param>
+        /// <exception cref="ArgumentNullException"><paramref name="target1"/>または<paramref name="target2"/>が<see langword="null"/></exception>
+        /// <exception cref="ArgumentException">
+        /// <list type="bullet">
+        /// <item><paramref name="target1"/>と<paramref name="target2"/>が同じインスタンス</item>
+        /// <item><paramref name="target1"/>または<paramref name="target2"/>がインスタンスに属していない</item>
+        /// <item><paramref name="target1"/>と<paramref name="target2"/>が姉妹でない</item>
+        /// </list>
+        /// </exception>
+        public void SwapSisters(Clade target1, Clade target2)
+        {
+            ArgumentNullException.ThrowIfNull(target1);
+            ArgumentNullException.ThrowIfNull(target2);
+            if (ReferenceEquals(target1, target2)) throw new ArgumentException("同じインスタンス同士を交換できません", nameof(target1));
+            if (target1.Tree != this) throw new ArgumentException("インスタンスに属していないクレードです", nameof(target1));
+            if (target2.Tree != this) throw new ArgumentException("インスタンスに属していないクレードです", nameof(target2));
+            if (target1.Parent != target2.Parent) throw new ArgumentException("姉妹クレードではありません", nameof(target1));
+
+            Debug.Assert(target1.Parent is not null);
+            Debug.Assert(target2.Parent is not null);
+
+            List<Clade> sisters = target1.Parent.ChildrenInternal;
+            int index1 = sisters.IndexOf(target1);
+            int index2 = sisters.IndexOf(target2);
+
+            Debug.Assert((uint)index1 < sisters.Count);
+            Debug.Assert((uint)index2 < sisters.Count);
+
+            sisters[index2] = target1;
+            sisters[index1] = target2;
         }
 
         /// <summary>
