@@ -1194,14 +1194,31 @@ namespace TreeViewer.ViewModels
             if (trees.Length == 0) return;
             for (int i = 0; i < trees.Length; i++) ApplyTreeStyle(trees[i]);
 
-            Trees.AddRangeOnScheduler(trees);
-
             if (Trees.Count == 0)
             {
+                Trees.AddRangeOnScheduler(trees);
+
                 TargetTree.Value = trees[0];
                 OnPropertyChanged(nameof(TargetTree));
             }
-            else OnPropertyChanged(nameof(MaxTreeIndex));
+            else
+                OperateAsUndoable(arg =>
+                {
+                    Trees.AddRangeOnScheduler(arg.trees);
+                    OnPropertyChanged(nameof(MaxTreeIndex));
+
+                    TargetTree.Value = trees[0];
+                    TreeIndex.Value = arg.addedAt + 1;
+                    OnPropertyChanged(nameof(TargetTree));
+                }, arg =>
+                {
+                    for (int i = arg.addedAt; i < arg.addedAt + arg.trees.Length; i++) Trees.RemoveAtOnScheduler(i);
+                    OnPropertyChanged(nameof(MaxTreeIndex));
+
+                    TargetTree.Value = Trees[arg.prevIndex];
+                    TreeIndex.Value = arg.prevIndex + 1;
+                    OnPropertyChanged(nameof(TargetTree));
+                }, (trees, addedAt: Trees.Count, prevIndex: TreeIndex.Value - 1));
         }
 
         /// <summary>
