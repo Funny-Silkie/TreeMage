@@ -19,5 +19,10 @@
         /// 枝の入れ替えモード
         /// </summary>
         Swap,
+
+        /// <summary>
+        /// サブツリー取得
+        /// </summary>
+        Subtree,
     }
 }

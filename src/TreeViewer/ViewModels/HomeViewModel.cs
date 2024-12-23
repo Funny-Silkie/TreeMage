@@ -59,6 +59,11 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public AsyncReactiveCommand<(Clade target1, Clade target2)> SwapSisterCommand { get; }
 
+        /// <summary>
+        /// サブツリーの抽出を行うコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<Clade> ExtractSubtreeCommand { get; }
+
         #region Menu
 
         /// <summary>
@@ -320,6 +325,8 @@ namespace TreeViewer.ViewModels
             RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(() => OnPropertyChanged(nameof(TargetTree))).AddTo(Disposables);
             SwapSisterCommand = new AsyncReactiveCommand<(Clade target1, Clade target2)>().WithSubscribe(x => SwapSisters(x.target1, x.target2))
                                                                                           .AddTo(Disposables);
+            ExtractSubtreeCommand = new AsyncReactiveCommand<Clade>().WithSubscribe(ExtractSubtree)
+                                                                     .AddTo(Disposables);
 
             CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(CreateNew)
                                                          .AddTo(Disposables);
@@ -998,6 +1005,45 @@ namespace TreeViewer.ViewModels
 
                 OnPropertyChanged(nameof(TargetTree));
             }, (target1, target2));
+        }
+
+        /// <summary>
+        /// サブツリーの抽出を行います。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        private void ExtractSubtree(Clade clade)
+        {
+            if (clade.IsRoot || clade.IsLeaf) return;
+
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            var subtree = new Tree(clade.Clone(true));
+            subtree.Style.ApplyValues(tree.Style);
+
+            OperateAsUndoable((arg, tree) =>
+            {
+                Trees.InsertOnScheduler(arg.prevIndex + 1, arg.subtree);
+                OnPropertyChanged(nameof(MaxTreeIndex));
+
+                TreeIndex.Value = arg.prevIndex + 2;
+                TargetTree.Value = arg.subtree;
+                OnPropertyChanged(nameof(TargetTree));
+
+                EditMode.Value = TreeEditMode.Select;
+                OnPropertyChanged(nameof(EditMode));
+            }, (arg, tree) =>
+            {
+                Trees.RemoveAtOnScheduler(arg.prevIndex + 1);
+                OnPropertyChanged(nameof(MaxTreeIndex));
+
+                TreeIndex.Value = arg.prevIndex + 1;
+                TargetTree.Value = tree;
+                OnPropertyChanged(nameof(TargetTree));
+
+                EditMode.Value = TreeEditMode.Subtree;
+                OnPropertyChanged(nameof(EditMode));
+            }, (subtree, prevIndex: TreeIndex.Value - 1));
         }
 
         /// <summary>

@@ -15,6 +15,7 @@
                     <RadzenRadioButtonListItem Text="Select" Value="TreeEditMode.Select" />
                     <RadzenRadioButtonListItem Text="Reroot" Value="TreeEditMode.Reroot" />
                     <RadzenRadioButtonListItem Text="Swap" Value="TreeEditMode.Swap" />
+                    <RadzenRadioButtonListItem Text="Subtree" Value="TreeEditMode.Subtree" />
                 </Items>
             </RadzenRadioButtonList>
             @if (ViewModel.EditMode.Value == TreeEditMode.Select)
@@ -148,7 +149,7 @@
                                     }
 
                                     // 枝の装飾
-                                    if (ViewModel.ShowBranchDecorations.Value && !string.IsNullOrEmpty(current.Supports))
+                                    if (ViewModel.EditMode.Value is TreeEditMode.Select or TreeEditMode.Swap && ViewModel.ShowBranchDecorations.Value && !string.IsNullOrEmpty(current.Supports))
                                         foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Enabled && (x.Regex?.IsMatch(current.Supports) ?? false)))
                                         {
                                             string color = currentDecoration.ShapeColor;
@@ -197,6 +198,15 @@
                                                     break;
                                             }
                                         }
+                                    if (ViewModel.EditMode.Value is TreeEditMode.Subtree && !current.IsRoot && !current.IsLeaf)
+                                    {
+                                        const double size = 5;
+                                        double x = (positionManager.CalcX1(current) + positionManager.CalcX2(current)) / 2 - size;
+                                        double y = positionManager.CalcY1(current) - size;
+
+                                        <rect x="@(x)" y="@y" width="@(size * 2)" height="@(size * 2)" style="stroke: transparent; stroke-width: 2px; fill: black" onclick="@ViewModel.ExtractSubtreeCommand.ToDelegate(current)" />
+
+                                    }
 
                                     // 二分岐の値
                                     if (ViewModel.ShowBranchValues.Value)
