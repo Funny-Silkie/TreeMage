@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TreeViewer.Core\TreeViewer.Core.csproj" />
+    <ProjectReference Include="..\TreeViewer.TestUtilities\TreeViewer.TestUtilities.csproj" />
   </ItemGroup>
 
   <ItemGroup>
