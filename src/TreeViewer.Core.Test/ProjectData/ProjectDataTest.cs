@@ -1,5 +1,5 @@
 ﻿using System.IO.Compression;
-using TreeViewer.Core.Assertions;
+using TreeViewer.TestUtilities.Assertions;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.ProjectData.Json;
 using TreeViewer.Core.Trees;

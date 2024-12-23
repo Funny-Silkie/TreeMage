@@ -1,1 +1,1 @@
-﻿global using static TreeViewer.Core.Utils;
+﻿global using static TreeViewer.TestUtilities.Utils;

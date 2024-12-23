@@ -3,12 +3,12 @@ using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 using Xunit.Sdk;
 
-namespace TreeViewer.Core.Assertions
+namespace TreeViewer.TestUtilities.Assertions
 {
     /// <summary>
     /// 自作のアサーションを記述します。
     /// </summary>
-    internal static class CustomizedAssertions
+    public static class CustomizedAssertions
     {
         /// <summary>
         /// 二つのテキストファイルの等価性を検証します。
