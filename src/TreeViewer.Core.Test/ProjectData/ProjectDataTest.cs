@@ -64,7 +64,7 @@ namespace TreeViewer.Core.ProjectData
         [Fact]
         public void Load_WithString_AsPositive()
         {
-            ProjectData result = ProjectData.Load(CreateTestDataPath("ProjectData", "data.treeprj"));
+            ProjectData result = ProjectData.Load(CreateTestDataPath("Core", "ProjectData", "data.treeprj"));
 
             Assert.Multiple(() =>
             {
@@ -83,7 +83,7 @@ namespace TreeViewer.Core.ProjectData
         public void Load_WithStream_AsPositive()
         {
             ProjectData result;
-            using (var stream = new FileStream(CreateTestDataPath("ProjectData", "data.treeprj"), FileMode.Open))
+            using (var stream = new FileStream(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), FileMode.Open))
             {
                 result = ProjectData.Load(stream);
             }
@@ -98,7 +98,7 @@ namespace TreeViewer.Core.ProjectData
         [Fact]
         public async Task LoadAsync_WithString_AsPositive()
         {
-            ProjectData result = await ProjectData.LoadAsync(CreateTestDataPath("ProjectData", "data.treeprj"));
+            ProjectData result = await ProjectData.LoadAsync(CreateTestDataPath("Core", "ProjectData", "data.treeprj"));
 
             Assert.Multiple(() =>
             {
@@ -117,7 +117,7 @@ namespace TreeViewer.Core.ProjectData
         public async Task LoadAsync_WithStream_AsPositive()
         {
             ProjectData result;
-            using (var stream = new FileStream(CreateTestDataPath("ProjectData", "data.treeprj"), FileMode.Open))
+            using (var stream = new FileStream(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), FileMode.Open))
             {
                 result = await ProjectData.LoadAsync(stream);
             }
@@ -150,7 +150,7 @@ namespace TreeViewer.Core.ProjectData
         {
             data.Save(outputPath);
 
-            CompareProjectData(CreateTestDataPath("ProjectData", "data.treeprj"), outputPath);
+            CompareProjectData(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
         }
 
         [Fact]
@@ -167,7 +167,7 @@ namespace TreeViewer.Core.ProjectData
                 data.Save(stream);
             }
 
-            CompareProjectData(CreateTestDataPath("ProjectData", "data.treeprj"), outputPath);
+            CompareProjectData(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
         }
 
         [Fact]
@@ -175,7 +175,7 @@ namespace TreeViewer.Core.ProjectData
         {
             await data.SaveAsync(outputPath);
 
-            CompareProjectData(CreateTestDataPath("ProjectData", "data.treeprj"), outputPath);
+            CompareProjectData(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
         }
 
         [Fact]
@@ -192,7 +192,7 @@ namespace TreeViewer.Core.ProjectData
                 await data.SaveAsync(stream);
             }
 
-            CompareProjectData(CreateTestDataPath("ProjectData", "data.treeprj"), outputPath);
+            CompareProjectData(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
         }
 
         #endregion Instance Methods

@@ -323,7 +323,7 @@ namespace TreeViewer.Core.Exporting
             Assert.Multiple(() =>
             {
                 Assert.True(fileInfo.Length > 0);
-                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Export", "test.svg"), outputPath);
+                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Core", "Export", "test.svg"), outputPath);
             });
         }
 
@@ -360,7 +360,7 @@ namespace TreeViewer.Core.Exporting
             Assert.Multiple(() =>
             {
                 Assert.True(fileInfo.Length > 0);
-                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Export", "test.svg"), outputPath);
+                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Core", "Export", "test.svg"), outputPath);
             });
         }
 
