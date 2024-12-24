@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using TreeViewer.Core.Trees;
+using TreeViewer.TestUtilities.Assertions;
 
 namespace TreeViewer.Data
 {
@@ -12,35 +13,6 @@ namespace TreeViewer.Data
         {
             clade = new Clade();
             id = new CladeId(clade, CladeIdSuffix.Branch);
-        }
-
-        private delegate bool TryOperation<in TArg, TResult>(TArg arg, out TResult result) where TArg : allows ref struct;
-
-        /// <summary>
-        /// Tryメソッドの失敗を検証します。
-        /// </summary>
-        /// <typeparam name="T">引数の型</typeparam>
-        /// <param name="func">Tryメソッド</param>
-        /// <param name="arg">引数</param>
-        /// <param name="expected">予測される変換後の値</param>
-        private static void SucceedToTry<T>(TryOperation<T, CladeId> func, T arg, CladeId expected)
-            where T : allows ref struct
-        {
-            Assert.True(func.Invoke(arg, out CladeId actual));
-            Assert.Equal(expected, actual);
-        }
-
-        /// <summary>
-        /// Tryメソッドの失敗を検証します。
-        /// </summary>
-        /// <typeparam name="T">引数の型</typeparam>
-        /// <param name="func">Tryメソッド</param>
-        /// <param name="arg">引数</param>
-        private static void FailToTry<T>(TryOperation<T, CladeId> func, T arg)
-            where T : allows ref struct
-        {
-            Assert.False(func.Invoke(arg, out CladeId actual));
-            Assert.Equal(default, actual);
         }
 
         #region Static Methods
@@ -124,13 +96,13 @@ namespace TreeViewer.Data
         [Fact]
         public void TryParse_WithString_WithNullText()
         {
-            FailToTry<string?>(CladeId.TryParse, null);
+            CustomizedAssertions.FailToTry<string?, CladeId>(CladeId.TryParse, null);
         }
 
         [Fact]
         public void TryParse_WithString_WithEmptyText()
         {
-            FailToTry<string?>(CladeId.TryParse, string.Empty);
+            CustomizedAssertions.FailToTry<string?, CladeId>(CladeId.TryParse, string.Empty);
         }
 
         [Fact]
@@ -138,12 +110,12 @@ namespace TreeViewer.Data
         {
             Assert.Multiple(() =>
             {
-                FailToTry<string?>(CladeId.TryParse, "0");
-                FailToTry<string?>(CladeId.TryParse, "abc");
-                FailToTry<string?>(CladeId.TryParse, "-1-branch");
-                FailToTry<string?>(CladeId.TryParse, "abc-branch");
-                FailToTry<string?>(CladeId.TryParse, "0-branch");
-                FailToTry<string?>(CladeId.TryParse, "123-none");
+                CustomizedAssertions.FailToTry<string?, CladeId>(CladeId.TryParse, "0");
+                CustomizedAssertions.FailToTry<string?, CladeId>(CladeId.TryParse, "abc");
+                CustomizedAssertions.FailToTry<string?, CladeId>(CladeId.TryParse, "-1-branch");
+                CustomizedAssertions.FailToTry<string?, CladeId>(CladeId.TryParse, "abc-branch");
+                CustomizedAssertions.FailToTry<string?, CladeId>(CladeId.TryParse, "0-branch");
+                CustomizedAssertions.FailToTry<string?, CladeId>(CladeId.TryParse, "123-none");
             });
         }
 
@@ -155,17 +127,17 @@ namespace TreeViewer.Data
 
             Assert.Multiple(() =>
             {
-                SucceedToTry<string?>(CladeId.TryParse, ptr.ToString(), new CladeId(clade, CladeIdSuffix.None));
-                SucceedToTry<string?>(CladeId.TryParse, $"{ptr}-branch", new CladeId(clade, CladeIdSuffix.Branch));
-                SucceedToTry<string?>(CladeId.TryParse, $"{ptr}-node", new CladeId(clade, CladeIdSuffix.Node));
-                SucceedToTry<string?>(CladeId.TryParse, $"{ptr}-leaf", new CladeId(clade, CladeIdSuffix.Leaf));
+                CustomizedAssertions.SucceedToTry<string?, CladeId>(CladeId.TryParse, ptr.ToString(), new CladeId(clade, CladeIdSuffix.None));
+                CustomizedAssertions.SucceedToTry<string?, CladeId>(CladeId.TryParse, $"{ptr}-branch", new CladeId(clade, CladeIdSuffix.Branch));
+                CustomizedAssertions.SucceedToTry<string?, CladeId>(CladeId.TryParse, $"{ptr}-node", new CladeId(clade, CladeIdSuffix.Node));
+                CustomizedAssertions.SucceedToTry<string?, CladeId>(CladeId.TryParse, $"{ptr}-leaf", new CladeId(clade, CladeIdSuffix.Leaf));
             });
         }
 
         [Fact]
         public void TryParse_WithReadOnlySpan_WithEmptyText()
         {
-            FailToTry<ReadOnlySpan<char>>(CladeId.TryParse, []);
+            CustomizedAssertions.FailToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, []);
         }
 
         [Fact]
@@ -173,12 +145,12 @@ namespace TreeViewer.Data
         {
             Assert.Multiple(() =>
             {
-                FailToTry<ReadOnlySpan<char>>(CladeId.TryParse, "0");
-                FailToTry<ReadOnlySpan<char>>(CladeId.TryParse, "abc");
-                FailToTry<ReadOnlySpan<char>>(CladeId.TryParse, "-1-branch");
-                FailToTry<ReadOnlySpan<char>>(CladeId.TryParse, "abc-branch");
-                FailToTry<ReadOnlySpan<char>>(CladeId.TryParse, "0-branch");
-                FailToTry<ReadOnlySpan<char>>(CladeId.TryParse, "123-none");
+                CustomizedAssertions.FailToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, "0");
+                CustomizedAssertions.FailToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, "abc");
+                CustomizedAssertions.FailToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, "-1-branch");
+                CustomizedAssertions.FailToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, "abc-branch");
+                CustomizedAssertions.FailToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, "0-branch");
+                CustomizedAssertions.FailToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, "123-none");
             });
         }
 
@@ -190,10 +162,10 @@ namespace TreeViewer.Data
 
             Assert.Multiple(() =>
             {
-                SucceedToTry<ReadOnlySpan<char>>(CladeId.TryParse, ptr.ToString(), new CladeId(clade, CladeIdSuffix.None));
-                SucceedToTry<ReadOnlySpan<char>>(CladeId.TryParse, $"{ptr}-branch", new CladeId(clade, CladeIdSuffix.Branch));
-                SucceedToTry<ReadOnlySpan<char>>(CladeId.TryParse, $"{ptr}-node", new CladeId(clade, CladeIdSuffix.Node));
-                SucceedToTry<ReadOnlySpan<char>>(CladeId.TryParse, $"{ptr}-leaf", new CladeId(clade, CladeIdSuffix.Leaf));
+                CustomizedAssertions.SucceedToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, ptr.ToString(), new CladeId(clade, CladeIdSuffix.None));
+                CustomizedAssertions.SucceedToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, $"{ptr}-branch", new CladeId(clade, CladeIdSuffix.Branch));
+                CustomizedAssertions.SucceedToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, $"{ptr}-node", new CladeId(clade, CladeIdSuffix.Node));
+                CustomizedAssertions.SucceedToTry<ReadOnlySpan<char>, CladeId>(CladeId.TryParse, $"{ptr}-leaf", new CladeId(clade, CladeIdSuffix.Leaf));
             });
         }
 
