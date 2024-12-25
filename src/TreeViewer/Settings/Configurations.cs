@@ -56,6 +56,22 @@ namespace TreeViewer.Settings
         }
 
         /// <summary>
+        /// ファイルが存在する場合は読み込み，存在しない場合は新しいインスタンスを生成します。
+        /// </summary>
+        /// <returns>読み込まれたインスタンス</returns>
+        /// <exception cref="InvalidOperationException">読み込みに失敗した</exception>
+        public static async ValueTask<Configurations> LoadOrCreateAsync()
+        {
+            if (File.Exists(Location))
+            {
+                using var stream = new FileStream(Location, FileMode.Open);
+                return await JsonSerializer.DeserializeAsync<Configurations>(stream, options) ?? throw new InvalidOperationException("設定の読み込みに失敗しました");
+            }
+
+            return new Configurations();
+        }
+
+        /// <summary>
         /// 設定を保存します。
         /// </summary>
         public void Save()

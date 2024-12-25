@@ -3,12 +3,12 @@ using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 using Xunit.Sdk;
 
-namespace TreeViewer.Core.Assertions
+namespace TreeViewer.TestUtilities.Assertions
 {
     /// <summary>
     /// 自作のアサーションを記述します。
     /// </summary>
-    internal static class CustomizedAssertions
+    public static class CustomizedAssertions
     {
         /// <summary>
         /// 二つのテキストファイルの等価性を検証します。
@@ -224,6 +224,71 @@ namespace TreeViewer.Core.Assertions
                 Equal(expected.Root, actual.Root);
                 Equal(expected.Style, actual.Style);
             });
+        }
+
+        /// <summary>
+        /// 変換メソッドの失敗を検証します。
+        /// </summary>
+        /// <typeparam name="TArg">引数の型</typeparam>
+        /// <typeparam name="TResult">変換結果</typeparam>
+        /// <param name="operation">処理関数</param>
+        /// <param name="arg">引数</param>
+        public static void FailToTry<TArg, TResult>(TryOperation<TArg, TResult> operation, TArg arg)
+            where TArg : allows ref struct
+        {
+            Assert.False(operation.Invoke(arg, out TResult actual));
+            if (typeof(TResult).IsClass) Assert.Null(actual);
+            else Assert.Equal(default, actual);
+        }
+
+        /// <summary>
+        /// 変換メソッドの失敗を検証します。
+        /// </summary>
+        /// <typeparam name="TArg1">引数の型1</typeparam>
+        /// <typeparam name="TArg2">引数の型2</typeparam>
+        /// <typeparam name="TResult">変換結果</typeparam>
+        /// <param name="operation">処理関数</param>
+        /// <param name="arg1">引数1</param>
+        /// <param name="arg2">引数2</param>
+        public static void FailToTry<TArg1, TArg2, TResult>(TryOperation<TArg1, TArg2, TResult> operation, TArg1 arg1, TArg2 arg2)
+            where TArg1 : allows ref struct
+            where TArg2 : allows ref struct
+        {
+            Assert.False(operation.Invoke(arg1, arg2, out TResult result));
+            Assert.Equal(default, result);
+        }
+
+        /// <summary>
+        /// 変換メソッドの成功を検証します。
+        /// </summary>
+        /// <typeparam name="TArg">引数の型</typeparam>
+        /// <typeparam name="TResult">変換結果の型</typeparam>
+        /// <param name="operation">処理関数</param>
+        /// <param name="arg">引数</param>
+        /// <param name="expected">予期される変換結果の値</param>
+        public static void SucceedToTry<TArg, TResult>(TryOperation<TArg, TResult> operation, TArg arg, TResult expected)
+            where TArg : allows ref struct
+        {
+            Assert.True(operation.Invoke(arg, out TResult actual));
+            Assert.Equal(expected, actual);
+        }
+
+        /// <summary>
+        /// 変換メソッドの成功を検証します。
+        /// </summary>
+        /// <typeparam name="TArg1">引数の型1</typeparam>
+        /// <typeparam name="TArg2">引数の型2</typeparam>
+        /// <typeparam name="TResult">変換結果の型</typeparam>
+        /// <param name="operation">処理関数</param>
+        /// <param name="arg1">引数1</param>
+        /// <param name="arg2">引数2</param>
+        /// <param name="expected">予期される変換結果の値</param>
+        public static void SucceedToTry<TArg1, TArg2, TResult>(TryOperation<TArg1, TArg2, TResult> operation, TArg1 arg1, TArg2 arg2, TResult expected)
+            where TArg1 : allows ref struct
+            where TArg2 : allows ref struct
+        {
+            Assert.True(operation.Invoke(arg1, arg2, out TResult actual));
+            Assert.Equal(expected, actual);
         }
     }
 }

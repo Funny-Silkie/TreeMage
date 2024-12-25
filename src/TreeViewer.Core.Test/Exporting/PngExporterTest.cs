@@ -1,4 +1,4 @@
-﻿using TreeViewer.Core.Assertions;
+﻿using TreeViewer.TestUtilities.Assertions;
 using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Exporting
@@ -77,7 +77,7 @@ namespace TreeViewer.Core.Exporting
             Assert.Multiple(() =>
             {
                 Assert.True(fileInfo.Length > 0);
-                CustomizedAssertions.EqualBinaryFiles(CreateTestDataPath("Export", "test.png"), outputPath);
+                CustomizedAssertions.EqualBinaryFiles(CreateTestDataPath("Core", "Export", "test.png"), outputPath);
             });
         }
 
@@ -114,7 +114,7 @@ namespace TreeViewer.Core.Exporting
             Assert.Multiple(() =>
             {
                 Assert.True(fileInfo.Length > 0);
-                CustomizedAssertions.EqualBinaryFiles(CreateTestDataPath("Export", "test.png"), outputPath);
+                CustomizedAssertions.EqualBinaryFiles(CreateTestDataPath("Core", "Export", "test.png"), outputPath);
             });
         }
 

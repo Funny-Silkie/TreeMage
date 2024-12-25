@@ -32,3 +32,6 @@ dotnet_diagnostic.IDE0130.severity = none
 
 # IDE0045: 条件式に変換します
 dotnet_diagnostic.IDE0045.severity = none
+
+# CS8601: Null 参照代入の可能性があります。
+dotnet_diagnostic.CS8601.severity = error

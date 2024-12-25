@@ -1,4 +1,4 @@
-﻿using TreeViewer.Core.Assertions;
+﻿using TreeViewer.TestUtilities.Assertions;
 using TreeViewer.Core.Trees;
 
 namespace TreeViewer.Core.Drawing.Styles

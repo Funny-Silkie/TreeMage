@@ -1180,7 +1180,7 @@ namespace TreeViewer.ViewModels
 
             IExporter exporter = IExporter.Create(type);
             using var stream = new FileStream(path, FileMode.Create);
-            await exporter.ExportAsync(tree, stream, Configurations.LoadOrCreate().ToExportOptions());
+            await exporter.ExportAsync(tree, stream, (await Configurations.LoadOrCreateAsync()).ToExportOptions());
         }
 
         /// <summary>

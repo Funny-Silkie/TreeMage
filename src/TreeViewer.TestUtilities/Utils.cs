@@ -1,11 +1,11 @@
 ﻿using System.Buffers;
 
-namespace TreeViewer.Core
+namespace TreeViewer.TestUtilities
 {
     /// <summary>
     /// テストにおける共通処理を記述します。
     /// </summary>
-    internal static class Utils
+    public static class Utils
     {
         /// <summary>
         /// テスト用データの含まれているディレクトリ
