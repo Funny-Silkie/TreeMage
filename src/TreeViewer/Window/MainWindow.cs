@@ -34,6 +34,7 @@ namespace TreeViewer.Window
                 Show = false,
                 Title = "TreeViewer",
             });
+            await result.WebContents.Session.ClearCacheAsync();
             result.OnReadyToShow += result.Show;
             result.OnClosed += Electron.App.Quit;
             return result;
@@ -223,12 +224,6 @@ namespace TreeViewer.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Reroot",
-                            Click = () => Reroot().Wait(),
-                        },
-                        new MenuItem()
-                        {
-                            Type = MenuType.normal,
                             Label = "Order by branch length",
                             Click = () => ViewModel.OrderByBranchLengthCommand.ExecuteAsync().Wait(),
                         },
@@ -262,6 +257,12 @@ namespace TreeViewer.Window
                             Label = "Show Help(&H)",
                             Click = ShowHelp,
                             Accelerator = "F1",
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Version Information(&A)",
+                            Click = () => ShowVersionWindow().Wait(),
                         },
                     ],
                 },
@@ -380,14 +381,6 @@ namespace TreeViewer.Window
             await ViewModel.UnfocusAllCommand.ExecuteAsync();
         }
 
-        /// <summary>
-        /// リルートを行います。
-        /// </summary>
-        private async Task Reroot()
-        {
-            await ViewModel.RerootCommand.ExecuteAsync();
-        }
-
         #endregion Tree
 
         #region Window
@@ -397,7 +390,7 @@ namespace TreeViewer.Window
         /// </summary>
         private async Task ShowConfigWindow()
         {
-            var child = EditConfigWindow.Instance;
+            EditConfigWindow child = EditConfigWindow.Instance;
 
             await child.CreateElectronWindow();
             child.OnClosed += ViewModel.RerenderTreeCommand.Execute;
@@ -419,6 +412,16 @@ namespace TreeViewer.Window
             };
 
             Process.Start(info);
+        }
+
+        /// <summary>
+        /// バージョンウィンドウを開きます。
+        /// </summary>
+        private static async Task ShowVersionWindow()
+        {
+            VersionWindow child = VersionWindow.Instance;
+
+            await child.CreateElectronWindow();
         }
 
         #endregion Help

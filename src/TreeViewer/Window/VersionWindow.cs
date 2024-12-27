@@ -5,29 +5,20 @@ using TreeViewer.ViewModels;
 namespace TreeViewer.Window
 {
     /// <summary>
-    /// コンフィグ編集画面を表します。
+    /// バージョン表示画面を表します。
     /// </summary>
-    public class EditConfigWindow : ElectronWindow<EditConfigViewModel>
+    public class VersionWindow : ElectronWindow<VersionViewModel>
     {
         /// <summary>
         /// インスタンスを取得します。
         /// </summary>
-        public static EditConfigWindow Instance { get; } = new EditConfigWindow();
+        public static VersionWindow Instance { get; } = new VersionWindow();
 
         /// <summary>
-        /// <see cref="EditConfigWindow"/>の新しいインスタンスを初期化します。
+        /// <see cref="VersionWindow"/>の新しいインスタンスを初期化します。
         /// </summary>
-        private EditConfigWindow()
+        private VersionWindow()
         {
-        }
-
-        /// <summary>
-        /// ウィンドウが閉じられた際のコールバック
-        /// </summary>
-        public event Action OnClosed
-        {
-            add => Window.OnClosed += value;
-            remove => Window.OnClosed -= value;
         }
 
         /// <inheritdoc/>
@@ -39,17 +30,12 @@ namespace TreeViewer.Window
             {
                 Modal = true,
                 Show = false,
-                Title = "Edit Configurations",
-                Width = 360,
-                Height = 160,
-            }, CreateUrl("edit-config"));
+                Title = "Versions",
+                Width = 390,
+                Height = 180,
+                Resizable = false,
+            }, CreateUrl("versions"));
 
-            parent.OnFocus += ModalFocus;
-            result.OnClosed += () =>
-            {
-                parent.OnFocus -= ModalFocus;
-                parent.Focus();
-            };
             result.SetParentWindow(parent);
             result.SetMenu([
                 new MenuItem()
@@ -62,6 +48,11 @@ namespace TreeViewer.Window
             ]);
             result.SetMenuBarVisibility(false);
             result.Show();
+            result.OnResize += async () =>
+            {
+                int[] size = await result.GetSizeAsync();
+                await Console.Out.WriteLineAsync(string.Join(", ", size));
+            };
 
             return result;
         }

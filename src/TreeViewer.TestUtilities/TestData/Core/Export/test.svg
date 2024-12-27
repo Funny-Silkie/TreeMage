@@ -1,15 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xml="http://www.w3.org/XML/1998/namespace" width="404" height="310">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xml="http://www.w3.org/XML/1998/namespace" width="391.9238" height="347.9688">
   <g transform="translate(50, 50)" id="tree-area">
     <g id="leaves">
-      <text x="65" y="8" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">A</text>
-      <text x="245" y="38" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BAA</text>
-      <text x="185" y="68" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BAB</text>
-      <text x="215" y="98" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BBAA</text>
-      <text x="185" y="128" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BBAB</text>
-      <text x="215" y="158" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BBB</text>
-      <text x="35" y="188" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">C</text>
+      <text x="65" y="7.158203" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">A</text>
+      <text x="245" y="37.1582" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BAA</text>
+      <text x="185" y="67.1582" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BAB</text>
+      <text x="215" y="97.1582" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BBAA</text>
+      <text x="185" y="127.1582" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BBAB</text>
+      <text x="215" y="157.1582" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BBB</text>
+      <text x="35" y="187.4023" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">C</text>
     </g>
     <g id="branches">
       <line x1="0" y1="0" x2="60" y2="0" stroke-width="1" style="stroke:black;" />
@@ -35,27 +35,27 @@
       <line x1="0" y1="180" x2="0" y2="86.25" stroke-width="1" style="stroke:black;" />
     </g>
     <g id="node-values">
-      <text x="65" y="92.25" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">30/45</text>
-      <text x="95" y="51" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">20/30</text>
-      <text x="125" y="133.5" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">100/100</text>
-      <text x="155" y="111" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">85/95</text>
+      <text x="65" y="91.80542" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">30/45</text>
+      <text x="95" y="50.55542" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">20/30</text>
+      <text x="125" y="133.0518" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">100/100</text>
+      <text x="155" y="110.5518" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">85/95</text>
     </g>
     <g id="branch-values">
-      <text x="30" y="-6" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">2</text>
-      <text x="30" y="80.25" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">2</text>
-      <text x="75" y="39" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">1</text>
-      <text x="165" y="24" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">5</text>
-      <text x="135" y="54" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">3</text>
-      <text x="90" y="121.5" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">2</text>
-      <text x="135" y="99" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">1</text>
-      <text x="180" y="84" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">2</text>
-      <text x="165" y="114" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">1</text>
-      <text x="165" y="144" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">3</text>
-      <text x="15" y="174" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">1</text>
+      <text x="30" y="-5.390625" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">2</text>
+      <text x="30" y="80.85938" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">2</text>
+      <text x="75" y="39.60938" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">1</text>
+      <text x="165" y="24.61304" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">5</text>
+      <text x="135" y="54.51416" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">3</text>
+      <text x="90" y="122.1094" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">2</text>
+      <text x="135" y="99.60938" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">1</text>
+      <text x="180" y="84.60938" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">2</text>
+      <text x="165" y="114.6094" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">1</text>
+      <text x="165" y="144.5142" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">3</text>
+      <text x="15" y="174.6094" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="15" style="fill:black;">1</text>
     </g>
     <g id="branch-decorations" />
   </g>
-  <g transform="translate(50, 265)" id="scale-bar">
+  <g transform="translate(53.2959, 277.9688)" id="scale-bar">
     <text x="15" y="0" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="25">1</text>
     <line x1="0" y1="10" x2="30" y2="10" stroke-width="5" style="stroke:black;" />
   </g>

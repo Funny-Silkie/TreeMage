@@ -1,7 +1,7 @@
 ﻿using ElectronNET.API.Entities;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using System.Runtime.CompilerServices;
+using System.Reactive.Linq;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Exporting;
@@ -53,6 +53,21 @@ namespace TreeViewer.ViewModels
         /// ツリーを強制的に再描画するコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand RerenderTreeCommand { get; }
+
+        /// <summary>
+        /// rerootを行うコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<(Clade target, bool asRooted)> RerootCommand { get; }
+
+        /// <summary>
+        /// 姉妹同士の交換を行うコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<(Clade target1, Clade target2)> SwapSisterCommand { get; }
+
+        /// <summary>
+        /// サブツリーの抽出を行うコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<Clade> ExtractSubtreeCommand { get; }
 
         #region Menu
 
@@ -115,6 +130,11 @@ namespace TreeViewer.ViewModels
         public ReactivePropertySlim<int> TreeIndex { get; }
 
         /// <summary>
+        /// 編集モードのプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<TreeEditMode> EditMode { get; }
+
+        /// <summary>
         /// 選択モードを表す値のプロパティを取得します。
         /// </summary>
         public ReactivePropertySlim<SelectionMode> SelectionTarget { get; }
@@ -124,11 +144,6 @@ namespace TreeViewer.ViewModels
         #region Sidebar
 
         #region Layout
-
-        /// <summary>
-        /// リルートを行うコマンドを取得します。
-        /// </summary>
-        public AsyncReactiveCommand RerootCommand { get; }
 
         /// <summary>
         /// 並び替えを行うコマンドを取得します。
@@ -295,12 +310,30 @@ namespace TreeViewer.ViewModels
             Trees = new ReactiveCollection<Tree>().AddTo(Disposables);
             TreeIndex = new ReactivePropertySlim<int>(1).WithSubscribe(OnTreeIndexChanged)
                                                         .AddTo(Disposables);
+            EditMode = new ReactivePropertySlim<TreeEditMode>().AddTo(Disposables);
+            EditMode.Zip(EditMode.Skip(1), (x, y) => (before: x, after: y)).Subscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                EditMode.Value = arg.after;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (arg, tree) =>
+            {
+                EditMode.Value = arg.before;
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, v));
             MaxTreeIndex = new ReactivePropertySlim<int>().AddTo(Disposables);
             Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
             TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
             SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
                                                                          .AddTo(Disposables);
             RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(() => OnPropertyChanged(nameof(TargetTree))).AddTo(Disposables);
+            RerootCommand = new AsyncReactiveCommand<(Clade target, bool asRooted)>().WithSubscribe(x => Reroot(x.target, x.asRooted))
+                                                                                       .AddTo(Disposables);
+            SwapSisterCommand = new AsyncReactiveCommand<(Clade target1, Clade target2)>().WithSubscribe(x => SwapSisters(x.target1, x.target2))
+                                                                                          .AddTo(Disposables);
+            ExtractSubtreeCommand = new AsyncReactiveCommand<Clade>().WithSubscribe(ExtractSubtree)
+                                                                     .AddTo(Disposables);
 
             CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(CreateNew)
                                                          .AddTo(Disposables);
@@ -324,8 +357,6 @@ namespace TreeViewer.ViewModels
             SelectionTarget = new ReactivePropertySlim<SelectionMode>(SelectionMode.Node).WithSubscribe(OnSelectionTargetChanged)
                                                                                          .AddTo(Disposables);
 
-            RerootCommand = new AsyncReactiveCommand().WithSubscribe(Reroot)
-                                                      .AddTo(Disposables);
             OrderByBranchLengthCommand = new AsyncReactiveCommand().WithSubscribe(OrderByBranchLength)
                                                                    .AddTo(Disposables);
 
@@ -815,31 +846,42 @@ namespace TreeViewer.ViewModels
         /// <param name="id">SVG要素のID</param>
         private void OnSvgElementClicked(string id)
         {
-            switch (SelectionTarget.Value)
+            try
             {
-                case SelectionMode.Node:
+                if (EditMode.Value is TreeEditMode.Select)
+                {
+                    switch (SelectionTarget.Value)
                     {
-                        Focus(CladeIdManager.FromId(id));
-                    }
-                    break;
+                        case SelectionMode.Node:
+                            {
+                                Focus(CladeIdManager.FromId(id));
+                            }
+                            break;
 
-                case SelectionMode.Clade:
-                    {
-                        Clade target = CladeIdManager.FromId(id);
-                        Focus(target.GetDescendants().Prepend(target));
-                    }
-                    break;
+                        case SelectionMode.Clade:
+                            {
+                                Clade target = CladeIdManager.FromId(id);
+                                Focus(target.GetDescendants().Prepend(target));
+                            }
+                            break;
 
-                case SelectionMode.Taxa:
-                    {
-                        Clade target = CladeIdManager.FromId(id);
-                        if (target.IsLeaf) Focus(target);
-                        else Focus(target.GetDescendants().Where(x => x.IsLeaf));
+                        case SelectionMode.Taxa:
+                            {
+                                Clade target = CladeIdManager.FromId(id);
+                                if (target.IsLeaf) Focus(target);
+                                else Focus(target.GetDescendants().Where(x => x.IsLeaf));
+                            }
+                            break;
                     }
-                    break;
+
+                    OnPropertyChanged(nameof(FocusedSvgElementIdList));
+                }
             }
-
-            OnPropertyChanged(nameof(FocusedSvgElementIdList));
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Window.ShowErrorMessageAsync(e).Wait();
+            }
         }
 
         /// <summary>
@@ -918,34 +960,92 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// リルートを行います。
         /// </summary>
-        private void Reroot()
+        /// <param name="clade">対象クレード</param>
+        /// <param name="asRooted">Rootedな系統樹として処理するかどうかを表す値</param>
+        private void Reroot(Clade clade, bool asRooted)
         {
             Tree? tree = TargetTree.Value;
-            if (tree is null || SelectionTarget.Value != SelectionMode.Node || FocusedSvgElementIdList.Count != 1) return;
-            string focusedElement = FocusedSvgElementIdList.First();
+            if (tree is null || clade.IsLeaf || clade.Tree != tree) return;
 
-            if (!focusedElement.EndsWith("-branch")) return;
-
-            Clade clade = CladeIdManager.FromId(focusedElement);
-            if (clade.IsLeaf || clade.Tree != tree) return;
-
-            Tree rerooted = tree.Rerooted(clade);
+            Tree rerooted = tree.Rerooted(clade, asRooted);
+            int targetIndex = TreeIndex.Value - 1;
 
             OperateAsUndoable(arg =>
             {
-                UnfocusAll();
                 TargetTree.Value = arg.rerooted;
-                Trees[TreeIndex.Value - 1] = arg.rerooted;
+                Trees[arg.targetIndex] = arg.rerooted;
 
+                UnfocusAll();
                 OnPropertyChanged(nameof(TargetTree));
             }, arg =>
             {
-                UnfocusAll();
                 TargetTree.Value = arg.prev;
-                Trees[TreeIndex.Value - 1] = arg.prev;
+                Trees[arg.targetIndex] = arg.prev;
+
+                UnfocusAll();
+                OnPropertyChanged(nameof(TargetTree));
+            }, (prev: tree, rerooted, targetIndex));
+        }
+
+        /// <summary>
+        /// 姉妹の入れ替えを行います。
+        /// </summary>
+        /// <param name="target1">選択したクレード1</param>
+        /// <param name="target2">選択したクレード2</param>
+        private void SwapSisters(Clade target1, Clade target2)
+        {
+            if (target1.IsRoot || target2.IsRoot || target1 == target2) return;
+
+            OperateAsUndoable((arg, tree) =>
+            {
+                tree.SwapSisters(arg.target1, arg.target2);
 
                 OnPropertyChanged(nameof(TargetTree));
-            }, (prev: tree, rerooted));
+            }, (arg, tree) =>
+            {
+                tree.SwapSisters(arg.target1, arg.target2);
+
+                OnPropertyChanged(nameof(TargetTree));
+            }, (target1, target2));
+        }
+
+        /// <summary>
+        /// サブツリーの抽出を行います。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        private void ExtractSubtree(Clade clade)
+        {
+            if (clade.IsRoot || clade.IsLeaf) return;
+
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            var subtree = new Tree(clade.Clone(true));
+            subtree.Style.ApplyValues(tree.Style);
+
+            OperateAsUndoable((arg, tree) =>
+            {
+                Trees.InsertOnScheduler(arg.prevIndex + 1, arg.subtree);
+                OnPropertyChanged(nameof(MaxTreeIndex));
+
+                TreeIndex.Value = arg.prevIndex + 2;
+                TargetTree.Value = arg.subtree;
+                OnPropertyChanged(nameof(TargetTree));
+
+                EditMode.Value = TreeEditMode.Select;
+                OnPropertyChanged(nameof(EditMode));
+            }, (arg, tree) =>
+            {
+                Trees.RemoveAtOnScheduler(arg.prevIndex + 1);
+                OnPropertyChanged(nameof(MaxTreeIndex));
+
+                TreeIndex.Value = arg.prevIndex + 1;
+                TargetTree.Value = tree;
+                OnPropertyChanged(nameof(TargetTree));
+
+                EditMode.Value = TreeEditMode.Subtree;
+                OnPropertyChanged(nameof(EditMode));
+            }, (subtree, prevIndex: TreeIndex.Value - 1));
         }
 
         /// <summary>
@@ -1090,7 +1190,7 @@ namespace TreeViewer.ViewModels
             }
             catch (Exception e)
             {
-                await Window.ShowErrorMessage(e);
+                await Window.ShowErrorMessageAsync(e);
                 projectPath = null;
             }
         }
@@ -1126,7 +1226,7 @@ namespace TreeViewer.ViewModels
             }
             catch (Exception e)
             {
-                await Window.ShowErrorMessage(e);
+                await Window.ShowErrorMessageAsync(e);
             }
         }
 
@@ -1142,14 +1242,31 @@ namespace TreeViewer.ViewModels
             if (trees.Length == 0) return;
             for (int i = 0; i < trees.Length; i++) ApplyTreeStyle(trees[i]);
 
-            Trees.AddRangeOnScheduler(trees);
-
             if (Trees.Count == 0)
             {
+                Trees.AddRangeOnScheduler(trees);
+
                 TargetTree.Value = trees[0];
                 OnPropertyChanged(nameof(TargetTree));
             }
-            else OnPropertyChanged(nameof(MaxTreeIndex));
+            else
+                OperateAsUndoable(arg =>
+                {
+                    Trees.AddRangeOnScheduler(arg.trees);
+                    OnPropertyChanged(nameof(MaxTreeIndex));
+
+                    TargetTree.Value = trees[0];
+                    TreeIndex.Value = arg.addedAt + 1;
+                    OnPropertyChanged(nameof(TargetTree));
+                }, arg =>
+                {
+                    for (int i = arg.addedAt; i < arg.addedAt + arg.trees.Length; i++) Trees.RemoveAtOnScheduler(i);
+                    OnPropertyChanged(nameof(MaxTreeIndex));
+
+                    TargetTree.Value = Trees[arg.prevIndex];
+                    TreeIndex.Value = arg.prevIndex + 1;
+                    OnPropertyChanged(nameof(TargetTree));
+                }, (trees, addedAt: Trees.Count, prevIndex: TreeIndex.Value - 1));
         }
 
         /// <summary>

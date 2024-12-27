@@ -1,4 +1,5 @@
-﻿using TreeViewer.Core.Drawing.Styles;
+﻿using System.Diagnostics;
+using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees.Parsers;
 
 namespace TreeViewer.Core.Trees
@@ -17,6 +18,11 @@ namespace TreeViewer.Core.Trees
         /// スタイルを取得します。
         /// </summary>
         public TreeStyle Style { get; } = new TreeStyle();
+
+        /// <summary>
+        /// unrootedな樹形かどうかを表す値を取得します。
+        /// </summary>
+        public bool IsUnrooted => Root.ChildrenInternal.Count != 2;
 
         /// <summary>
         /// <see cref="Tree"/>の新しいインスタンスを初期化します。
@@ -120,25 +126,75 @@ namespace TreeViewer.Core.Trees
         /// リルートを行います。
         /// </summary>
         /// <param name="clade">リルート対象のクレード</param>
+        /// <param name="asRooted">rootedなツリーとしてリルートするかどうかを表す値</param>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
         /// <exception cref="ArgumentException"><paramref name="clade"/>がインスタンスに属していない</exception>
-        public void Reroot(Clade clade)
+        public void Reroot(Clade clade, bool asRooted)
         {
             ArgumentNullException.ThrowIfNull(clade);
             if (clade.Tree != this) throw new ArgumentException("インスタンスに属していないクレードです", nameof(clade));
             if (clade.IsLeaf) throw new ArgumentException("葉を起点にリルートはできません", nameof(clade));
 
-            if (clade.IsRoot) return;
+            if (clade.IsRoot)
+            {
+                if (asRooted == IsUnrooted) throw new ArgumentException("根を起点にリルートできません", nameof(clade));
+                return;
+            }
 
-            Clade child = CreateClade(clade);
-            child.Parent = clade;
-            clade.ChildrenInternal.Insert(0, child);
-            clade.Parent = null;
+            if (IsUnrooted)
+            {
+                if (asRooted)
+                {
+                    Clade rootChild1 = CreateClade(clade);
+                    Root.TreeInternal = null;
+                    rootChild1.BranchLength /= 2;
 
-            clade.BranchLength = double.NaN;
-            clade.Supports = null;
-            Root = clade;
+                    var rootChild2 = new Clade()
+                    {
+                        Supports = clade.Supports,
+                        Taxon = clade.Taxon,
+                        BranchLength = clade.BranchLength / 2,
+                    };
+                    rootChild2.Style.ApplyValues(clade.Style);
 
+                    Clade[] cladeChildren = clade.ChildrenInternal.ToArray();
+                    clade.ClearChildren();
+                    foreach (Clade currentCladeChild in cladeChildren) rootChild2.AddChild(currentCladeChild);
+
+                    clade.AddChild(rootChild1);
+                    clade.AddChild(rootChild2);
+                }
+                else
+                {
+                    Clade child = CreateClade(clade);
+                    Root.TreeInternal = null;
+                    child.Parent = clade;
+                    clade.ChildrenInternal.Insert(0, child);
+                }
+
+                clade.Parent = null;
+                clade.BranchLength = double.NaN;
+                clade.Supports = null;
+                Root = clade;
+                Root.TreeInternal = this;
+            }
+            else
+            {
+                // unrootedに変換してからreroot
+                Debug.Assert(Root.ChildrenInternal.Count == 2);
+
+                Root.ChildrenInternal[0].BranchLength *= 2;
+                Clade rootChild2 = Root.ChildrenInternal[1];
+                Root.RemoveChild(rootChild2);
+
+                Clade[] child2Children = [.. rootChild2.ChildrenInternal];
+                rootChild2.ClearChildren();
+                foreach (Clade currentChild in child2Children) Root.AddChild(currentChild);
+
+                Reroot(clade == rootChild2 ? Root.ChildrenInternal[0] : clade, asRooted);
+            }
+
+            // parent と sister を子要素とするクレードを生成
             static Clade CreateClade(Clade target)
             {
                 var result = new Clade()
@@ -168,10 +224,11 @@ namespace TreeViewer.Core.Trees
         /// リルートされたツリーを生成します。
         /// </summary>
         /// <param name="clade">リルート対象のクレード</param>
+        /// <param name="asRooted">rootedなツリーとしてリルートするかどうかを表す値</param>
         /// <returns>リルート後のツリー</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
         /// <exception cref="ArgumentException"><paramref name="clade"/>がインスタンスに属していない</exception>
-        public Tree Rerooted(Clade clade)
+        public Tree Rerooted(Clade clade, bool asRooted)
         {
             int[] indexes = GetIndexes(clade);
 
@@ -180,8 +237,44 @@ namespace TreeViewer.Core.Trees
             Clade nextRoot = result.Root;
             for (int i = 0; i < indexes.Length; i++) nextRoot = nextRoot.ChildrenInternal[indexes[i]];
 
-            result.Reroot(nextRoot);
+            result.Reroot(nextRoot, asRooted);
             return result;
+        }
+
+        /// <summary>
+        /// 指定した姉妹クレード同士を交換します。
+        /// </summary>
+        /// <param name="target1">入れ替えるクレード1</param>
+        /// <param name="target2">入れ替えるクレード2</param>
+        /// <exception cref="ArgumentNullException"><paramref name="target1"/>または<paramref name="target2"/>が<see langword="null"/></exception>
+        /// <exception cref="ArgumentException">
+        /// <list type="bullet">
+        /// <item><paramref name="target1"/>と<paramref name="target2"/>が同じインスタンス</item>
+        /// <item><paramref name="target1"/>または<paramref name="target2"/>がインスタンスに属していない</item>
+        /// <item><paramref name="target1"/>と<paramref name="target2"/>が姉妹でない</item>
+        /// </list>
+        /// </exception>
+        public void SwapSisters(Clade target1, Clade target2)
+        {
+            ArgumentNullException.ThrowIfNull(target1);
+            ArgumentNullException.ThrowIfNull(target2);
+            if (ReferenceEquals(target1, target2)) throw new ArgumentException("同じインスタンス同士を交換できません", nameof(target1));
+            if (target1.Tree != this) throw new ArgumentException("インスタンスに属していないクレードです", nameof(target1));
+            if (target2.Tree != this) throw new ArgumentException("インスタンスに属していないクレードです", nameof(target2));
+            if (target1.Parent != target2.Parent) throw new ArgumentException("姉妹クレードではありません", nameof(target1));
+
+            Debug.Assert(target1.Parent is not null);
+            Debug.Assert(target2.Parent is not null);
+
+            List<Clade> sisters = target1.Parent.ChildrenInternal;
+            int index1 = sisters.IndexOf(target1);
+            int index2 = sisters.IndexOf(target2);
+
+            Debug.Assert((uint)index1 < sisters.Count);
+            Debug.Assert((uint)index2 < sisters.Count);
+
+            sisters[index2] = target1;
+            sisters[index1] = target2;
         }
 
         /// <summary>

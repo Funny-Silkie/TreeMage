@@ -4,14 +4,14 @@
     "imageFile": ""
   },
   "name": "TreeViewer",
-  "author": "",
+  "author": "Funny_Silkie",
   "singleInstance": false,
   "environment": "Production",
   "build": {
     "appId": "com.TreeViewer.app",
     "productName": "TreeViewer",
-    "copyright": "Copyright © 2020",
-    "buildVersion": "1.0.0",
+    "copyright": "Copyright © 2024",
+    "buildVersion": "1.0.0-alpha",
     "compression": "maximum",
     "win": {
       "icon": "../../../Assets/icon.png"
