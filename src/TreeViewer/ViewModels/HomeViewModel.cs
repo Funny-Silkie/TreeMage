@@ -55,6 +55,11 @@ namespace TreeViewer.ViewModels
         public AsyncReactiveCommand RerenderTreeCommand { get; }
 
         /// <summary>
+        /// rerootを行うコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<(Clade target, bool asRooted)> RerootCommand { get; }
+
+        /// <summary>
         /// 姉妹同士の交換を行うコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<(Clade target1, Clade target2)> SwapSisterCommand { get; }
@@ -323,6 +328,8 @@ namespace TreeViewer.ViewModels
             SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
                                                                          .AddTo(Disposables);
             RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(() => OnPropertyChanged(nameof(TargetTree))).AddTo(Disposables);
+            RerootCommand = new AsyncReactiveCommand<(Clade target, bool asRooted)>().WithSubscribe(x => Reroot(x.target, x.asRooted))
+                                                                                       .AddTo(Disposables);
             SwapSisterCommand = new AsyncReactiveCommand<(Clade target1, Clade target2)>().WithSubscribe(x => SwapSisters(x.target1, x.target2))
                                                                                           .AddTo(Disposables);
             ExtractSubtreeCommand = new AsyncReactiveCommand<Clade>().WithSubscribe(ExtractSubtree)
@@ -841,39 +848,33 @@ namespace TreeViewer.ViewModels
         {
             try
             {
-                switch (EditMode.Value)
+                if (EditMode.Value is TreeEditMode.Select)
                 {
-                    case TreeEditMode.Select:
-                        switch (SelectionTarget.Value)
-                        {
-                            case SelectionMode.Node:
-                                {
-                                    Focus(CladeIdManager.FromId(id));
-                                }
-                                break;
+                    switch (SelectionTarget.Value)
+                    {
+                        case SelectionMode.Node:
+                            {
+                                Focus(CladeIdManager.FromId(id));
+                            }
+                            break;
 
-                            case SelectionMode.Clade:
-                                {
-                                    Clade target = CladeIdManager.FromId(id);
-                                    Focus(target.GetDescendants().Prepend(target));
-                                }
-                                break;
+                        case SelectionMode.Clade:
+                            {
+                                Clade target = CladeIdManager.FromId(id);
+                                Focus(target.GetDescendants().Prepend(target));
+                            }
+                            break;
 
-                            case SelectionMode.Taxa:
-                                {
-                                    Clade target = CladeIdManager.FromId(id);
-                                    if (target.IsLeaf) Focus(target);
-                                    else Focus(target.GetDescendants().Where(x => x.IsLeaf));
-                                }
-                                break;
-                        }
+                        case SelectionMode.Taxa:
+                            {
+                                Clade target = CladeIdManager.FromId(id);
+                                if (target.IsLeaf) Focus(target);
+                                else Focus(target.GetDescendants().Where(x => x.IsLeaf));
+                            }
+                            break;
+                    }
 
-                        OnPropertyChanged(nameof(FocusedSvgElementIdList));
-                        break;
-
-                    case TreeEditMode.Reroot:
-                        if (id.EndsWith("-node")) Reroot(CladeIdManager.FromId(id));
-                        break;
+                    OnPropertyChanged(nameof(FocusedSvgElementIdList));
                 }
             }
             catch (Exception e)
@@ -960,12 +961,13 @@ namespace TreeViewer.ViewModels
         /// リルートを行います。
         /// </summary>
         /// <param name="clade">対象クレード</param>
-        private void Reroot(Clade clade)
+        /// <param name="asRooted">Rootedな系統樹として処理するかどうかを表す値</param>
+        private void Reroot(Clade clade, bool asRooted)
         {
             Tree? tree = TargetTree.Value;
             if (tree is null || clade.IsLeaf || clade.Tree != tree) return;
 
-            Tree rerooted = tree.Rerooted(clade);
+            Tree rerooted = tree.Rerooted(clade, asRooted);
             int targetIndex = TreeIndex.Value - 1;
 
             OperateAsUndoable(arg =>

@@ -198,13 +198,22 @@
                                                     break;
                                             }
                                         }
+                                    if (ViewModel.EditMode.Value is TreeEditMode.Reroot && !current.IsRoot && !current.IsLeaf && (tree.IsUnrooted || !current.Parent.IsRoot))
+                                    {
+                                        const double size = 5;
+                                        double x = (positionManager.CalcX1(current) + positionManager.CalcX2(current)) / 2 - size;
+                                        double y = positionManager.CalcY1(current) - size;
+
+                                        <rect x="@x" y="@y" width="@(size * 2)" height="@(size * 2)" style="stroke: black; stroke-width: 2px; fill: white" onclick="@ViewModel.RerootCommand.ToDelegate((current, true))" />
+
+                                    }
                                     if (ViewModel.EditMode.Value is TreeEditMode.Subtree && !current.IsRoot && !current.IsLeaf)
                                     {
                                         const double size = 5;
                                         double x = (positionManager.CalcX1(current) + positionManager.CalcX2(current)) / 2 - size;
                                         double y = positionManager.CalcY1(current) - size;
 
-                                        <rect x="@(x)" y="@y" width="@(size * 2)" height="@(size * 2)" style="stroke: transparent; stroke-width: 2px; fill: black" onclick="@ViewModel.ExtractSubtreeCommand.ToDelegate(current)" />
+                                        <rect x="@x" y="@y" width="@(size * 2)" height="@(size * 2)" style="stroke: transparent; stroke-width: 2px; fill: black" onclick="@ViewModel.ExtractSubtreeCommand.ToDelegate(current)" />
 
                                     }
 
@@ -270,7 +279,7 @@
                                     string id = current.GetId("node");
                                     (double x, double y, double width, double height) = positionManager.CalcNodeDecorationRectangleArea(current);
 
-                                    <rect id="@id" x="@x" y="@y" width="@width" height="@height" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+                                    <rect id="@id" x="@x" y="@y" width="@width" height="@height" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.RerootCommand.ToDelegate((current, false))" />
                                 }
                                 else if (ViewModel.EditMode.Value == TreeEditMode.Swap && !current.IsRoot)
                                 {
