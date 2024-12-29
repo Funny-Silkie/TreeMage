@@ -24,6 +24,10 @@ namespace TreeViewer.Core.Trees
             root.TreeInternal = null;
         }
 
+        /// <summary>
+        /// ダミーツリーの全てのクレードを取得します。
+        /// </summary>
+        /// <returns>ダミーツリーの全てのクレード</returns>
         private Clade[] GetAllClades() => [root, leafA, cladeB, cladeBA, leafBAA, leafBAB, cladeBB, cladeBBA, leafBBAA, leafBBAB, leafBBB, leafC];
 
         #region Ctors

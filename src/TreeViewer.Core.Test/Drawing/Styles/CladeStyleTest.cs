@@ -1,4 +1,4 @@
-﻿using TreeViewer.TestUtilities.Assertions;
+using TreeViewer.TestUtilities.Assertions;
 
 namespace TreeViewer.Core.Drawing.Styles
 {
@@ -22,6 +22,7 @@ namespace TreeViewer.Core.Drawing.Styles
             {
                 Assert.Equal("black", style.BranchColor);
                 Assert.Equal("black", style.LeafColor);
+                Assert.False(style.Collapsed);
             });
         }
 
@@ -42,12 +43,14 @@ namespace TreeViewer.Core.Drawing.Styles
             {
                 BranchColor = "white",
                 LeafColor = "none",
+                Collapsed = true,
             });
 
             Assert.Multiple(() =>
             {
                 Assert.Equal("white", style.BranchColor);
                 Assert.Equal("none", style.LeafColor);
+                Assert.True(style.Collapsed);
             });
         }
 
@@ -56,6 +59,7 @@ namespace TreeViewer.Core.Drawing.Styles
         {
             style.BranchColor = "red";
             style.LeafColor = "blue";
+            style.Collapsed = true;
 
             CladeStyle cloned = style.Clone();
 
@@ -67,6 +71,7 @@ namespace TreeViewer.Core.Drawing.Styles
         {
             style.BranchColor = "red";
             style.LeafColor = "blue";
+            style.Collapsed = true;
 
             var cloned = (CladeStyle)((ICloneable)style).Clone();
 

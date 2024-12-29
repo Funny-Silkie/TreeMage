@@ -43,6 +43,8 @@ namespace TreeViewer.Core.Drawing.Styles
                 Assert.Equal(0.1, options.ScaleBarValue);
                 Assert.Equal(25, options.ScaleBarFontSize);
                 Assert.Equal(5, options.ScaleBarThickness);
+                Assert.Equal(CladeCollapseType.TopMax, options.CollapseType);
+                Assert.Equal(1, options.CollapsedConstantWidth);
             });
         }
 
@@ -132,6 +134,8 @@ namespace TreeViewer.Core.Drawing.Styles
                 ScaleBarValue = 3,
                 ScaleBarFontSize = 50,
                 ScaleBarThickness = 10,
+                CollapseType = CladeCollapseType.Constant,
+                CollapsedConstantWidth = 2,
             };
             style.ApplyValues(applied);
 
@@ -166,6 +170,8 @@ namespace TreeViewer.Core.Drawing.Styles
             style.ScaleBarValue = 3;
             style.ScaleBarFontSize = 50;
             style.ScaleBarThickness = 10;
+            style.CollapseType = CladeCollapseType.Constant;
+            style.CollapsedConstantWidth = 2;
 
             TreeStyle cloned = style.Clone();
 
@@ -200,6 +206,8 @@ namespace TreeViewer.Core.Drawing.Styles
             style.ScaleBarValue = 3;
             style.ScaleBarFontSize = 50;
             style.ScaleBarThickness = 10;
+            style.CollapseType = CladeCollapseType.Constant;
+            style.CollapsedConstantWidth = 2;
 
             var cloned = (TreeStyle)((ICloneable)style).Clone();
 

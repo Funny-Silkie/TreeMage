@@ -1,4 +1,4 @@
-﻿namespace TreeViewer.Core.Drawing.Styles
+namespace TreeViewer.Core.Drawing.Styles
 {
     /// <summary>
     /// クレードのスタイルを表します。
@@ -14,6 +14,11 @@
         /// 葉の文字色を取得または設定します。
         /// </summary>
         public string LeafColor { get; set; }
+
+        /// <summary>
+        /// 折りたたまれているか否かを表す値を取得または設定します。
+        /// </summary>
+        public bool Collapsed { get; set; }
 
         /// <summary>
         /// <see cref="CladeStyle"/>の新しいインスタンスを初期化します。
@@ -35,6 +40,7 @@
 
             BranchColor = style.BranchColor;
             LeafColor = style.LeafColor;
+            Collapsed = style.Collapsed;
         }
 
         /// <summary>
@@ -45,6 +51,7 @@
         {
             BranchColor = BranchColor,
             LeafColor = LeafColor,
+            Collapsed = Collapsed,
         };
 
         object ICloneable.Clone() => Clone();

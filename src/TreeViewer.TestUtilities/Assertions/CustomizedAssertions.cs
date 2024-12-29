@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 using Xunit.Sdk;
@@ -151,6 +151,8 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.ScaleBarValue, actual.ScaleBarValue);
                 Assert.Equal(expected.ScaleBarFontSize, actual.ScaleBarFontSize);
                 Assert.Equal(expected.ScaleBarThickness, actual.ScaleBarThickness);
+                Assert.Equal(expected.CollapseType, actual.CollapseType);
+                Assert.Equal(expected.CollapsedConstantWidth, actual.CollapsedConstantWidth);
             });
             for (int i = 0; i < expected.DecorationStyles.Length; i++) Equal(expected.DecorationStyles[i], actual.DecorationStyles[i]);
         }
@@ -167,6 +169,7 @@ namespace TreeViewer.TestUtilities.Assertions
             {
                 Assert.Equal(expected.BranchColor, actual.BranchColor);
                 Assert.Equal(expected.LeafColor, actual.LeafColor);
+                Assert.Equal(expected.Collapsed, actual.Collapsed);
             });
         }
 

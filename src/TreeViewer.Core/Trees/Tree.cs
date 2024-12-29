@@ -157,7 +157,7 @@ namespace TreeViewer.Core.Trees
                     };
                     rootChild2.Style.ApplyValues(clade.Style);
 
-                    Clade[] cladeChildren = clade.ChildrenInternal.ToArray();
+                    Clade[] cladeChildren = [.. clade.ChildrenInternal];
                     clade.ClearChildren();
                     foreach (Clade currentCladeChild in cladeChildren) rootChild2.AddChild(currentCladeChild);
 
