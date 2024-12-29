@@ -1,5 +1,15 @@
 ﻿@inherits LayoutComponentBase
 
-@Body
+<ErrorBoundary>
+    <ChildContent>
+        @Body
+    </ChildContent>
+    <ErrorContent>
+        @{
+            Console.WriteLine(context.ToString());
+            Window.MainWindow.Instance.ShowErrorMessageAsync(context).Wait();
+        }
+    </ErrorContent>
+</ErrorBoundary>
 
 <RadzenComponents @rendermode="InteractiveServer" />
