@@ -54,6 +54,62 @@ namespace TreeViewer.Core.Drawing
             Assert.Equal([leafA, leafBAA, leafBAB, cladeBB, leafC], clades);
         }
 
+        [Fact]
+        public void GetIsHidden_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => DrawingExtensions.GetIsHidden(null!));
+        }
+
+        [Fact]
+        public void GetIsHidden_AsPositive()
+        {
+            cladeBB.Style.Collapsed = true;
+
+            Assert.Multiple(() =>
+            {
+                Assert.False(root.GetIsHidden());
+                Assert.False(leafA.GetIsHidden());
+                Assert.False(cladeB.GetIsHidden());
+                Assert.False(cladeBA.GetIsHidden());
+                Assert.False(leafBAA.GetIsHidden());
+                Assert.False(leafBAB.GetIsHidden());
+                Assert.False(cladeBB.GetIsHidden());
+                Assert.True(cladeBBA.GetIsHidden());
+                Assert.True(leafBBAA.GetIsHidden());
+                Assert.True(leafBBAB.GetIsHidden());
+                Assert.True(leafBBB.GetIsHidden());
+                Assert.False(leafC.GetIsHidden());
+            });
+        }
+
+        [Fact]
+        public void GetIsExternal_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => DrawingExtensions.GetIsExternal(null!));
+        }
+
+        [Fact]
+        public void GetIsExternal_AsPositive()
+        {
+            cladeBB.Style.Collapsed = true;
+
+            Assert.Multiple(() =>
+            {
+                Assert.False(root.GetIsExternal());
+                Assert.True(leafA.GetIsExternal());
+                Assert.False(cladeB.GetIsExternal());
+                Assert.False(cladeBA.GetIsExternal());
+                Assert.True(leafBAA.GetIsExternal());
+                Assert.True(leafBAB.GetIsExternal());
+                Assert.True(cladeBB.GetIsExternal());
+                Assert.False(cladeBBA.GetIsExternal());
+                Assert.True(leafBBAA.GetIsExternal());
+                Assert.True(leafBBAB.GetIsExternal());
+                Assert.True(leafBBB.GetIsExternal());
+                Assert.True(leafC.GetIsExternal());
+            });
+        }
+
         #endregion Static Methods
     }
 }

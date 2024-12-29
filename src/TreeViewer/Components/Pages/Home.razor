@@ -48,7 +48,6 @@
                     Configurations config = Configurations.LoadOrCreate();
 
                     Tree tree = ViewModel.TargetTree.Value;
-                    ViewModel.ApplyTreeStyle(tree);
                     positionManager.Reset(tree);
 
                     (double svgWidth, double svgHeight) = positionManager.CalcDocumentSize();
@@ -76,6 +75,11 @@
                                 stroke-width: @(ViewModel.BranchThickness.Value + "px");
                             }
 
+                            .collapsed-rectangle {
+                                fill: none;
+                                stroke-width: @(ViewModel.BranchThickness.Value + "px");
+                            }
+
                             .scalebar-line {
                                 fill: none;
                                 stroke: black;
@@ -98,6 +102,57 @@
                         <g transform="translate(50, 50)">
                             @foreach (Clade current in tree.GetAllClades())
                             {
+                                if (current.GetIsHidden()) continue;
+
+                                // 折り畳み
+                                if (current.GetIsExternal() && !current.IsLeaf)
+                                {
+                                    double xRightTop, xRightBottom;
+                                    switch (tree.Style.CollapseType)
+                                    {
+                                        case CladeCollapseType.TopMax:
+                                        case CladeCollapseType.BottomMax:
+                                        case CladeCollapseType.AllMax:
+                                            double maxLength = current.GetDescendants().Where(x => x.IsLeaf).Max(positionManager.CalcTotalBranchLength);
+                                            switch (tree.Style.CollapseType)
+                                            {
+                                                case CladeCollapseType.TopMax:
+                                                    xRightTop = maxLength;
+                                                    xRightBottom = current.GetDescendants().Where(x => x.IsLeaf).Min(positionManager.CalcTotalBranchLength);
+                                                    break;
+
+                                                case CladeCollapseType.BottomMax:
+                                                    xRightTop = current.GetDescendants().Where(x => x.IsLeaf).Min(positionManager.CalcTotalBranchLength);
+                                                    xRightBottom = maxLength;
+                                                    break;
+
+                                                case CladeCollapseType.AllMax:
+                                                    xRightTop = xRightBottom = maxLength;
+                                                    break;
+
+                                                default: throw new InvalidOperationException();
+                                            }
+
+                                            double totalLength = positionManager.CalcTotalBranchLength(current);
+                                            xRightTop -= totalLength;
+                                            xRightBottom -= totalLength;
+                                            break;
+
+                                        default:
+                                            xRightTop = xRightBottom = tree.Style.CollapsedConstantWidth;
+                                            break;
+                                    }
+
+                                    (double xLeft, double y, _, _) = positionManager.CalcLeafPosition(current);
+                                    xRightTop = xRightTop * tree.Style.XScale + xLeft;
+                                    xRightBottom = xRightBottom * tree.Style.XScale + xLeft;
+
+                                    <path class="collapsed-rectangle" d="M @xLeft @y
+                                                                         L @xRightTop @(y - tree.Style.YScale / 2)
+                                                                         L @xRightBottom @(y + tree.Style.YScale / 2)
+                                                                         L @xLeft @y" stroke="@current.Style.BranchColor" />
+                                }
+
                                 if (current.IsLeaf)
                                 {
                                     // 系統名

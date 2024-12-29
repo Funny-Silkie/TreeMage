@@ -17,7 +17,7 @@ namespace TreeViewer.Core.Drawing
         //      x1  x2
 
         private readonly Dictionary<Clade, PositionInfo> positions = [];
-        private Clade[] allLeaves;
+        private Clade[] allExternalNodes;
         private readonly Dictionary<Clade, int> indexTable;
         private TreeStyle treeStyle;
 
@@ -26,7 +26,7 @@ namespace TreeViewer.Core.Drawing
         /// </summary>
         public PositionManager()
         {
-            allLeaves = [];
+            allExternalNodes = [];
             indexTable = [];
             treeStyle = new TreeStyle();
         }
@@ -40,11 +40,11 @@ namespace TreeViewer.Core.Drawing
         {
             ArgumentNullException.ThrowIfNull(tree);
 
-            allLeaves = tree.GetAllLeaves().ToArray();
+            allExternalNodes = tree.GetAllExternalNodes()
+                                   .ToArray();
             treeStyle = tree.Style;
-            indexTable = tree.GetAllLeaves()
-                             .Select((x, i) => (x, i))
-                             .ToDictionary();
+            indexTable = allExternalNodes.Select((x, i) => (x, i))
+                                         .ToDictionary();
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace TreeViewer.Core.Drawing
         /// <returns><paramref name="clade"/>のY座標1</returns>
         private double CalcY1Core(Clade clade)
         {
-            if (clade.IsLeaf) return indexTable[clade] * treeStyle.YScale;
+            if (clade.GetIsExternal()) return indexTable[clade] * treeStyle.YScale;
             if (clade.Children.Count == 1) return CalcY2(clade.Children[0]);
             return (CalcY2(clade.Children[0]) + CalcY2(clade.Children[^1])) / 2;
         }
@@ -219,10 +219,10 @@ namespace TreeViewer.Core.Drawing
         /// <returns>ドキュメントのサイズ</returns>
         public (double width, double height) CalcDocumentSize()
         {
-            double width = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * treeStyle.XScale + 100;
-            if (treeStyle.ShowLeafLabels) width += allLeaves.Select(x => CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize).width).Max();
+            double width = allExternalNodes.Select(x => x.GetTotalBranchLength()).Max() * treeStyle.XScale + 100;
+            if (treeStyle.ShowLeafLabels) width += allExternalNodes.Select(x => CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize).width).Max();
 
-            double height = allLeaves.Length * treeStyle.YScale + 100;
+            double height = allExternalNodes.Length * treeStyle.YScale + 100;
             if (treeStyle.ShowScaleBar) height += CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize).height + 20;
 
             return (width, height);
@@ -422,8 +422,9 @@ namespace TreeViewer.Core.Drawing
             indexTable.Clear();
 
             treeStyle = tree.Style;
-            allLeaves = tree.GetAllLeaves().ToArray();
-            foreach ((int index, Clade clade) in tree.GetAllLeaves().Index()) indexTable.Add(clade, index);
+            allExternalNodes = tree.GetAllExternalNodes()
+                                   .ToArray();
+            for (int i = 0; i < allExternalNodes.Length; i++) indexTable.Add(allExternalNodes[i], i);
         }
 
         internal sealed class PositionInfo

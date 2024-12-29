@@ -4,6 +4,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using TreeViewer.Core.Drawing;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Exporting;
 using TreeViewer.Core.ProjectData;
@@ -145,6 +146,22 @@ namespace TreeViewer.ViewModels
         #region Sidebar
 
         #region Layout
+
+        /// <summary>
+        /// 折り畳みのタイプのプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<CladeCollapseType> CollapseType { get; }
+
+        /// <summary>
+        /// 折りたたまれた三角形の幅のプロパティを取得します。
+        /// </summary>
+        /// <remarks><see cref="CollapseType"/>が<see cref="CladeCollapseType.Constant"/>の際に使用される</remarks>
+        public ReactivePropertySlim<double> CollapsedConstantWidth { get; }
+
+        /// <summary>
+        /// 折り畳み処理のコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand CollapseCommand { get; }
 
         /// <summary>
         /// 並び替えを行うコマンドを取得します。
@@ -358,6 +375,34 @@ namespace TreeViewer.ViewModels
             SelectionTarget = new ReactivePropertySlim<SelectionMode>(SelectionMode.Node).WithSubscribe(OnSelectionTargetChanged)
                                                                                          .AddTo(Disposables);
 
+            CollapseType = new ReactivePropertySlim<CladeCollapseType>(CladeCollapseType.TopMax).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.CollapseType = arg.after;
+                CollapseType!.Value = arg.after;
+
+                RequestRerenderTree();
+            }, (arg, tree) =>
+            {
+                tree.Style.CollapseType = arg.before;
+                CollapseType!.Value = arg.before;
+
+                RequestRerenderTree();
+            }, (before: TargetTree.Value?.Style?.CollapseType ?? CladeCollapseType.TopMax, after: v))).AddTo(Disposables);
+            CollapsedConstantWidth = new ReactivePropertySlim<double>(1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.CollapsedConstantWidth = arg.after;
+                CollapsedConstantWidth!.Value = arg.after;
+
+                RequestRerenderTree();
+            }, (arg, tree) =>
+            {
+                tree.Style.CollapsedConstantWidth = arg.before;
+                CollapsedConstantWidth!.Value = arg.before;
+
+                RequestRerenderTree();
+            }, (before: TargetTree.Value?.Style?.CollapsedConstantWidth ?? 1, after: v))).AddTo(Disposables);
+            CollapseCommand = new AsyncReactiveCommand().WithSubscribe(CollapseClade)
+                                                        .AddTo(Disposables);
             OrderByBranchLengthCommand = new AsyncReactiveCommand().WithSubscribe(OrderByBranchLength)
                                                                    .AddTo(Disposables);
 
@@ -773,6 +818,8 @@ namespace TreeViewer.ViewModels
             tree.Style.ScaleBarValue = ScaleBarValue.Value;
             tree.Style.ScaleBarFontSize = ScaleBarFontSize.Value;
             tree.Style.ScaleBarThickness = ScaleBarThickness.Value;
+            tree.Style.CollapseType = CollapseType.Value;
+            tree.Style.CollapsedConstantWidth = CollapsedConstantWidth.Value;
         }
 
         /// <summary>
@@ -800,6 +847,8 @@ namespace TreeViewer.ViewModels
             ScaleBarValue.Value = tree.Style.ScaleBarValue;
             ScaleBarFontSize.Value = tree.Style.ScaleBarFontSize;
             ScaleBarThickness.Value = tree.Style.ScaleBarThickness;
+            CollapseType.Value = tree.Style.CollapseType;
+            CollapsedConstantWidth.Value = tree.Style.CollapsedConstantWidth;
         }
 
         /// <summary>
@@ -978,6 +1027,7 @@ namespace TreeViewer.ViewModels
             if (tree is null || clade.IsLeaf || clade.Tree != tree) return;
 
             Tree rerooted = tree.Rerooted(clade, asRooted);
+            ApplyTreeStyle(rerooted);
             int targetIndex = TreeIndex.Value - 1;
 
             OperateAsUndoable(arg =>
@@ -1031,7 +1081,7 @@ namespace TreeViewer.ViewModels
             if (tree is null) return;
 
             var subtree = new Tree(clade.Clone(true));
-            subtree.Style.ApplyValues(tree.Style);
+            ApplyTreeStyle(tree);
 
             OperateAsUndoable((arg, tree) =>
             {
@@ -1059,6 +1109,42 @@ namespace TreeViewer.ViewModels
         }
 
         /// <summary>
+        /// 折り畳みを行います。
+        /// </summary>
+        private void CollapseClade()
+        {
+            if (FocusedSvgElementIdList.Count != 1 || SelectionTarget.Value is not SelectionMode.Node) return;
+
+            try
+            {
+                string id = FocusedSvgElementIdList.First();
+                if (!id.EndsWith("-branch")) return;
+
+                Clade clade = CladeIdManager.FromId(id);
+                if (clade.IsLeaf || clade.IsRoot) return;
+
+                bool prevValue = clade.Style.Collapsed;
+
+                OperateAsUndoable((arg, tree) =>
+                {
+                    arg.clade.Style.Collapsed = !prevValue;
+
+                    RequestRerenderTree();
+                }, (arg, tree) =>
+                {
+                    arg.clade.Style.Collapsed = prevValue;
+
+                    RequestRerenderTree();
+                }, (clade, prevValue));
+            }
+            catch (Exception e)
+            {
+                Window.ShowErrorMessageAsync(e).Wait();
+                Console.WriteLine(e);
+            }
+        }
+
+        /// <summary>
         /// 枝長で並び替えます。
         /// </summary>
         private void OrderByBranchLength()
@@ -1066,8 +1152,9 @@ namespace TreeViewer.ViewModels
             Tree? tree = TargetTree.Value;
             if (tree is null) return;
 
-            Tree cloned = tree.Clone();
-            cloned.OrderByLength();
+            Tree oredered = tree.Clone();
+            oredered.OrderByLength();
+            ApplyTreeStyle(oredered);
 
             int targetIndex = TreeIndex.Value - 1;
 
@@ -1085,7 +1172,7 @@ namespace TreeViewer.ViewModels
 
                 UnfocusAll();
                 RequestRerenderTree();
-            }, (prev: tree, next: cloned, targetIndex));
+            }, (prev: tree, next: oredered, targetIndex));
         }
 
         /// <summary>

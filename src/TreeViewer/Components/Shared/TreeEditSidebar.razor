@@ -9,6 +9,20 @@
                 <RadzenText TextStyle="TextStyle.H6">Layout</RadzenText>
             </HeaderTemplate>
             <ChildContent>
+                <RadzenStack Orientation="Orientation.Vertical">
+                    <RadzenButton Text="Collapse" Click="ViewModel.CollapseCommand.ToDelegate()" />
+                    <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                        <RadzenText>Collapse type:</RadzenText>
+                        <RadzenDropDown TValue="CladeCollapseType" Data="Enum.GetValues<CladeCollapseType>()" @bind-Value="ViewModel.CollapseType.Value" Style="@sidebarFormValueStyle" />
+                    </RadzenRow>
+                    @if (ViewModel.CollapseType.Value is CladeCollapseType.Constant)
+                    {
+                        <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                            <RadzenText>Width:</RadzenText>
+                            <RadzenNumeric TValue="double" Min="0" @bind-Value="ViewModel.CollapsedConstantWidth.Value" Step="0.1" Style="@sidebarFormValueStyle" />
+                        </RadzenRow>
+                    }
+                </RadzenStack>
             </ChildContent>
         </RadzenPanel>
         @* Tree *@
