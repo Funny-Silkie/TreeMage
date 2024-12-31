@@ -107,50 +107,12 @@
                                 // 折り畳み
                                 if (current.GetIsExternal() && !current.IsLeaf)
                                 {
-                                    double xRightTop, xRightBottom;
-                                    switch (tree.Style.CollapseType)
-                                    {
-                                        case CladeCollapseType.TopMax:
-                                        case CladeCollapseType.BottomMax:
-                                        case CladeCollapseType.AllMax:
-                                            double maxLength = current.GetDescendants().Where(x => x.IsLeaf).Max(positionManager.CalcTotalBranchLength);
-                                            switch (tree.Style.CollapseType)
-                                            {
-                                                case CladeCollapseType.TopMax:
-                                                    xRightTop = maxLength;
-                                                    xRightBottom = current.GetDescendants().Where(x => x.IsLeaf).Min(positionManager.CalcTotalBranchLength);
-                                                    break;
+                                    var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);
 
-                                                case CladeCollapseType.BottomMax:
-                                                    xRightTop = current.GetDescendants().Where(x => x.IsLeaf).Min(positionManager.CalcTotalBranchLength);
-                                                    xRightBottom = maxLength;
-                                                    break;
-
-                                                case CladeCollapseType.AllMax:
-                                                    xRightTop = xRightBottom = maxLength;
-                                                    break;
-
-                                                default: throw new InvalidOperationException();
-                                            }
-
-                                            double totalLength = positionManager.CalcTotalBranchLength(current);
-                                            xRightTop -= totalLength;
-                                            xRightBottom -= totalLength;
-                                            break;
-
-                                        default:
-                                            xRightTop = xRightBottom = tree.Style.CollapsedConstantWidth;
-                                            break;
-                                    }
-
-                                    (double xLeft, double y, _, _) = positionManager.CalcLeafPosition(current);
-                                    xRightTop = xRightTop * tree.Style.XScale + xLeft;
-                                    xRightBottom = xRightBottom * tree.Style.XScale + xLeft;
-
-                                    <path class="collapsed-rectangle" d="M @xLeft @y
-                                                                         L @xRightTop @(y - tree.Style.YScale / 2)
-                                                                         L @xRightBottom @(y + tree.Style.YScale / 2)
-                                                                         L @xLeft @y" stroke="@current.Style.BranchColor" />
+                                    <path class="collapsed-rectangle" d="M @left.x @left.y
+                                                                         L @rightTop.x @rightTop.y
+                                                                         L @rightBottom.x @rightBottom.y
+                                                                         L @left.x @left.y" stroke="@current.Style.BranchColor" />
                                 }
 
                                 if (current.IsLeaf)
@@ -178,7 +140,7 @@
                                 else
                                 {
                                     // 結節点の値
-                                    @if (ViewModel.ShowNodeValues.Value)
+                                    @if (ViewModel.ShowNodeValues.Value && !current.GetIsExternal())
                                     {
                                         string nodeValue = SelectShowValue(current, ViewModel.NodeValueType.Value);
                                         if (nodeValue.Length > 0)

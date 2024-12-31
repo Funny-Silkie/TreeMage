@@ -1,4 +1,5 @@
 ﻿using Svg;
+using Svg.Pathing;
 using Svg.Transforms;
 using System.Drawing;
 using TreeViewer.Core.Drawing;
@@ -77,6 +78,25 @@ namespace TreeViewer.Core.Exporting
 
             foreach (Clade current in tree.GetAllClades())
             {
+                if (current.GetIsHidden()) continue;
+
+                if (current.GetIsExternal() && !current.IsLeaf)
+                {
+                    var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);
+
+                    var triangle = new SvgPath()
+                    {
+                        Fill = SvgPaintServer.None,
+                        Stroke = DrawHelpers.CreateSvgColor(current.Style.BranchColor),
+                        StrokeWidth = tree.Style.BranchThickness,
+                        PathData = new SvgPathSegmentList().MoveToAbsolutely((float)left.x, (float)left.y)
+                                                           .DrawLineAbsolutely((float)rightTop.x, (float)rightTop.y)
+                                                           .DrawLineAbsolutely((float)rightBottom.x, (float)rightBottom.y)
+                                                           .DrawLineAbsolutely((float)left.x, (float)left.y),
+                    };
+                    triangle.AddTo(leavesGroup);
+                }
+
                 if (current.IsLeaf)
                 {
                     // 系統名
@@ -98,7 +118,7 @@ namespace TreeViewer.Core.Exporting
                 else
                 {
                     // 結節点の値
-                    if (tree.Style.ShowNodeValues)
+                    if (tree.Style.ShowNodeValues && !current.GetIsExternal())
                     {
                         string nodeValue = DrawHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                         if (nodeValue.Length > 0)

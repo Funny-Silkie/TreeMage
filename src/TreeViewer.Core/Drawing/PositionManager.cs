@@ -229,6 +229,59 @@ namespace TreeViewer.Core.Drawing
         }
 
         /// <summary>
+        /// 折り畳みの三角形の座標を算出します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <returns>三角形の三点の座標</returns>
+        public ((double x, double y) left, (double x, double y) rightTop, (double x, double y) rightBottom) CalcCollapseTrianglePositions(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            double xRightTop, xRightBottom;
+            switch (treeStyle.CollapseType)
+            {
+                case CladeCollapseType.TopMax:
+                case CladeCollapseType.BottomMax:
+                case CladeCollapseType.AllMax:
+                    double maxLength = clade.GetDescendants().Where(x => x.IsLeaf).Max(CalcTotalBranchLength);
+                    switch (treeStyle.CollapseType)
+                    {
+                        case CladeCollapseType.TopMax:
+                            xRightTop = maxLength;
+                            xRightBottom = clade.GetDescendants().Where(x => x.IsLeaf).Min(CalcTotalBranchLength);
+                            break;
+
+                        case CladeCollapseType.BottomMax:
+                            xRightTop = clade.GetDescendants().Where(x => x.IsLeaf).Min(CalcTotalBranchLength);
+                            xRightBottom = maxLength;
+                            break;
+
+                        case CladeCollapseType.AllMax:
+                            xRightTop = xRightBottom = maxLength;
+                            break;
+
+                        default: throw new InvalidOperationException();
+                    }
+
+                    double totalLength = CalcTotalBranchLength(clade);
+                    xRightTop -= totalLength;
+                    xRightBottom -= totalLength;
+                    break;
+
+                default:
+                    xRightTop = xRightBottom = treeStyle.CollapsedConstantWidth;
+                    break;
+            }
+
+            (double xLeft, double y, _, _) = CalcLeafPosition(clade);
+            xRightTop = xRightTop * treeStyle.XScale + xLeft;
+            xRightBottom = xRightBottom * treeStyle.XScale + xLeft;
+            double yOffset = treeStyle.YScale / 2d;
+
+            return ((xLeft, y), (xRightTop, y - yOffset), (xRightBottom, y + yOffset));
+        }
+
+        /// <summary>
         /// 葉の座標を算出します。
         /// </summary>
         /// <param name="clade">計算対象</param>

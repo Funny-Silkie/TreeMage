@@ -63,6 +63,21 @@ namespace TreeViewer.Core.Exporting
 
                 foreach (Clade current in tree.GetAllClades())
                 {
+                    if (current.GetIsHidden()) continue;
+
+                    if (current.GetIsExternal() && !current.IsLeaf)
+                    {
+                        var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);
+
+                        var path = new XGraphicsPath();
+                        path.AddLine(left.x, left.y, rightTop.x, rightTop.y);
+                        path.AddLine(rightTop.x, rightTop.y, rightBottom.x, rightBottom.y);
+                        path.AddLine(left.x, left.y, rightBottom.x, rightBottom.y);
+                        graphics.DrawPath(DrawHelpers.CreatePdfColor(current.Style.BranchColor).ToPen(tree.Style.BranchThickness),
+                                          XBrushes.Transparent,
+                                          path);
+                    }
+
                     if (current.IsLeaf)
                     {
                         // 系統名
@@ -79,7 +94,7 @@ namespace TreeViewer.Core.Exporting
                     else
                     {
                         // 結節点の値
-                        if (tree.Style.ShowNodeValues)
+                        if (tree.Style.ShowNodeValues && !current.GetIsExternal())
                         {
                             string nodeValue = DrawHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                             if (nodeValue.Length > 0)
