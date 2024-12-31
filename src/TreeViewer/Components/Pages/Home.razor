@@ -166,7 +166,7 @@
                                         // クリックエリア
                                         if (ViewModel.EditMode.Value == TreeEditMode.Select)
                                         {
-                                            string id = current.GetId("leaf");
+                                            CladeId id = current.GetId(CladeIdSuffix.Leaf);
                                             string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
                                             const int margin = 3;
 
@@ -319,7 +319,7 @@
                                         if (x1 != x2) path += $"H {x1}";
                                         if (y1 != y2) path += $"V {y2}";
 
-                                        string id = current.GetId("branch");
+                                        CladeId id = current.GetId(CladeIdSuffix.Branch);
                                         string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
 
                                         <path id="@id" class="clickable-branch" d="@path"
@@ -331,14 +331,14 @@
                                 // 結節点クリックエリア
                                 if (ViewModel.EditMode.Value == TreeEditMode.Reroot && !current.IsLeaf && !current.IsRoot)
                                 {
-                                    string id = current.GetId("node");
+                                    CladeId id = current.GetId(CladeIdSuffix.Node);
                                     (double x, double y, double width, double height) = positionManager.CalcNodeDecorationRectangleArea(current);
 
                                     <rect id="@id" x="@x" y="@y" width="@width" height="@height" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.RerootCommand.ToDelegate((current, false))" />
                                 }
                                 else if (ViewModel.EditMode.Value == TreeEditMode.Swap && !current.IsRoot)
                                 {
-                                    string id = current.GetId();
+                                    CladeId id = current.GetId(CladeIdSuffix.Node);
                                     int index = current.Parent.Children.IndexOf(current);
 
                                     if (index < current.Parent.Children.Count - 1)

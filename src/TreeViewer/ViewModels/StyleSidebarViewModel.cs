@@ -66,12 +66,12 @@ namespace TreeViewer.ViewModels
 
                 List<string> colors = homeViewModel.SelectionTarget.Value switch
                 {
-                    SelectionMode.Node or SelectionMode.Clade => homeViewModel.FocusedSvgElementIdList.Select(x => CladeIdManager.FromId(x).Style.BranchColor)
+                    SelectionMode.Node or SelectionMode.Clade => homeViewModel.FocusedSvgElementIdList.Select(x => x.Clade.Style.BranchColor)
                                                                                                       .Distinct()
                                                                                                       .ToList(),
-                    SelectionMode.Taxa => homeViewModel.FocusedSvgElementIdList.Select(x => CladeIdManager.FromId(x).Style.LeafColor)
-                                                                                                          .Distinct()
-                                                                                                          .ToList(),
+                    SelectionMode.Taxa => homeViewModel.FocusedSvgElementIdList.Select(x => x.Clade.Style.LeafColor)
+                                                                               .Distinct()
+                                                                               .ToList(),
                     _ => ["black"],
                 };
                 Color.Value = colors.Count == 1 ? colors[0] : null;

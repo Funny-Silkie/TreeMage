@@ -49,7 +49,7 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// SVG要素のクリック時に実行されるコマンドを取得します。
         /// </summary>
-        public AsyncReactiveCommand<string> SvgElementClickedCommand { get; }
+        public AsyncReactiveCommand<CladeId> SvgElementClickedCommand { get; }
 
         /// <summary>
         /// ツリーを強制的に再描画するコマンドを取得します。
@@ -110,7 +110,7 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// 選択されているSVG要素のID一覧を取得します。
         /// </summary>
-        public HashSet<string> FocusedSvgElementIdList { get; }
+        public HashSet<CladeId> FocusedSvgElementIdList { get; }
 
         /// <summary>
         /// 全てを選択するコマンドを取得します。
@@ -343,11 +343,11 @@ namespace TreeViewer.ViewModels
             MaxTreeIndex = new ReactivePropertySlim<int>().AddTo(Disposables);
             Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
             TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
-            SvgElementClickedCommand = new AsyncReactiveCommand<string>().WithSubscribe(OnSvgElementClicked)
-                                                                         .AddTo(Disposables);
+            SvgElementClickedCommand = new AsyncReactiveCommand<CladeId>().WithSubscribe(OnSvgElementClicked)
+                                                                          .AddTo(Disposables);
             RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(RequestRerenderTree).AddTo(Disposables);
             RerootCommand = new AsyncReactiveCommand<(Clade target, bool asRooted)>().WithSubscribe(x => Reroot(x.target, x.asRooted))
-                                                                                       .AddTo(Disposables);
+                                                                                     .AddTo(Disposables);
             SwapSisterCommand = new AsyncReactiveCommand<(Clade target1, Clade target2)>().WithSubscribe(x => SwapSisters(x.target1, x.target2))
                                                                                           .AddTo(Disposables);
             ExtractSubtreeCommand = new AsyncReactiveCommand<Clade>().WithSubscribe(ExtractSubtree)
@@ -366,7 +366,7 @@ namespace TreeViewer.ViewModels
             RedoCommand = new AsyncReactiveCommand().WithSubscribe(undoService.Redo)
                                                     .AddTo(Disposables);
 
-            FocusedSvgElementIdList = new HashSet<string>(StringComparer.Ordinal);
+            FocusedSvgElementIdList = [];
             FocusAllCommand = new AsyncReactiveCommand().WithSubscribe(FocusAll)
                                                           .AddTo(Disposables);
             UnfocusAllCommand = new AsyncReactiveCommand().WithSubscribe(UnfocusAll)
@@ -903,7 +903,7 @@ namespace TreeViewer.ViewModels
         /// SVG要素がクリックされた際に実行されます。
         /// </summary>
         /// <param name="id">SVG要素のID</param>
-        private void OnSvgElementClicked(string id)
+        private void OnSvgElementClicked(CladeId id)
         {
             try
             {
@@ -913,20 +913,20 @@ namespace TreeViewer.ViewModels
                     {
                         case SelectionMode.Node:
                             {
-                                Focus(CladeIdManager.FromId(id));
+                                Focus(id.Clade);
                             }
                             break;
 
                         case SelectionMode.Clade:
                             {
-                                Clade target = CladeIdManager.FromId(id);
+                                Clade target = id.Clade;
                                 Focus(target.GetDescendants().Prepend(target));
                             }
                             break;
 
                         case SelectionMode.Taxa:
                             {
-                                Clade target = CladeIdManager.FromId(id);
+                                Clade target = id.Clade;
                                 if (target.IsLeaf) Focus(target);
                                 else Focus(target.GetDescendants().Where(x => x.IsLeaf));
                             }
@@ -953,13 +953,20 @@ namespace TreeViewer.ViewModels
 
             foreach (Clade current in targetClades)
             {
-                string? idSuffix = SelectionTarget.Value switch
+                CladeIdSuffix idSuffix;
+                switch (SelectionTarget.Value)
                 {
-                    SelectionMode.Node or SelectionMode.Clade => "branch",
-                    SelectionMode.Taxa => "leaf",
-                    _ => null,
-                };
-                if (idSuffix is null) continue;
+                    case SelectionMode.Node:
+                    case SelectionMode.Clade:
+                        idSuffix = CladeIdSuffix.Branch;
+                        break;
+
+                    case SelectionMode.Taxa:
+                        idSuffix = CladeIdSuffix.Leaf;
+                        break;
+
+                    default: continue;
+                }
 
                 FocusedSvgElementIdList.Add(current.GetId(idSuffix));
             }
@@ -998,7 +1005,8 @@ namespace TreeViewer.ViewModels
         {
             if (FocusedSvgElementIdList.Count == 0) return;
 
-            HashSet<Clade> selectedClades = FocusedSvgElementIdList.Select(CladeIdManager.FromId).ToHashSet();
+            HashSet<Clade> selectedClades = FocusedSvgElementIdList.Select(x => x.Clade)
+                                                                   .ToHashSet();
 
             switch (value)
             {
@@ -1117,10 +1125,10 @@ namespace TreeViewer.ViewModels
 
             try
             {
-                string id = FocusedSvgElementIdList.First();
-                if (!id.EndsWith("-branch")) return;
+                CladeId id = FocusedSvgElementIdList.First();
+                if (id.Suffix != CladeIdSuffix.Branch) return;
 
-                Clade clade = CladeIdManager.FromId(id);
+                Clade clade = id.Clade;
                 if (clade.IsLeaf || clade.IsRoot) return;
 
                 bool prevValue = clade.Style.Collapsed;
@@ -1428,7 +1436,7 @@ namespace TreeViewer.ViewModels
         {
             (CladeStyle style, string before)[] targets = FocusedSvgElementIdList.Select(x =>
             {
-                CladeStyle style = CladeIdManager.FromId(x).Style;
+                CladeStyle style = x.Clade.Style;
                 string before = SelectionTarget.Value switch
                 {
                     SelectionMode.Node or SelectionMode.Clade => style.BranchColor,

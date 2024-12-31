@@ -197,4 +197,20 @@ namespace TreeViewer.Data
             };
         }
     }
+
+    /// <summary>
+    /// クレードのIDの拡張を表します。
+    /// </summary>
+    internal static class CladeIdExtensions
+    {
+        /// <summary>
+        /// IDを取得します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <param name="suffix">サフィックス</param>
+        /// <returns>ID</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static CladeId GetId(this Clade clade, CladeIdSuffix suffix) => new CladeId(clade, suffix);
+    }
 }
