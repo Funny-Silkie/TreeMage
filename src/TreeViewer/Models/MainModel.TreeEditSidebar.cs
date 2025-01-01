@@ -1,7 +1,9 @@
 ﻿using Reactive.Bindings;
+using System.Text.RegularExpressions;
 using TreeViewer.Core.Drawing;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
+using TreeViewer.Data;
 
 namespace TreeViewer.Models
 {
@@ -40,6 +42,86 @@ namespace TreeViewer.Models
         public ReactiveProperty<int> BranchThickness { get; }
 
         #endregion Tree
+
+        #region Search
+
+        /// <summary>
+        /// 検索ワードのプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string> SearchQuery { get; }
+
+        /// <summary>
+        /// 検索対象を表す値のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<TreeSearchTarget> SearchTarget { get; }
+
+        /// <summary>
+        /// 大文字・小文字を無視して検索を行うかどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<bool> SearchOnIgnoreCase { get; }
+
+        /// <summary>
+        /// 検索に正規表現を使うかどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<bool> SearchWithRegex { get; }
+
+        /// <summary>
+        /// 検索を実行します。
+        /// </summary>
+        public void Search()
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            string query = SearchQuery.Value;
+            if (string.IsNullOrEmpty(query)) return;
+
+            Func<Clade, string?> cladeConverter;
+            switch (SearchTarget.Value)
+            {
+                case TreeSearchTarget.Taxon:
+                    SelectionTarget.Value = SelectionMode.Taxa;
+                    cladeConverter = x => x.Taxon;
+                    break;
+
+                case TreeSearchTarget.Supports:
+                    SelectionTarget.Value = SelectionMode.Node;
+                    cladeConverter = x => x.Supports;
+                    break;
+
+                default: return;
+            }
+
+            Predicate<string> cladeSelection;
+            if (SearchWithRegex.Value)
+            {
+                Regex regex;
+                var option = RegexOptions.None;
+                if (SearchOnIgnoreCase.Value) option |= RegexOptions.IgnoreCase;
+                try
+                {
+                    regex = new Regex(query, option);
+                }
+                catch
+                {
+                    return;
+                }
+                cladeSelection = x => regex.IsMatch(x);
+            }
+            else
+            {
+                StringComparison stringComparison = SearchOnIgnoreCase.Value ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+                cladeSelection = x => x.Contains(query, stringComparison);
+            }
+
+            IEnumerable<Clade> targetClades = tree.GetAllClades()
+                                                  .Select(x => (clade: x, value: cladeConverter.Invoke(x)))
+                                                  .Where(x => !string.IsNullOrEmpty(x.value) && cladeSelection.Invoke(x.value))
+                                                  .Select(x => x.clade);
+            Focus(targetClades);
+        }
+
+        #endregion Search
 
         #region LeafLabels
 

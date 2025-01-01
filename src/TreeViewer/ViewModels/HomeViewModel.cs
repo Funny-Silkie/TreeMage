@@ -1,4 +1,4 @@
-﻿using ElectronNET.API.Entities;
+using ElectronNET.API.Entities;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
@@ -178,24 +178,16 @@ namespace TreeViewer.ViewModels
 
         #region Search
 
-        /// <summary>
-        /// 検索ワードのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.SearchQuery"/>
         public ReactivePropertySlim<string> SearchQuery { get; }
 
-        /// <summary>
-        /// 検索対象を表す値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.SearchTarget"/>
         public ReactivePropertySlim<TreeSearchTarget> SearchTarget { get; }
 
-        /// <summary>
-        /// 大文字・小文字を無視して検索を行うかどうかを表す値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.SearchOnIgnoreCase"/>
         public ReactivePropertySlim<bool> SearchOnIgnoreCase { get; }
 
-        /// <summary>
-        /// 検索に正規表現を使うかどうかを表す値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.SearchWithRegex"/>
         public ReactivePropertySlim<bool> SearchWithRegex { get; }
 
         /// <summary>
@@ -355,11 +347,15 @@ namespace TreeViewer.ViewModels
             BranchThickness = model.ToReactivePropertySlimAsSynchronized(x => x.BranchThickness.Value)
                                    .AddTo(Disposables);
 
-            SearchQuery = new ReactivePropertySlim<string>(string.Empty).AddTo(Disposables);
-            SearchTarget = new ReactivePropertySlim<TreeSearchTarget>().AddTo(Disposables);
-            SearchOnIgnoreCase = new ReactivePropertySlim<bool>(false).AddTo(Disposables);
-            SearchWithRegex = new ReactivePropertySlim<bool>().AddTo(Disposables);
-            SearchCommand = new AsyncReactiveCommand().WithSubscribe(Search)
+            SearchQuery = model.ToReactivePropertySlimAsSynchronized(x => x.SearchQuery.Value)
+                               .AddTo(Disposables);
+            SearchTarget = model.ToReactivePropertySlimAsSynchronized(x => x.SearchTarget.Value)
+                                .AddTo(Disposables);
+            SearchOnIgnoreCase = model.ToReactivePropertySlimAsSynchronized(x => x.SearchOnIgnoreCase.Value)
+                                      .AddTo(Disposables);
+            SearchWithRegex = model.ToReactivePropertySlimAsSynchronized(x => x.SearchWithRegex.Value)
+                                   .AddTo(Disposables);
+            SearchCommand = new AsyncReactiveCommand().WithSubscribe(model.Search)
                                                       .AddTo(Disposables);
 
             ShowLeafLabels = model.ToReactivePropertySlimAsSynchronized(x => x.ShowLeafLabels.Value)
@@ -494,9 +490,6 @@ namespace TreeViewer.ViewModels
             }
         }
 
-        /// <inheritdoc cref="MainModel.Focus(IEnumerable{Clade})"/>
-        private void Focus(params IEnumerable<Clade> targetClades) => model.Focus(targetClades);
-
         /// <inheritdoc cref="MainModel.UnfocusAll"/>
         private void UnfocusAll() => model.UnfocusAll();
 
@@ -568,62 +561,6 @@ namespace TreeViewer.ViewModels
                 await Console.Out.WriteLineAsync(e.ToString());
                 await Window.ShowErrorMessageAsync(e);
             }
-        }
-
-        /// <summary>
-        /// 検索を実行します。
-        /// </summary>
-        private void Search()
-        {
-            Tree? tree = TargetTree.Value;
-            if (tree is null) return;
-
-            string query = SearchQuery.Value;
-            if (string.IsNullOrEmpty(query)) return;
-
-            Func<Clade, string?> cladeConverter;
-            switch (SearchTarget.Value)
-            {
-                case TreeSearchTarget.Taxon:
-                    SelectionTarget.Value = SelectionMode.Taxa;
-                    cladeConverter = x => x.Taxon;
-                    break;
-
-                case TreeSearchTarget.Supports:
-                    SelectionTarget.Value = SelectionMode.Node;
-                    cladeConverter = x => x.Supports;
-                    break;
-
-                default: return;
-            }
-
-            Predicate<string> cladeSelection;
-            if (SearchWithRegex.Value)
-            {
-                Regex regex;
-                var option = RegexOptions.None;
-                if (SearchOnIgnoreCase.Value) option |= RegexOptions.IgnoreCase;
-                try
-                {
-                    regex = new Regex(query, option);
-                }
-                catch
-                {
-                    return;
-                }
-                cladeSelection = x => regex.IsMatch(x);
-            }
-            else
-            {
-                StringComparison stringComparison = SearchOnIgnoreCase.Value ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
-                cladeSelection = x => x.Contains(query, stringComparison);
-            }
-
-            IEnumerable<Clade> targetClades = tree.GetAllClades()
-                                                  .Select(x => (clade: x, value: cladeConverter.Invoke(x)))
-                                                  .Where(x => !string.IsNullOrEmpty(x.value) && cladeSelection.Invoke(x.value))
-                                                  .Select(x => x.clade);
-            Focus(targetClades);
         }
 
         /// <summary>

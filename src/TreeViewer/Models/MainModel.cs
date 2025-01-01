@@ -142,6 +142,15 @@ namespace TreeViewer.Models
 
             #endregion Tree
 
+            #region Search
+
+            SearchQuery = new ReactiveProperty<string>(string.Empty).AddTo(Disposables);
+            SearchTarget = new ReactiveProperty<TreeSearchTarget>().AddTo(Disposables);
+            SearchOnIgnoreCase = new ReactiveProperty<bool>(false).AddTo(Disposables);
+            SearchWithRegex = new ReactiveProperty<bool>().AddTo(Disposables);
+
+            #endregion Search
+
             #region LeafLabels
 
             ShowLeafLabels = new ReactiveProperty<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
