@@ -168,7 +168,7 @@
             <ChildContent>
                 <RadzenButton Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="ViewModel.AddBranchDecorationCommand.ToDelegate()" />
                 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch">
-                    @foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations)
+                    @foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations.Select(x => new BranchDecorationViewModel(ViewModel, x)))
                     {
                         <RadzenPanel class="rz-border-radius" AllowCollapse="true" Style="background-color: whitesmoke">
                             <HeaderTemplate>

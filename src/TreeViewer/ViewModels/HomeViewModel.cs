@@ -123,7 +123,7 @@ namespace TreeViewer.ViewModels
 
         #endregion Focus
 
-        #region Topbar
+        #region Header
 
         /// <summary>
         /// 対象の系統樹のインデックスのプロパティを取得します。
@@ -140,21 +140,16 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public ReactivePropertySlim<SelectionMode> SelectionTarget { get; }
 
-        #endregion Topbar
+        #endregion Header
 
         #region Sidebar
 
         #region Layout
 
-        /// <summary>
-        /// 折り畳みのタイプのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.CollapseType"/>
         public ReactivePropertySlim<CladeCollapseType> CollapseType { get; }
 
-        /// <summary>
-        /// 折りたたまれた三角形の幅のプロパティを取得します。
-        /// </summary>
-        /// <remarks><see cref="CollapseType"/>が<see cref="CladeCollapseType.Constant"/>の際に使用される</remarks>
+        /// <inheritdoc cref="MainModel.CollapsedConstantWidth"/>
         public ReactivePropertySlim<double> CollapsedConstantWidth { get; }
 
         /// <summary>
@@ -171,19 +166,13 @@ namespace TreeViewer.ViewModels
 
         #region Tree
 
-        /// <summary>
-        /// X軸方向の拡大率のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.XScale"/>
         public ReactivePropertySlim<int> XScale { get; }
 
-        /// <summary>
-        /// Y軸方向の拡大率のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.YScale"/>
         public ReactivePropertySlim<int> YScale { get; }
 
-        /// <summary>
-        /// 枝の太さのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.BranchThickness"/>
         public ReactivePropertySlim<int> BranchThickness { get; }
 
         #endregion Tree
@@ -219,91 +208,63 @@ namespace TreeViewer.ViewModels
 
         #region LeafLabels
 
-        /// <summary>
-        /// 系統名を表示するかどうかを表す値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.ShowLeafLabels"/>
         public ReactivePropertySlim<bool> ShowLeafLabels { get; }
 
-        /// <summary>
-        /// 系統名のフォントサイズのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.LeafLabelsFontSize"/>
         public ReactivePropertySlim<int> LeafLabelsFontSize { get; }
 
         #endregion LeafLabels
 
         #region CladeLabels
 
-        /// <summary>
-        /// クレード名を表示するかどうかを表す値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.ShowCladeLabels"/>
         public ReactivePropertySlim<bool> ShowCladeLabels { get; }
 
-        /// <summary>
-        /// クレード名のフォントサイズのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.CladeLabelsFontSize"/>
         public ReactivePropertySlim<int> CladeLabelsFontSize { get; }
 
-        /// <summary>
-        /// クレード名脇の線幅のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.CladeLabelsLineThickness"/>
         public ReactivePropertySlim<int> CladeLabelsLineThickness { get; }
 
         #endregion CladeLabels
 
         #region NodeValues
 
-        /// <summary>
-        /// 結節点の値を表示するかどうかを表す値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.ShowNodeValues"/>
         public ReactivePropertySlim<bool> ShowNodeValues { get; }
 
-        /// <summary>
-        /// 結節点の値の種類のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.NodeValueType"/>
         public ReactivePropertySlim<CladeValueType> NodeValueType { get; }
 
-        /// <summary>
-        /// 結節点の値のフォントサイズのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.NodeValueFontSize"/>
         public ReactivePropertySlim<int> NodeValueFontSize { get; }
 
         #endregion NodeValues
 
         #region BranchValues
 
-        /// <summary>
-        /// 二分岐の値を表示するかどうかを表す値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.ShowBranchValues"/>
         public ReactivePropertySlim<bool> ShowBranchValues { get; }
 
-        /// <summary>
-        /// 二分岐の値の種類のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.BranchValueType"/>
         public ReactivePropertySlim<CladeValueType> BranchValueType { get; }
 
-        /// <summary>
-        /// 二分岐の値のフォントサイズのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.BranchValueFontSize"/>
         public ReactivePropertySlim<int> BranchValueFontSize { get; }
 
-        /// <summary>
-        /// 非表示にする枝の値の正規表現パターンのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.BranchValueHideRegexPattern"/>
         public ReactivePropertySlim<string?> BranchValueHideRegexPattern { get; }
 
         #endregion BranchValues
 
         #region BranchDecorations
 
-        /// <summary>
-        /// 二分岐の装飾を表示するかどうかを表す値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.ShowBranchDecorations"/>
         public ReactivePropertySlim<bool> ShowBranchDecorations { get; }
 
-        /// <summary>
-        /// 枝の装飾情報一覧を取得します。
-        /// </summary>
-        public ReactiveCollection<BranchDecorationViewModel> BranchDecorations { get; }
+        /// <inheritdoc cref="MainModel.BranchDecorations"/>
+        public ReadOnlyReactiveCollection<BranchDecorationModel> BranchDecorations { get; }
 
         /// <summary>
         /// 装飾の追加コマンドを取得します。
@@ -314,24 +275,16 @@ namespace TreeViewer.ViewModels
 
         #region Scalebar
 
-        /// <summary>
-        /// スケールバーを表示するかどうかを表す値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.ShowScaleBar"/>
         public ReactivePropertySlim<bool> ShowScaleBar { get; }
 
-        /// <summary>
-        /// スケールバーの数値のプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.ScaleBarValue"/>
         public ReactivePropertySlim<double> ScaleBarValue { get; }
 
-        /// <summary>
-        /// スケールバーのフォントサイズのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.ScaleBarFontSize"/>
         public ReactivePropertySlim<int> ScaleBarFontSize { get; }
 
-        /// <summary>
-        /// スケールバーの太さのプロパティを取得します。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.ScaleBarThickness"/>
         public ReactivePropertySlim<int> ScaleBarThickness { get; }
 
         #endregion Scalebar
@@ -349,18 +302,8 @@ namespace TreeViewer.ViewModels
             Trees = model.Trees;
             TreeIndex = new ReactivePropertySlim<int>(1).WithSubscribe(OnTreeIndexChanged)
                                                         .AddTo(Disposables);
-            EditMode = new ReactivePropertySlim<TreeEditMode>().AddTo(Disposables);
-            EditMode.Zip(EditMode.Skip(1), (x, y) => (before: x, after: y)).Subscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                EditMode.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                EditMode.Value = arg.before;
-
-                RequestRerenderTree();
-            }, v));
+            EditMode = model.ToReactivePropertySlimAsSynchronized(x => x.EditMode.Value)
+                            .AddTo(Disposables);
             MaxTreeIndex = model.ToReactivePropertySlimAsSynchronized(x => x.MaxTreeIndex.Value)
                                 .AddTo(Disposables);
             Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
@@ -398,32 +341,10 @@ namespace TreeViewer.ViewModels
             SelectionTarget = new ReactivePropertySlim<SelectionMode>(SelectionMode.Node).WithSubscribe(OnSelectionTargetChanged)
                                                                                          .AddTo(Disposables);
 
-            CollapseType = new ReactivePropertySlim<CladeCollapseType>(CladeCollapseType.TopMax).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.CollapseType = arg.after;
-                CollapseType!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.CollapseType = arg.before;
-                CollapseType!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.CollapseType ?? CladeCollapseType.TopMax, after: v))).AddTo(Disposables);
-            CollapsedConstantWidth = new ReactivePropertySlim<double>(1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.CollapsedConstantWidth = arg.after;
-                CollapsedConstantWidth!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.CollapsedConstantWidth = arg.before;
-                CollapsedConstantWidth!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.CollapsedConstantWidth ?? 1, after: v))).AddTo(Disposables);
+            CollapseType = model.ToReactivePropertySlimAsSynchronized(x => x.CollapseType.Value)
+                                .AddTo(Disposables);
+            CollapsedConstantWidth = model.ToReactivePropertySlimAsSynchronized(x => x.CollapsedConstantWidth.Value)
+                                          .AddTo(Disposables);
             CollapseCommand = new AsyncReactiveCommand().WithSubscribe(CollapseClade)
                                                         .AddTo(Disposables);
             OrderByBranchLengthCommand = new AsyncReactiveCommand<bool>().WithSubscribe(OrderByBranchLength)
@@ -443,235 +364,49 @@ namespace TreeViewer.ViewModels
             SearchCommand = new AsyncReactiveCommand().WithSubscribe(Search)
                                                       .AddTo(Disposables);
 
-            ShowLeafLabels = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.ShowLeafLabels = arg.after;
-                ShowLeafLabels!.Value = arg.after;
+            ShowLeafLabels = model.ToReactivePropertySlimAsSynchronized(x => x.ShowLeafLabels.Value)
+                                  .AddTo(Disposables);
+            LeafLabelsFontSize = model.ToReactivePropertySlimAsSynchronized(x => x.LeafLabelsFontSize.Value)
+                                      .AddTo(Disposables);
 
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.ShowLeafLabels = arg.before;
-                ShowLeafLabels!.Value = arg.before;
+            ShowCladeLabels = model.ToReactivePropertySlimAsSynchronized(x => x.ShowCladeLabels.Value)
+                                   .AddTo(Disposables);
+            CladeLabelsFontSize = model.ToReactivePropertySlimAsSynchronized(x => x.CladeLabelsFontSize.Value)
+                                       .AddTo(Disposables);
+            CladeLabelsLineThickness = model.ToReactivePropertySlimAsSynchronized(x => x.CladeLabelsLineThickness.Value)
+                                            .AddTo(Disposables);
 
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.ShowLeafLabels ?? false, after: v))).AddTo(Disposables);
-            LeafLabelsFontSize = new ReactivePropertySlim<int>(20).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.LeafLabelsFontSize = arg.after;
-                LeafLabelsFontSize!.Value = arg.after;
+            ShowNodeValues = model.ToReactivePropertySlimAsSynchronized(x => x.ShowNodeValues.Value)
+                                  .AddTo(Disposables);
+            NodeValueType = model.ToReactivePropertySlimAsSynchronized(x => x.NodeValueType.Value)
+                                 .AddTo(Disposables);
+            NodeValueFontSize = model.ToReactivePropertySlimAsSynchronized(x => x.NodeValueFontSize.Value)
+                                     .AddTo(Disposables);
 
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.LeafLabelsFontSize = arg.before;
-                LeafLabelsFontSize!.Value = arg.before;
+            ShowBranchValues = model.ToReactivePropertySlimAsSynchronized(x => x.ShowBranchValues.Value)
+                                    .AddTo(Disposables);
+            BranchValueType = model.ToReactivePropertySlimAsSynchronized(x => x.BranchValueType.Value)
+                                   .AddTo(Disposables);
+            BranchValueFontSize = model.ToReactivePropertySlimAsSynchronized(x => x.BranchValueFontSize.Value)
+                                       .AddTo(Disposables);
+            BranchValueHideRegexPattern = model.ToReactivePropertySlimAsSynchronized(x => x.BranchValueHideRegexPattern.Value)
+                                               .AddTo(Disposables);
 
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.LeafLabelsFontSize ?? 0, after: v))).AddTo(Disposables);
-
-            ShowCladeLabels = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.ShowCladeLabels = arg.after;
-                ShowCladeLabels!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.ShowCladeLabels = arg.before;
-                ShowCladeLabels!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.ShowCladeLabels ?? false, after: v))).AddTo(Disposables);
-            CladeLabelsFontSize = new ReactivePropertySlim<int>(20).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.CladeLabelsFontSize = arg.after;
-                CladeLabelsFontSize!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.CladeLabelsFontSize = arg.before;
-                CladeLabelsFontSize!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.CladeLabelsFontSize ?? 0, after: v))).AddTo(Disposables);
-            CladeLabelsLineThickness = new ReactivePropertySlim<int>(5).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.CladeLabelLineThickness = arg.after;
-                CladeLabelsLineThickness!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.CladeLabelLineThickness = arg.before;
-                CladeLabelsLineThickness!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.CladeLabelLineThickness ?? 0, after: v)));
-
-            ShowNodeValues = new ReactivePropertySlim<bool>(false).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.ShowNodeValues = arg.after;
-                ShowNodeValues!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.ShowNodeValues = arg.before;
-                ShowNodeValues!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.ShowNodeValues ?? false, after: v))).AddTo(Disposables);
-            NodeValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.NodeValueType = arg.after;
-                NodeValueType!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.NodeValueType = arg.before;
-                NodeValueType!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.NodeValueType ?? CladeValueType.BranchLength, after: v))).AddTo(Disposables);
-            NodeValueFontSize = new ReactivePropertySlim<int>(15).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.NodeValueFontSize = arg.after;
-                NodeValueFontSize!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.NodeValueFontSize = arg.before;
-                NodeValueFontSize!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.NodeValueFontSize ?? 0, after: v))).AddTo(Disposables);
-
-            ShowBranchValues = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.ShowBranchValues = arg.after;
-                ShowBranchValues!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.ShowBranchValues = arg.before;
-                ShowBranchValues!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.ShowBranchValues ?? false, after: v))).AddTo(Disposables);
-            BranchValueType = new ReactivePropertySlim<CladeValueType>(CladeValueType.Supports).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.BranchValueType = arg.after;
-                BranchValueType!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.BranchValueType = arg.before;
-                BranchValueType!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.BranchValueType ?? CladeValueType.BranchLength, after: v))).AddTo(Disposables);
-            BranchValueFontSize = new ReactivePropertySlim<int>(15).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.BranchValueFontSize = arg.after;
-                BranchValueFontSize!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.BranchValueFontSize = arg.before;
-                BranchValueFontSize!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.BranchValueFontSize ?? 0, after: v))).AddTo(Disposables);
-            BranchValueHideRegexPattern = new ReactivePropertySlim<string?>().WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.BranchValueHideRegexPattern = arg.after;
-                BranchValueHideRegexPattern!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.BranchValueHideRegexPattern = arg.before;
-                BranchValueHideRegexPattern!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.BranchValueHideRegexPattern, after: v))).AddTo(Disposables);
-
-            ShowBranchDecorations = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.ShowBranchDecorations = arg.after;
-                ShowBranchDecorations!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.ShowBranchDecorations = arg.before;
-                ShowBranchDecorations!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.ShowBranchDecorations ?? false, after: v))).AddTo(Disposables);
-            BranchDecorations = new ReactiveCollection<BranchDecorationViewModel>().AddTo(Disposables);
-            AddBranchDecorationCommand = new AsyncReactiveCommand().WithSubscribe(AddNewBranchDecoration)
+            ShowBranchDecorations = model.ToReactivePropertySlimAsSynchronized(x => x.ShowBranchDecorations.Value)
+                                         .AddTo(Disposables);
+            BranchDecorations = model.BranchDecorations.ToReadOnlyReactiveCollection()
+                                                       .AddTo(Disposables);
+            AddBranchDecorationCommand = new AsyncReactiveCommand().WithSubscribe(model.AddNewBranchDecoration)
                                                                    .AddTo(Disposables);
 
-            ShowScaleBar = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.ShowScaleBar = arg.after;
-                ShowScaleBar!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.ShowScaleBar = arg.before;
-                ShowScaleBar!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.ShowScaleBar ?? false, after: v))).AddTo(Disposables);
-            ScaleBarValue = new ReactivePropertySlim<double>(0.1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.ScaleBarValue = arg.after;
-                ScaleBarValue!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.ScaleBarValue = arg.before;
-                ScaleBarValue!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.ScaleBarValue ?? 0.1, after: v))).AddTo(Disposables);
-            ScaleBarFontSize = new ReactivePropertySlim<int>(25).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.ScaleBarFontSize = arg.after;
-                ScaleBarFontSize!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.ScaleBarFontSize = arg.before;
-                ScaleBarFontSize!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.ScaleBarFontSize ?? 0, after: v))).AddTo(Disposables);
-            ScaleBarThickness = new ReactivePropertySlim<int>(5).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.ScaleBarThickness = arg.after;
-                ScaleBarThickness!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.ScaleBarThickness = arg.before;
-                ScaleBarThickness!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.ScaleBarThickness ?? 0, after: v))).AddTo(Disposables);
+            ShowScaleBar = model.ToReactivePropertySlimAsSynchronized(x => x.ShowScaleBar.Value)
+                                .AddTo(Disposables);
+            ScaleBarValue = model.ToReactivePropertySlimAsSynchronized(x => x.ScaleBarValue.Value)
+                                 .AddTo(Disposables);
+            ScaleBarFontSize = model.ToReactivePropertySlimAsSynchronized(x => x.ScaleBarFontSize.Value)
+                                    .AddTo(Disposables);
+            ScaleBarThickness = model.ToReactivePropertySlimAsSynchronized(x => x.ScaleBarThickness.Value)
+                                     .AddTo(Disposables);
 
             StyleSidebarViewModel = new StyleSidebarViewModel(this);
 
@@ -711,80 +446,11 @@ namespace TreeViewer.ViewModels
             model.OperateAsUndoable(operation, undoOperation, argument);
         }
 
-        /// <summary>
-        /// undo/redo可能な処理を実行し，<see cref="model.undoService"/>に登録します。
-        /// </summary>
-        /// <typeparam name="T">引数の型</typeparam>
-        /// <param name="operation">処理</param>
-        /// <param name="undoOperation">undo処理</param>
-        /// <param name="argument">引数</param>
-        public async Task OperateAsUndoable<T>(Func<T, Tree, Task> operation, Func<T, Tree, Task> undoOperation, T argument)
-        {
-            await model.OperateAsUndoable(operation, undoOperation, argument);
-        }
+        /// <inheritdoc cref="MainModel.ApplyTreeStyle(Tree)"/>
+        private void ApplyTreeStyle(Tree tree) => model.ApplyTreeStyle(tree);
 
-        /// <summary>
-        /// 対象の系統樹にスタイル情報を適用します。
-        /// </summary>
-        /// <param name="tree">適用する対象</param>
-        public void ApplyTreeStyle(Tree tree)
-        {
-            tree.Style.XScale = XScale.Value;
-            tree.Style.YScale = YScale.Value;
-            tree.Style.BranchThickness = BranchThickness.Value;
-            tree.Style.ShowLeafLabels = ShowLeafLabels.Value;
-            tree.Style.LeafLabelsFontSize = LeafLabelsFontSize.Value;
-            tree.Style.ShowCladeLabels = ShowCladeLabels.Value;
-            tree.Style.CladeLabelsFontSize = CladeLabelsFontSize.Value;
-            tree.Style.CladeLabelLineThickness = CladeLabelsLineThickness.Value;
-            tree.Style.ShowNodeValues = ShowNodeValues.Value;
-            tree.Style.NodeValueType = NodeValueType.Value;
-            tree.Style.NodeValueFontSize = NodeValueFontSize.Value;
-            tree.Style.ShowBranchValues = ShowBranchValues.Value;
-            tree.Style.BranchValueType = BranchValueType.Value;
-            tree.Style.BranchValueFontSize = BranchValueFontSize.Value;
-            tree.Style.BranchValueHideRegexPattern = BranchValueHideRegexPattern.Value;
-            tree.Style.ShowBranchDecorations = ShowBranchDecorations.Value;
-            tree.Style.DecorationStyles = BranchDecorations.Select(x => x.Style).ToArray();
-            tree.Style.ShowScaleBar = ShowScaleBar.Value;
-            tree.Style.ScaleBarValue = ScaleBarValue.Value;
-            tree.Style.ScaleBarFontSize = ScaleBarFontSize.Value;
-            tree.Style.ScaleBarThickness = ScaleBarThickness.Value;
-            tree.Style.CollapseType = CollapseType.Value;
-            tree.Style.CollapsedConstantWidth = CollapsedConstantWidth.Value;
-        }
-
-        /// <summary>
-        /// スタイル情報を読み取ります。
-        /// </summary>
-        /// <param name="tree">読み取るツリー</param>
-        private void LoadTreeStyle(Tree tree)
-        {
-            XScale.Value = tree.Style.XScale;
-            YScale.Value = tree.Style.YScale;
-            BranchThickness.Value = tree.Style.BranchThickness;
-            ShowLeafLabels.Value = tree.Style.ShowLeafLabels;
-            LeafLabelsFontSize.Value = tree.Style.LeafLabelsFontSize;
-            ShowCladeLabels.Value = tree.Style.ShowCladeLabels;
-            CladeLabelsFontSize.Value = tree.Style.CladeLabelsFontSize;
-            CladeLabelsLineThickness.Value = tree.Style.CladeLabelLineThickness;
-            ShowNodeValues.Value = tree.Style.ShowNodeValues;
-            NodeValueType.Value = tree.Style.NodeValueType;
-            NodeValueFontSize.Value = tree.Style.NodeValueFontSize;
-            ShowBranchValues.Value = tree.Style.ShowBranchValues;
-            BranchValueType.Value = tree.Style.BranchValueType;
-            BranchValueFontSize.Value = tree.Style.BranchValueFontSize;
-            BranchValueHideRegexPattern.Value = tree.Style.BranchValueHideRegexPattern;
-            ShowBranchDecorations.Value = tree.Style.ShowBranchDecorations;
-            BranchDecorations.ClearOnScheduler();
-            BranchDecorations.AddRangeOnScheduler(tree.Style.DecorationStyles.Select(x => new BranchDecorationViewModel(this, x)));
-            ShowScaleBar.Value = tree.Style.ShowScaleBar;
-            ScaleBarValue.Value = tree.Style.ScaleBarValue;
-            ScaleBarFontSize.Value = tree.Style.ScaleBarFontSize;
-            ScaleBarThickness.Value = tree.Style.ScaleBarThickness;
-            CollapseType.Value = tree.Style.CollapseType;
-            CollapsedConstantWidth.Value = tree.Style.CollapsedConstantWidth;
-        }
+        /// <inheritdoc cref="MainModel.LoadTreeStyle(Tree)"/>
+        private void LoadTreeStyle(Tree tree) => model.LoadTreeStyle(tree);
 
         /// <summary>
         /// <see cref="TreeIndex"/>が変更されたときに実行されます。
@@ -1373,29 +1039,6 @@ namespace TreeViewer.ViewModels
             IExporter exporter = IExporter.Create(type);
             using var stream = new FileStream(path, FileMode.Create);
             await exporter.ExportAsync(tree, stream, (await Configurations.LoadOrCreateAsync()).ToExportOptions());
-        }
-
-        /// <summary>
-        /// 枝の装飾を追加します。
-        /// </summary>
-        private void AddNewBranchDecoration()
-        {
-            var style = new BranchDecorationStyle();
-            var decorationViewModel = new BranchDecorationViewModel(this, style);
-
-            OperateAsUndoable((arg, tree) =>
-            {
-                BranchDecorations.AddOnScheduler(arg.vm);
-                tree.Style.DecorationStyles = [.. tree.Style.DecorationStyles, arg.style];
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                BranchDecorations.RemoveOnScheduler(arg.vm);
-                tree.Style.DecorationStyles = tree.Style.DecorationStyles[..^1];
-
-                RequestRerenderTree();
-            }, (vm: decorationViewModel, style));
         }
     }
 }
