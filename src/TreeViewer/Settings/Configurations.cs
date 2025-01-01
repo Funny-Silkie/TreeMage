@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using TreeViewer.Core.Drawing;
 using TreeViewer.Core.Exporting;
+using TreeViewer.Data;
 
 namespace TreeViewer.Settings
 {
@@ -23,6 +24,11 @@ namespace TreeViewer.Settings
         /// 枝の色付けの方式を取得または設定します。
         /// </summary>
         public BranchColoringType BranchColoring { get; set; } = BranchColoringType.Both;
+
+        /// <summary>
+        /// 自動枝順ソートのモードを取得または設定します。
+        /// </summary>
+        public AutoOrderingMode AutoOrderingMode { get; set; } = AutoOrderingMode.Descending;
 
         /// <summary>
         /// <see cref="Configurations"/>の静的リソースを初期化します。

@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
+using TreeViewer.Settings;
 using Xunit.Sdk;
 
 namespace TreeViewer.TestUtilities.Assertions
@@ -230,6 +231,22 @@ namespace TreeViewer.TestUtilities.Assertions
             {
                 Equal(expected.Root, actual.Root);
                 Equal(expected.Style, actual.Style);
+            });
+        }
+
+        /// <summary>
+        /// <see cref="Configurations"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <remarks>親要素の比較は行いません</remarks>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(Configurations expected, Configurations actual)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(expected.BranchColoring, actual.BranchColoring);
+                Assert.Equal(expected.AutoOrderingMode, actual.AutoOrderingMode);
             });
         }
 

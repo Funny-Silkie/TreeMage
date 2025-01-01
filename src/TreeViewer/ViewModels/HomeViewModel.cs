@@ -1405,36 +1405,72 @@ namespace TreeViewer.ViewModels
         /// <param name="format">読み込む系統樹のフォーマット</param>
         public async Task ImportTree(string path, TreeFormat format)
         {
-            using var reader = new StreamReader(path);
-            Tree[] trees = await Tree.ReadAsync(reader, format);
-            if (trees.Length == 0) return;
-            for (int i = 0; i < trees.Length; i++) ApplyTreeStyle(trees[i]);
-
-            if (Trees.Count == 0)
+            try
             {
-                Trees.AddRangeOnScheduler(trees);
-
-                TargetTree.Value = trees[0];
-                RequestRerenderTree();
-            }
-            else
-                OperateAsUndoable(arg =>
+                using var reader = new StreamReader(path);
+                Tree[] trees;
+                try
                 {
-                    Trees.AddRangeOnScheduler(arg.trees);
-                    OnPropertyChanged(nameof(MaxTreeIndex));
+                    trees = await Tree.ReadAsync(reader, format);
+                }
+                catch (TreeFormatException e)
+                {
+                    await Window.ShowErrorMessageAsync("ツリーのフォーマットが無効です");
+                    await Console.Out.WriteLineAsync(e.ToString());
+                    return;
+                }
+
+                if (trees.Length == 0) return;
+                Configurations config = await Configurations.LoadOrCreateAsync();
+
+                for (int i = 0; i < trees.Length; i++)
+                {
+                    Tree tree = trees[i];
+
+                    ApplyTreeStyle(tree);
+                    switch (config.AutoOrderingMode)
+                    {
+                        case AutoOrderingMode.Ascending:
+                            tree.OrderByLength(false);
+                            break;
+
+                        case AutoOrderingMode.Descending:
+                            tree.OrderByLength(true);
+                            break;
+                    }
+                }
+
+                if (Trees.Count == 0)
+                {
+                    Trees.AddRangeOnScheduler(trees);
 
                     TargetTree.Value = trees[0];
-                    TreeIndex.Value = arg.addedAt + 1;
                     RequestRerenderTree();
-                }, arg =>
-                {
-                    for (int i = arg.addedAt; i < arg.addedAt + arg.trees.Length; i++) Trees.RemoveAtOnScheduler(i);
-                    OnPropertyChanged(nameof(MaxTreeIndex));
+                }
+                else
+                    OperateAsUndoable(arg =>
+                    {
+                        Trees.AddRangeOnScheduler(arg.trees);
+                        OnPropertyChanged(nameof(MaxTreeIndex));
 
-                    TargetTree.Value = Trees[arg.prevIndex];
-                    TreeIndex.Value = arg.prevIndex + 1;
-                    RequestRerenderTree();
-                }, (trees, addedAt: Trees.Count, prevIndex: TreeIndex.Value - 1));
+                        TargetTree.Value = trees[0];
+                        TreeIndex.Value = arg.addedAt + 1;
+                        RequestRerenderTree();
+                    }, arg =>
+                    {
+                        for (int i = arg.addedAt; i < arg.addedAt + arg.trees.Length; i++) Trees.RemoveAtOnScheduler(i);
+                        OnPropertyChanged(nameof(MaxTreeIndex));
+
+                        TargetTree.Value = Trees[arg.prevIndex];
+                        TreeIndex.Value = arg.prevIndex + 1;
+                        RequestRerenderTree();
+                    }, (trees, addedAt: Trees.Count, prevIndex: TreeIndex.Value - 1));
+            }
+            catch (Exception e)
+            {
+                await Window.ShowErrorMessageAsync(e);
+                await Console.Out.WriteLineAsync(e.ToString());
+            }
         }
 
         /// <summary>

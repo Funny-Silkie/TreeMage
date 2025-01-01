@@ -1,6 +1,7 @@
 ﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using TreeViewer.Core.Drawing;
+using TreeViewer.Data;
 using TreeViewer.Settings;
 using TreeViewer.Window;
 
@@ -19,6 +20,11 @@ namespace TreeViewer.ViewModels
         public ReactivePropertySlim<BranchColoringType> BranchColoring { get; }
 
         /// <summary>
+        /// 自動枝順ソートのモードのプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<AutoOrderingMode> AutoOrderingMode { get; }
+
+        /// <summary>
         /// ウィンドウを閉じるコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<bool> CloseCommand { get; }
@@ -32,6 +38,8 @@ namespace TreeViewer.ViewModels
 
             BranchColoring = new ReactivePropertySlim<BranchColoringType>(config.BranchColoring).WithSubscribe(x => config.BranchColoring = x)
                                                                                                 .AddTo(Disposables);
+            AutoOrderingMode = new ReactivePropertySlim<AutoOrderingMode>(config.AutoOrderingMode).WithSubscribe(x => config.AutoOrderingMode = x)
+                                                                                                  .AddTo(Disposables);
 
             CloseCommand = new AsyncReactiveCommand<bool>().WithSubscribe(Close)
                                                            .AddTo(Disposables);
