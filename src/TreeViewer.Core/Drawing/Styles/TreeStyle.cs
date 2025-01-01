@@ -35,6 +35,21 @@ namespace TreeViewer.Core.Drawing.Styles
         public int LeafLabelsFontSize { get; set; } = 20;
 
         /// <summary>
+        /// クレード名を出力するかどうかを表す値を取得または設定します。
+        /// </summary>
+        public bool ShowCladeLabels { get; set; } = true;
+
+        /// <summary>
+        /// クレード名のフォントサイズを取得または設定します。
+        /// </summary>
+        public int CladeLabelsFontSize { get; set; } = 20;
+
+        /// <summary>
+        /// クレード名の脇の直線の太さを取得または設定します。
+        /// </summary>
+        public int CladeLabelLineThickness { get; set; } = 5;
+
+        /// <summary>
         /// 結節点の値を出力するかどうかを表す値を取得または設定します。
         /// </summary>
         public bool ShowNodeValues { get; set; } = true;
@@ -127,6 +142,17 @@ namespace TreeViewer.Core.Drawing.Styles
         public int ScaleBarThickness { get; set; } = 5;
 
         /// <summary>
+        /// 折り畳みのタイプを取得または設定します。
+        /// </summary>
+        public CladeCollapseType CollapseType { get; set; } = CladeCollapseType.TopMax;
+
+        /// <summary>
+        /// 折りたたまれた三角形の幅を取得または設定します。
+        /// </summary>
+        /// <remarks><see cref="CollapseType"/>が<see cref="CladeCollapseType.Constant"/>の際に使用される</remarks>
+        public double CollapsedConstantWidth { get; set; } = 1;
+
+        /// <summary>
         /// <see cref="TreeStyle"/>の新しいインスタンスを初期化します。
         /// </summary>
         public TreeStyle()
@@ -147,6 +173,9 @@ namespace TreeViewer.Core.Drawing.Styles
             BranchThickness = style.BranchThickness;
             ShowLeafLabels = style.ShowLeafLabels;
             LeafLabelsFontSize = style.LeafLabelsFontSize;
+            ShowCladeLabels = style.ShowCladeLabels;
+            CladeLabelsFontSize = style.CladeLabelsFontSize;
+            CladeLabelLineThickness = style.CladeLabelLineThickness;
             ShowNodeValues = style.ShowNodeValues;
             NodeValueType = style.NodeValueType;
             NodeValueFontSize = style.NodeValueFontSize;
@@ -161,6 +190,8 @@ namespace TreeViewer.Core.Drawing.Styles
             ScaleBarValue = style.ScaleBarValue;
             ScaleBarFontSize = style.ScaleBarFontSize;
             ScaleBarThickness = style.ScaleBarThickness;
+            CollapseType = style.CollapseType;
+            CollapsedConstantWidth = style.CollapsedConstantWidth;
         }
 
         /// <summary>
@@ -174,6 +205,9 @@ namespace TreeViewer.Core.Drawing.Styles
             BranchThickness = BranchThickness,
             ShowLeafLabels = ShowLeafLabels,
             LeafLabelsFontSize = LeafLabelsFontSize,
+            ShowCladeLabels = ShowCladeLabels,
+            CladeLabelsFontSize = CladeLabelsFontSize,
+            CladeLabelLineThickness = CladeLabelLineThickness,
             ShowNodeValues = ShowNodeValues,
             NodeValueType = NodeValueType,
             NodeValueFontSize = NodeValueFontSize,
@@ -188,6 +222,8 @@ namespace TreeViewer.Core.Drawing.Styles
             ScaleBarValue = ScaleBarValue,
             ScaleBarFontSize = ScaleBarFontSize,
             ScaleBarThickness = ScaleBarThickness,
+            CollapseType = CollapseType,
+            CollapsedConstantWidth = CollapsedConstantWidth,
         };
 
         object ICloneable.Clone() => Clone();

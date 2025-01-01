@@ -48,7 +48,6 @@
                     Configurations config = Configurations.LoadOrCreate();
 
                     Tree tree = ViewModel.TargetTree.Value;
-                    ViewModel.ApplyTreeStyle(tree);
                     positionManager.Reset(tree);
 
                     (double svgWidth, double svgHeight) = positionManager.CalcDocumentSize();
@@ -63,6 +62,10 @@
                                 font-size: @(ViewModel.LeafLabelsFontSize.Value + "px");
                             }
 
+                            .clade-label {
+                                font-size: @(ViewModel.CladeLabelsFontSize.Value + "px");
+                            }
+
                             .node-value {
                                 font-size: @(ViewModel.NodeValueFontSize.Value + "px");
                             }
@@ -72,6 +75,11 @@
                             }
 
                             .branch {
+                                fill: none;
+                                stroke-width: @(ViewModel.BranchThickness.Value + "px");
+                            }
+
+                            .collapsed-rectangle {
                                 fill: none;
                                 stroke-width: @(ViewModel.BranchThickness.Value + "px");
                             }
@@ -98,6 +106,19 @@
                         <g transform="translate(50, 50)">
                             @foreach (Clade current in tree.GetAllClades())
                             {
+                                if (current.GetIsHidden()) continue;
+
+                                // 折り畳み
+                                if (current.GetIsExternal() && !current.IsLeaf)
+                                {
+                                    var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);
+
+                                    <path class="collapsed-rectangle" d="M @left.x @left.y
+                                                                         L @rightTop.x @rightTop.y
+                                                                         L @rightBottom.x @rightBottom.y
+                                                                         L @left.x @left.y" stroke="@current.Style.BranchColor" />
+                                }
+
                                 if (current.IsLeaf)
                                 {
                                     // 系統名
@@ -111,7 +132,7 @@
                                         // クリックエリア
                                         if (ViewModel.EditMode.Value == TreeEditMode.Select)
                                         {
-                                            string id = current.GetId("leaf");
+                                            CladeId id = current.GetId(CladeIdSuffix.Leaf);
                                             string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
                                             const int margin = 3;
 
@@ -123,7 +144,7 @@
                                 else
                                 {
                                     // 結節点の値
-                                    @if (ViewModel.ShowNodeValues.Value)
+                                    @if (ViewModel.ShowNodeValues.Value && !current.GetIsExternal())
                                     {
                                         string nodeValue = SelectShowValue(current, ViewModel.NodeValueType.Value);
                                         if (nodeValue.Length > 0)
@@ -134,6 +155,19 @@
                                             @svgText
                                         }
                                     }
+                                }
+
+                                // クレード名
+                                if (tree.Style.ShowCladeLabels && !string.IsNullOrEmpty(current.Style.CladeLabel))
+                                {
+                                    var (line, text) = positionManager.CalcCladeLabelPosition(current);
+
+                                    @if (tree.Style.CladeLabelLineThickness > 0)
+                                    {
+                                        <line x1="@line.x" x2="@line.x" y1="@line.yTop" y2="@line.yBottom" stroke="black" stroke-width="@tree.Style.CladeLabelLineThickness" />
+                                    }
+                                    var svgText = new MarkupString($"<text class=\"clade-label\" x=\"{text.x}\" y=\"{text.y}\">{current.Style.CladeLabel}</text>");
+                                    @svgText
                                 }
 
                                 if (current.BranchLength > 0)
@@ -264,7 +298,7 @@
                                         if (x1 != x2) path += $"H {x1}";
                                         if (y1 != y2) path += $"V {y2}";
 
-                                        string id = current.GetId("branch");
+                                        CladeId id = current.GetId(CladeIdSuffix.Branch);
                                         string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
 
                                         <path id="@id" class="clickable-branch" d="@path"
@@ -276,14 +310,14 @@
                                 // 結節点クリックエリア
                                 if (ViewModel.EditMode.Value == TreeEditMode.Reroot && !current.IsLeaf && !current.IsRoot)
                                 {
-                                    string id = current.GetId("node");
+                                    CladeId id = current.GetId(CladeIdSuffix.Node);
                                     (double x, double y, double width, double height) = positionManager.CalcNodeDecorationRectangleArea(current);
 
                                     <rect id="@id" x="@x" y="@y" width="@width" height="@height" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.RerootCommand.ToDelegate((current, false))" />
                                 }
                                 else if (ViewModel.EditMode.Value == TreeEditMode.Swap && !current.IsRoot)
                                 {
-                                    string id = current.GetId();
+                                    CladeId id = current.GetId(CladeIdSuffix.Node);
                                     int index = current.Parent.Children.IndexOf(current);
 
                                     if (index < current.Parent.Children.Count - 1)
@@ -314,7 +348,9 @@
                 }
             </RadzenSplitterPane>
             <RadzenSplitterPane Size="300px">
-                <StyleSidebar ViewModel="ViewModel.StyleSidebarViewModel" />
+                <div style="margin: 5px">
+                    <StyleSidebar ViewModel="ViewModel.StyleSidebarViewModel" />
+                </div>
             </RadzenSplitterPane>
         </RadzenSplitter>
     </RadzenBody>

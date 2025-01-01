@@ -15,6 +15,7 @@ namespace TreeViewer.Core.Exporting
             tree = TreeTest.CreateDummyTree();
             tree.Style.XScale = 30;
             tree.Style.ScaleBarValue = 1;
+            tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.CladeLabel = "hoge";
             exporter = new PdfExporter();
             exportOptions = new ExportOptions();
         }

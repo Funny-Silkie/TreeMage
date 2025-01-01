@@ -41,7 +41,7 @@ namespace TreeViewer.Window
                 Show = false,
                 Title = "Edit Configurations",
                 Width = 360,
-                Height = 160,
+                Height = 200,
             }, CreateUrl("edit-config"));
 
             parent.OnFocus += ModalFocus;

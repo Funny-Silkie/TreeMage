@@ -1,4 +1,5 @@
 ﻿using Svg;
+using Svg.Pathing;
 using Svg.Transforms;
 using System.Drawing;
 using TreeViewer.Core.Drawing;
@@ -50,11 +51,16 @@ namespace TreeViewer.Core.Exporting
                 ID = "tree-area",
                 Transforms = new SvgTransformCollection().Translate(50, 50),
             }.AddTo(result);
-            var leavesGroup = new SvgGroup()
+            var leafLabelsGroup = new SvgGroup()
             {
-                ID = "leaves",
+                ID = "leaf-labels",
             };
-            if (tree.Style.ShowLeafLabels) leavesGroup.AddTo(treeArea);
+            if (tree.Style.ShowLeafLabels) leafLabelsGroup.AddTo(treeArea);
+            var cladeLabelsGroup = new SvgGroup()
+            {
+                ID = "clade-labels"
+            };
+            if (tree.Style.ShowCladeLabels) cladeLabelsGroup.AddTo(treeArea);
             SvgGroup branchesGroup = new SvgGroup()
             {
                 ID = "branches",
@@ -77,6 +83,25 @@ namespace TreeViewer.Core.Exporting
 
             foreach (Clade current in tree.GetAllClades())
             {
+                if (current.GetIsHidden()) continue;
+
+                if (current.GetIsExternal() && !current.IsLeaf)
+                {
+                    var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);
+
+                    var triangle = new SvgPath()
+                    {
+                        Fill = SvgPaintServer.None,
+                        Stroke = DrawHelpers.CreateSvgColor(current.Style.BranchColor),
+                        StrokeWidth = tree.Style.BranchThickness,
+                        PathData = new SvgPathSegmentList().MoveToAbsolutely((float)left.x, (float)left.y)
+                                                           .DrawLineAbsolutely((float)rightTop.x, (float)rightTop.y)
+                                                           .DrawLineAbsolutely((float)rightBottom.x, (float)rightBottom.y)
+                                                           .DrawLineAbsolutely((float)left.x, (float)left.y),
+                    };
+                    triangle.AddTo(leafLabelsGroup);
+                }
+
                 if (current.IsLeaf)
                 {
                     // 系統名
@@ -92,13 +117,13 @@ namespace TreeViewer.Core.Exporting
                             FontSize = tree.Style.LeafLabelsFontSize,
                             FontFamily = FontFamily,
                         };
-                        leafText.AddTo(leavesGroup);
+                        leafText.AddTo(leafLabelsGroup);
                     }
                 }
                 else
                 {
                     // 結節点の値
-                    if (tree.Style.ShowNodeValues)
+                    if (tree.Style.ShowNodeValues && !current.GetIsExternal())
                     {
                         string nodeValue = DrawHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                         if (nodeValue.Length > 0)
@@ -116,6 +141,39 @@ namespace TreeViewer.Core.Exporting
                             nodeValueText.AddTo(nodeValuesGroup);
                         }
                     }
+                }
+
+                // クレード名
+                if (tree.Style.ShowCladeLabels && !string.IsNullOrEmpty(current.Style.CladeLabel))
+                {
+                    var (line, text) = positionManager.CalcCladeLabelPosition(current);
+
+                    SvgGroup group = new SvgGroup()
+                    {
+                        ID = current.Style.CladeLabel,
+                    }.AddTo(cladeLabelsGroup);
+
+                    if (tree.Style.CladeLabelLineThickness > 0)
+                    {
+                        var svgLine = new SvgLine()
+                        {
+                            StartX = (SvgUnit)line.x,
+                            EndX = (SvgUnit)line.x,
+                            StartY = (SvgUnit)line.yTop,
+                            EndY = (SvgUnit)line.yBottom,
+                            Stroke = DrawHelpers.CreateSvgColor("black"),
+                            StrokeWidth = tree.Style.CladeLabelLineThickness,
+                        };
+                        svgLine.AddTo(group);
+                    }
+                    var svgText = new SvgText(current.Style.CladeLabel)
+                    {
+                        X = [(SvgUnit)text.x],
+                        Y = [(SvgUnit)text.y],
+                        FontFamily = FontFamily,
+                        FontSize = tree.Style.CladeLabelsFontSize,
+                    };
+                    svgText.AddTo(group);
                 }
 
                 if (current.BranchLength > 0)

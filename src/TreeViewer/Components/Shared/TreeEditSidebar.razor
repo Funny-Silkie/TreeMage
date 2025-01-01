@@ -9,6 +9,20 @@
                 <RadzenText TextStyle="TextStyle.H6">Layout</RadzenText>
             </HeaderTemplate>
             <ChildContent>
+                <RadzenStack Orientation="Orientation.Vertical">
+                    <RadzenButton Text="Collapse" Click="ViewModel.CollapseCommand.ToDelegate()" />
+                    <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                        <RadzenText>Collapse type:</RadzenText>
+                        <RadzenDropDown TValue="CladeCollapseType" Data="Enum.GetValues<CladeCollapseType>()" @bind-Value="ViewModel.CollapseType.Value" Style="@sidebarFormValueStyle" />
+                    </RadzenRow>
+                    @if (ViewModel.CollapseType.Value is CladeCollapseType.Constant)
+                    {
+                        <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                            <RadzenText>Width:</RadzenText>
+                            <RadzenNumeric TValue="double" Min="0" @bind-Value="ViewModel.CollapsedConstantWidth.Value" Step="0.1" Style="@sidebarFormValueStyle" />
+                        </RadzenRow>
+                    }
+                </RadzenStack>
             </ChildContent>
         </RadzenPanel>
         @* Tree *@
@@ -59,12 +73,12 @@
                 </RadzenStack>
             </ChildContent>
         </RadzenPanel>
-        @* Leaves *@
+        @* Leaf labels *@
         <RadzenPanel AllowCollapse="true" Collapsed="defaultCollapsed">
             <HeaderTemplate>
                 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="10">
                     <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.ShowLeafLabels.Value" />
-                    <RadzenText TextStyle="TextStyle.H6">Leaves</RadzenText>
+                    <RadzenText TextStyle="TextStyle.H6">Leaf labels</RadzenText>
                 </RadzenStack>
             </HeaderTemplate>
             <ChildContent>
@@ -74,6 +88,27 @@
                     </RadzenStack>
                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
                         <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.LeafLabelsFontSize.Value" Style="@sidebarFormValueStyle" />
+                    </RadzenStack>
+                </RadzenStack>
+            </ChildContent>
+        </RadzenPanel>
+        @* Clade labels *@
+        <RadzenPanel AllowCollapse="true" Collapsed="defaultCollapsed">
+            <HeaderTemplate>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Start" Gap="10">
+                    <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.ShowCladeLabels.Value" />
+                    <RadzenText TextStyle="TextStyle.H6">Clade labels</RadzenText>
+                </RadzenStack>
+            </HeaderTemplate>
+            <ChildContent>
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch" Style="padding-top: 3px">
+                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                        <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
+                        <RadzenText Style="@sidebarFormLabelStyle">Line thickness:</RadzenText>
+                    </RadzenStack>
+                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
+                        <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.CladeLabelsFontSize.Value" Style="@sidebarFormValueStyle" />
+                        <RadzenNumeric TValue="int" Min="0" @bind-Value="ViewModel.CladeLabelsLineThickness.Value" Style="@sidebarFormValueStyle" />
                     </RadzenStack>
                 </RadzenStack>
             </ChildContent>

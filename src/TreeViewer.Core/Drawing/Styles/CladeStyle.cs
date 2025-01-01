@@ -16,6 +16,16 @@
         public string LeafColor { get; set; }
 
         /// <summary>
+        /// 折りたたまれているか否かを表す値を取得または設定します。
+        /// </summary>
+        public bool Collapsed { get; set; }
+
+        /// <summary>
+        /// クレード名を表す値を取得または設定します。
+        /// </summary>
+        public string? CladeLabel { get; set; }
+
+        /// <summary>
         /// <see cref="CladeStyle"/>の新しいインスタンスを初期化します。
         /// </summary>
         public CladeStyle()
@@ -35,6 +45,8 @@
 
             BranchColor = style.BranchColor;
             LeafColor = style.LeafColor;
+            Collapsed = style.Collapsed;
+            CladeLabel = style.CladeLabel;
         }
 
         /// <summary>
@@ -45,6 +57,8 @@
         {
             BranchColor = BranchColor,
             LeafColor = LeafColor,
+            Collapsed = Collapsed,
+            CladeLabel = CladeLabel,
         };
 
         object ICloneable.Clone() => Clone();

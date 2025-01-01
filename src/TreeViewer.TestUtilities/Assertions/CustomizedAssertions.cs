@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
+using TreeViewer.Settings;
 using Xunit.Sdk;
 
 namespace TreeViewer.TestUtilities.Assertions
@@ -137,6 +138,9 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.BranchThickness, actual.BranchThickness);
                 Assert.Equal(expected.ShowLeafLabels, actual.ShowLeafLabels);
                 Assert.Equal(expected.LeafLabelsFontSize, actual.LeafLabelsFontSize);
+                Assert.Equal(expected.ShowCladeLabels, actual.ShowCladeLabels);
+                Assert.Equal(expected.CladeLabelsFontSize, actual.CladeLabelsFontSize);
+                Assert.Equal(expected.CladeLabelLineThickness, actual.CladeLabelLineThickness);
                 Assert.Equal(expected.ShowNodeValues, actual.ShowNodeValues);
                 Assert.Equal(expected.NodeValueType, actual.NodeValueType);
                 Assert.Equal(expected.NodeValueFontSize, actual.NodeValueFontSize);
@@ -151,6 +155,8 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.ScaleBarValue, actual.ScaleBarValue);
                 Assert.Equal(expected.ScaleBarFontSize, actual.ScaleBarFontSize);
                 Assert.Equal(expected.ScaleBarThickness, actual.ScaleBarThickness);
+                Assert.Equal(expected.CollapseType, actual.CollapseType);
+                Assert.Equal(expected.CollapsedConstantWidth, actual.CollapsedConstantWidth);
             });
             for (int i = 0; i < expected.DecorationStyles.Length; i++) Equal(expected.DecorationStyles[i], actual.DecorationStyles[i]);
         }
@@ -167,6 +173,8 @@ namespace TreeViewer.TestUtilities.Assertions
             {
                 Assert.Equal(expected.BranchColor, actual.BranchColor);
                 Assert.Equal(expected.LeafColor, actual.LeafColor);
+                Assert.Equal(expected.Collapsed, actual.Collapsed);
+                Assert.Equal(expected.CladeLabel, actual.CladeLabel);
             });
         }
 
@@ -223,6 +231,22 @@ namespace TreeViewer.TestUtilities.Assertions
             {
                 Equal(expected.Root, actual.Root);
                 Equal(expected.Style, actual.Style);
+            });
+        }
+
+        /// <summary>
+        /// <see cref="Configurations"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <remarks>親要素の比較は行いません</remarks>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(Configurations expected, Configurations actual)
+        {
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(expected.BranchColoring, actual.BranchColoring);
+                Assert.Equal(expected.AutoOrderingMode, actual.AutoOrderingMode);
             });
         }
 

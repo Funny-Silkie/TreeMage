@@ -96,6 +96,22 @@ namespace TreeViewer.Core.Internal
         /// 平行移動して描画します。
         /// </summary>
         /// <param name="list">使用する<see cref="SvgPathSegmentList"/>のインスタンス</param>
+        /// <param name="x">X軸座標</param>
+        /// <param name="y">Y軸座標</param>
+        /// <returns><paramref name="list"/></returns>
+        /// <remarks>"<c>l <paramref name="x"/> <paramref name="y"/></c>"と等価</remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="list"/>が<see langword="null"/></exception>
+        public static SvgPathSegmentList DrawLineAbsolutely(this SvgPathSegmentList list, float x, float y)
+        {
+            ArgumentNullException.ThrowIfNull(list);
+            list.Add(new SvgLineSegment(false, new PointF(x, y)));
+            return list;
+        }
+
+        /// <summary>
+        /// 平行移動して描画します。
+        /// </summary>
+        /// <param name="list">使用する<see cref="SvgPathSegmentList"/>のインスタンス</param>
         /// <param name="x">X軸方面の移動量</param>
         /// <param name="y">Y軸方面の移動量</param>
         /// <returns><paramref name="list"/></returns>

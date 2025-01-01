@@ -17,7 +17,7 @@ namespace TreeViewer.Core.Drawing
         //      x1  x2
 
         private readonly Dictionary<Clade, PositionInfo> positions = [];
-        private Clade[] allLeaves;
+        private Clade[] allExternalNodes;
         private readonly Dictionary<Clade, int> indexTable;
         private TreeStyle treeStyle;
 
@@ -26,7 +26,7 @@ namespace TreeViewer.Core.Drawing
         /// </summary>
         public PositionManager()
         {
-            allLeaves = [];
+            allExternalNodes = [];
             indexTable = [];
             treeStyle = new TreeStyle();
         }
@@ -40,11 +40,11 @@ namespace TreeViewer.Core.Drawing
         {
             ArgumentNullException.ThrowIfNull(tree);
 
-            allLeaves = tree.GetAllLeaves().ToArray();
+            allExternalNodes = tree.GetAllExternalNodes()
+                                   .ToArray();
             treeStyle = tree.Style;
-            indexTable = tree.GetAllLeaves()
-                             .Select((x, i) => (x, i))
-                             .ToDictionary();
+            indexTable = allExternalNodes.Select((x, i) => (x, i))
+                                         .ToDictionary();
         }
 
         /// <summary>
@@ -158,7 +158,7 @@ namespace TreeViewer.Core.Drawing
         /// <returns><paramref name="clade"/>のY座標1</returns>
         private double CalcY1Core(Clade clade)
         {
-            if (clade.IsLeaf) return indexTable[clade] * treeStyle.YScale;
+            if (clade.GetIsExternal()) return indexTable[clade] * treeStyle.YScale;
             if (clade.Children.Count == 1) return CalcY2(clade.Children[0]);
             return (CalcY2(clade.Children[0]) + CalcY2(clade.Children[^1])) / 2;
         }
@@ -219,13 +219,72 @@ namespace TreeViewer.Core.Drawing
         /// <returns>ドキュメントのサイズ</returns>
         public (double width, double height) CalcDocumentSize()
         {
-            double width = allLeaves.Select(x => x.GetTotalBranchLength()).Max() * treeStyle.XScale + 100;
-            if (treeStyle.ShowLeafLabels) width += allLeaves.Select(x => CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize).width).Max();
+            double width = allExternalNodes.Select(x => x.GetTotalBranchLength()).Max() * treeStyle.XScale + 100;
+            if (treeStyle.ShowLeafLabels) width += allExternalNodes.Select(x => CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize).width).Max();
+            if (treeStyle.ShowCladeLabels && allExternalNodes.Length > 0)
+            {
+                Clade root = allExternalNodes[0].FindRoot();
+                double maxLength = root.GetDescendants().Prepend(root).Max(x => CalcTextSize(x.Style.CladeLabel, treeStyle.CladeLabelsFontSize).width);
+                if (maxLength > 0) width += maxLength + treeStyle.CladeLabelLineThickness + 20;
+            }
 
-            double height = allLeaves.Length * treeStyle.YScale + 100;
+            double height = allExternalNodes.Length * treeStyle.YScale + 100;
             if (treeStyle.ShowScaleBar) height += CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize).height + 20;
 
             return (width, height);
+        }
+
+        /// <summary>
+        /// 折り畳みの三角形の座標を算出します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <returns>三角形の三点の座標</returns>
+        public ((double x, double y) left, (double x, double y) rightTop, (double x, double y) rightBottom) CalcCollapseTrianglePositions(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            double xRightTop, xRightBottom;
+            switch (treeStyle.CollapseType)
+            {
+                case CladeCollapseType.TopMax:
+                case CladeCollapseType.BottomMax:
+                case CladeCollapseType.AllMax:
+                    double maxLength = clade.GetDescendants().Where(x => x.IsLeaf).Max(CalcTotalBranchLength);
+                    switch (treeStyle.CollapseType)
+                    {
+                        case CladeCollapseType.TopMax:
+                            xRightTop = maxLength;
+                            xRightBottom = clade.GetDescendants().Where(x => x.IsLeaf).Min(CalcTotalBranchLength);
+                            break;
+
+                        case CladeCollapseType.BottomMax:
+                            xRightTop = clade.GetDescendants().Where(x => x.IsLeaf).Min(CalcTotalBranchLength);
+                            xRightBottom = maxLength;
+                            break;
+
+                        case CladeCollapseType.AllMax:
+                            xRightTop = xRightBottom = maxLength;
+                            break;
+
+                        default: throw new InvalidOperationException();
+                    }
+
+                    double totalLength = CalcTotalBranchLength(clade);
+                    xRightTop -= totalLength;
+                    xRightBottom -= totalLength;
+                    break;
+
+                default:
+                    xRightTop = xRightBottom = treeStyle.CollapsedConstantWidth;
+                    break;
+            }
+
+            (double xLeft, double y, _, _) = CalcLeafPosition(clade);
+            xRightTop = xRightTop * treeStyle.XScale + xLeft;
+            xRightBottom = xRightBottom * treeStyle.XScale + xLeft;
+            double yOffset = treeStyle.YScale / 2d;
+
+            return ((xLeft, y), (xRightTop, y - yOffset), (xRightBottom, y + yOffset));
         }
 
         /// <summary>
@@ -244,6 +303,48 @@ namespace TreeViewer.Core.Drawing
             double y = CalcY1(clade) + height / 2;
 
             return (x, y, width, height);
+        }
+
+        /// <summary>
+        /// クレード名の座標を算出します。
+        /// </summary>
+        /// <param name="clade">クレード名</param>
+        /// <returns>クレード名の座標</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        public ((double x, double yTop, double yBottom) line, (double x, double y) text) CalcCladeLabelPosition(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            double x, y, yTop, yBottom;
+            if (clade.GetIsExternal())
+            {
+                (x, y, double width, double height) = CalcLeafPosition(clade);
+                if (treeStyle.ShowLeafLabels) x += width + 10;
+                yTop = y - height;
+                yBottom = yTop + treeStyle.YScale;
+            }
+            else
+            {
+                (_, double height) = CalcTextSize(clade.Style.CladeLabel, treeStyle.CladeLabelsFontSize);
+
+                Clade[] allExternals = clade.GetDescendants().Where(x => x.GetIsExternal()).ToArray();
+                x = allExternals.Max(x =>
+                {
+                    double result = CalcTotalBranchLength(x) * treeStyle.XScale;
+                    if (treeStyle.ShowLeafLabels && !string.IsNullOrEmpty(x.Taxon))
+                    {
+                        (double width, _) = CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize);
+                        result += width + 15;
+                    }
+
+                    return result;
+                });
+                yTop = CalcY1(allExternals[0]) - treeStyle.YScale / 2;
+                yBottom = CalcY1(allExternals[^1]) + treeStyle.YScale / 2;
+                y = (yTop + yBottom) / 2 + height / 2;
+            }
+
+            return ((x + treeStyle.CladeLabelLineThickness / 2d, yTop, yBottom), (x + treeStyle.CladeLabelLineThickness + 5, y));
         }
 
         /// <summary>
@@ -422,8 +523,9 @@ namespace TreeViewer.Core.Drawing
             indexTable.Clear();
 
             treeStyle = tree.Style;
-            allLeaves = tree.GetAllLeaves().ToArray();
-            foreach ((int index, Clade clade) in tree.GetAllLeaves().Index()) indexTable.Add(clade, index);
+            allExternalNodes = tree.GetAllExternalNodes()
+                                   .ToArray();
+            for (int i = 0; i < allExternalNodes.Length; i++) indexTable.Add(allExternalNodes[i], i);
         }
 
         internal sealed class PositionInfo

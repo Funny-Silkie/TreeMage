@@ -44,7 +44,8 @@ namespace TreeViewer.Core.Exporting
             result.PageLayout = PdfPageLayout.SinglePage;
             PdfPage mainPage = result.AddPage();
 
-            var leafFont = new XFont(FontFamily, tree.Style.LeafLabelsFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
+            var leafLabelFont = new XFont(FontFamily, tree.Style.LeafLabelsFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
+            var cladeLabelFont = new XFont(FontFamily, tree.Style.CladeLabelsFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
             var nodeValuesFont = new XFont(FontFamily, tree.Style.NodeValueFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
             var branchValuesFont = new XFont(FontFamily, tree.Style.BranchValueFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
 
@@ -63,6 +64,21 @@ namespace TreeViewer.Core.Exporting
 
                 foreach (Clade current in tree.GetAllClades())
                 {
+                    if (current.GetIsHidden()) continue;
+
+                    if (current.GetIsExternal() && !current.IsLeaf)
+                    {
+                        var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);
+
+                        var path = new XGraphicsPath();
+                        path.AddLine(left.x, left.y, rightTop.x, rightTop.y);
+                        path.AddLine(rightTop.x, rightTop.y, rightBottom.x, rightBottom.y);
+                        path.AddLine(left.x, left.y, rightBottom.x, rightBottom.y);
+                        graphics.DrawPath(DrawHelpers.CreatePdfColor(current.Style.BranchColor).ToPen(tree.Style.BranchThickness),
+                                          XBrushes.Transparent,
+                                          path);
+                    }
+
                     if (current.IsLeaf)
                     {
                         // 系統名
@@ -71,7 +87,7 @@ namespace TreeViewer.Core.Exporting
                             (double x, double y, _, _) = positionManager.CalcLeafPosition(current);
 
                             graphics.DrawString(current.Taxon,
-                                                leafFont,
+                                                leafLabelFont,
                                                 DrawHelpers.CreatePdfColor(current.Style.LeafColor).ToBrush(),
                                                 new XPoint(x, y));
                         }
@@ -79,7 +95,7 @@ namespace TreeViewer.Core.Exporting
                     else
                     {
                         // 結節点の値
-                        if (tree.Style.ShowNodeValues)
+                        if (tree.Style.ShowNodeValues && !current.GetIsExternal())
                         {
                             string nodeValue = DrawHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                             if (nodeValue.Length > 0)
@@ -94,6 +110,23 @@ namespace TreeViewer.Core.Exporting
                         }
                     }
 
+                    // クレード名
+                    if (tree.Style.ShowCladeLabels && !string.IsNullOrEmpty(current.Style.CladeLabel))
+                    {
+                        var (line, text) = positionManager.CalcCladeLabelPosition(current);
+
+                        if (tree.Style.CladeLabelLineThickness > 0)
+                        {
+                            graphics.DrawLine(DrawHelpers.CreatePdfColor("black").ToPen(tree.Style.CladeLabelLineThickness),
+                                              new XPoint(line.x, line.yTop),
+                                              new XPoint(line.x, line.yBottom));
+                        }
+
+                        graphics.DrawString(current.Style.CladeLabel,
+                                            cladeLabelFont,
+                                            XBrushes.Black,
+                                            new XPoint(text.x, text.y));
+                    }
                     if (current.BranchLength > 0)
                     {
                         // 横棒

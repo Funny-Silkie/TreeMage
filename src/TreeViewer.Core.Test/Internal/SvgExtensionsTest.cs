@@ -131,6 +131,31 @@ namespace TreeViewer.Core.Internal
         }
 
         [Fact]
+        public void DrawLineAbsolutely_WithNullList()
+        {
+            Assert.Throws<ArgumentNullException>(() => SvgExtensions.DrawLineAbsolutely(null!, 0, 0));
+        }
+
+        [Fact]
+        public void DrawLineAbsolutely_AsPositive()
+        {
+            var list = new SvgPathSegmentList();
+
+            Assert.Same(list, list.DrawLineAbsolutely(10, 20));
+
+            Assert.Multiple(() =>
+            {
+                Assert.Single(list);
+
+                SvgPathSegment added = list.First();
+                Assert.IsType<SvgLineSegment>(added);
+                Assert.Equal(10, ((SvgLineSegment)added).End.X);
+                Assert.Equal(20, ((SvgLineSegment)added).End.Y);
+                Assert.False(((SvgLineSegment)added).IsRelative);
+            });
+        }
+
+        [Fact]
         public void DrawLineRelatively_WithNullList()
         {
             Assert.Throws<ArgumentNullException>(() => SvgExtensions.DrawLineRelatively(null!, 0, 0));

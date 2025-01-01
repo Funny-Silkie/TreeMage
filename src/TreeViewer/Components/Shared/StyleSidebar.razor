@@ -1,11 +1,18 @@
-﻿<RadzenStack Orientation="Orientation.Vertical">
+<RadzenStack Orientation="Orientation.Vertical">
     <RadzenText TextStyle="TextStyle.DisplayH6">Properties</RadzenText>
-    @if (ViewModel is not null && ViewModel.FocusedCount.Value > 0)
+    @if (ViewModel is not null && ViewModel.IsEnable.Value && ViewModel.FocusedCount.Value > 0 && ViewModel.FirstSelectedElement.Value.Clade is not null)
     {
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
             <RadzenText>Color: </RadzenText>
             <RadzenColorPicker @bind-Value="ViewModel.Color.Value" />
         </RadzenStack>
+        @if (ViewModel.FocusedCount.Value == 1 && ViewModel.SelectionTarget.Value is SelectionMode.Node)
+        {
+            <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                <RadzenText>Clade label:</RadzenText>
+                <RadzenTextBox @bind-Value="ViewModel.CladeLabel.Value" />
+            </RadzenRow>
+        }
     }
 </RadzenStack>
 

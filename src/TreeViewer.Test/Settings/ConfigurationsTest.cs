@@ -20,7 +20,11 @@ namespace TreeViewer.Settings
         {
             var config = new Configurations();
 
-            Assert.Equal(BranchColoringType.Both, config.BranchColoring);
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(BranchColoringType.Both, config.BranchColoring);
+                Assert.Equal(Data.AutoOrderingMode.Descending, config.AutoOrderingMode);
+            });
         }
 
         #endregion Ctors
@@ -45,7 +49,7 @@ namespace TreeViewer.Settings
 
             Configurations loaded = Configurations.LoadOrCreate();
 
-            Assert.Equal(config.BranchColoring, loaded.BranchColoring);
+            CustomizedAssertions.Equal(loaded, config);
         }
 
         [Fact]
@@ -56,7 +60,7 @@ namespace TreeViewer.Settings
 
             Configurations loaded = Configurations.LoadOrCreate();
 
-            Assert.Equal(BranchColoringType.Both, loaded.BranchColoring);
+            CustomizedAssertions.Equal(new Configurations(), loaded);
         }
 
         [Fact]
@@ -67,7 +71,7 @@ namespace TreeViewer.Settings
 
             Configurations loaded = await Configurations.LoadOrCreateAsync();
 
-            Assert.Equal(config.BranchColoring, loaded.BranchColoring);
+            CustomizedAssertions.Equal(loaded, config);
         }
 
         [Fact]
@@ -78,7 +82,7 @@ namespace TreeViewer.Settings
 
             Configurations loaded = await Configurations.LoadOrCreateAsync();
 
-            Assert.Equal(BranchColoringType.Both, loaded.BranchColoring);
+            CustomizedAssertions.Equal(new Configurations(), loaded);
         }
 
         #endregion Static Methods

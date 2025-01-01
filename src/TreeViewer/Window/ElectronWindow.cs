@@ -128,6 +128,19 @@ namespace TreeViewer.Window
         /// <summary>
         /// エラーメッセージを表示します。
         /// </summary>
+        /// <param name="message">エラーメッセージ</param>
+        public async Task ShowErrorMessageAsync(string? message)
+        {
+            await Electron.Dialog.ShowMessageBoxAsync(Window, new MessageBoxOptions(message)
+            {
+                Title = "Error",
+                Type = MessageBoxType.error,
+            });
+        }
+
+        /// <summary>
+        /// エラーメッセージを表示します。
+        /// </summary>
         /// <param name="exception">例外</param>
         public async Task ShowErrorMessageAsync(Exception exception)
         {
@@ -138,11 +151,7 @@ namespace TreeViewer.Window
                 exception.Message;
 #endif
 
-            await Electron.Dialog.ShowMessageBoxAsync(Window, new MessageBoxOptions(message)
-            {
-                Title = "Error",
-                Type = MessageBoxType.error,
-            });
+            await ShowErrorMessageAsync(message);
         }
 
         /// <summary>

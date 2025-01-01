@@ -20,6 +20,20 @@ namespace TreeViewer
         }
 
         [Fact]
+        public void WithSubscribe_WithReadOnlyReactivePropertySlim()
+        {
+            string? arg = null;
+            using var p = new ReactivePropertySlim<string?>();
+            using ReadOnlyReactivePropertySlim<string?> property = p.ToReadOnlyReactivePropertySlim();
+
+            Assert.Same(property, property.WithSubscribe(x => arg = x));
+            Assert.Null(arg);
+
+            p.Value = "hoge";
+            Assert.Equal("hoge", arg);
+        }
+
+        [Fact]
         public async Task WithSubscribe_WithAsyncReactiveCommand_NonGeneric()
         {
             bool done = false;

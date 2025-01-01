@@ -29,6 +29,9 @@ namespace TreeViewer.Core.Drawing.Styles
                 Assert.Equal(1, options.BranchThickness);
                 Assert.True(options.ShowLeafLabels);
                 Assert.Equal(20, options.LeafLabelsFontSize);
+                Assert.True(options.ShowCladeLabels);
+                Assert.Equal(20, options.CladeLabelsFontSize);
+                Assert.Equal(5, options.CladeLabelLineThickness);
                 Assert.True(options.ShowNodeValues);
                 Assert.Equal(CladeValueType.Supports, options.NodeValueType);
                 Assert.Equal(15, options.NodeValueFontSize);
@@ -43,6 +46,8 @@ namespace TreeViewer.Core.Drawing.Styles
                 Assert.Equal(0.1, options.ScaleBarValue);
                 Assert.Equal(25, options.ScaleBarFontSize);
                 Assert.Equal(5, options.ScaleBarThickness);
+                Assert.Equal(CladeCollapseType.TopMax, options.CollapseType);
+                Assert.Equal(1, options.CollapsedConstantWidth);
             });
         }
 
@@ -112,7 +117,10 @@ namespace TreeViewer.Core.Drawing.Styles
                 BranchThickness = 10,
                 ShowLeafLabels = false,
                 LeafLabelsFontSize = 1,
+                ShowCladeLabels = false,
+                CladeLabelsFontSize = 1,
                 ShowNodeValues = false,
+                CladeLabelLineThickness = 1,
                 NodeValueFontSize = 1,
                 NodeValueType = CladeValueType.BranchLength,
                 ShowBranchValues = false,
@@ -132,6 +140,8 @@ namespace TreeViewer.Core.Drawing.Styles
                 ScaleBarValue = 3,
                 ScaleBarFontSize = 50,
                 ScaleBarThickness = 10,
+                CollapseType = CladeCollapseType.Constant,
+                CollapsedConstantWidth = 2,
             };
             style.ApplyValues(applied);
 
@@ -146,6 +156,9 @@ namespace TreeViewer.Core.Drawing.Styles
             style.BranchThickness = 10;
             style.ShowLeafLabels = false;
             style.LeafLabelsFontSize = 1;
+            style.ShowCladeLabels = false;
+            style.CladeLabelsFontSize = 1;
+            style.CladeLabelLineThickness = 1;
             style.ShowNodeValues = false;
             style.NodeValueFontSize = 1;
             style.NodeValueType = CladeValueType.BranchLength;
@@ -166,6 +179,8 @@ namespace TreeViewer.Core.Drawing.Styles
             style.ScaleBarValue = 3;
             style.ScaleBarFontSize = 50;
             style.ScaleBarThickness = 10;
+            style.CollapseType = CladeCollapseType.Constant;
+            style.CollapsedConstantWidth = 2;
 
             TreeStyle cloned = style.Clone();
 
@@ -180,6 +195,9 @@ namespace TreeViewer.Core.Drawing.Styles
             style.BranchThickness = 10;
             style.ShowLeafLabels = false;
             style.LeafLabelsFontSize = 1;
+            style.ShowCladeLabels = false;
+            style.CladeLabelsFontSize = 1;
+            style.CladeLabelLineThickness = 1;
             style.ShowNodeValues = false;
             style.NodeValueFontSize = 1;
             style.NodeValueType = CladeValueType.BranchLength;
@@ -200,6 +218,8 @@ namespace TreeViewer.Core.Drawing.Styles
             style.ScaleBarValue = 3;
             style.ScaleBarFontSize = 50;
             style.ScaleBarThickness = 10;
+            style.CollapseType = CladeCollapseType.Constant;
+            style.CollapsedConstantWidth = 2;
 
             var cloned = (TreeStyle)((ICloneable)style).Clone();
 
