@@ -3,9 +3,13 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using TreeViewer.Core.Drawing;
+using TreeViewer.Core.Exporting;
+using TreeViewer.Core.ProjectData;
 using TreeViewer.Core.Trees;
+using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
 using TreeViewer.Services;
+using TreeViewer.Settings;
 
 namespace TreeViewer.Models
 {
@@ -14,9 +18,8 @@ namespace TreeViewer.Models
     /// </summary>
     public partial class MainModel : ModelBase
     {
-#warning TODO: privateに修正
-        internal UndoService undoService { get; } = new UndoService();
-        internal bool onUndoOperation { get; private set; } = false;
+        private readonly UndoService undoService = new UndoService();
+        private bool onUndoOperation = false;
 
         /// <summary>
         /// 読み込まれた系統樹一覧を取得します。
@@ -34,6 +37,11 @@ namespace TreeViewer.Models
         public HashSet<CladeId> FocusedSvgElementIdList { get; }
 
         /// <summary>
+        /// 開いているプロジェクトファイルのパスのプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string?> ProjectPath { get; }
+
+        /// <summary>
         /// <see cref="MainModel"/>の新しいインスタンスを初期化します。
         /// </summary>
         public MainModel()
@@ -41,6 +49,7 @@ namespace TreeViewer.Models
             Trees = new ReactiveCollection<Tree>().AddTo(Disposables);
             TargetTree = new ReactiveProperty<Tree?>().AddTo(Disposables);
             FocusedSvgElementIdList = [];
+            ProjectPath = new ReactiveProperty<string?>().AddTo(Disposables);
 
             #region Header
 
@@ -53,12 +62,12 @@ namespace TreeViewer.Models
             {
                 EditMode.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 EditMode.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, v));
             SelectionTarget = new ReactiveProperty<SelectionMode>(SelectionMode.Node).WithSubscribe(OnSelectionTargetChanged)
                                                                                      .AddTo(Disposables);
@@ -74,26 +83,26 @@ namespace TreeViewer.Models
                 tree.Style.CollapseType = arg.after;
                 CollapseType!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.CollapseType = arg.before;
                 CollapseType!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.CollapseType ?? CladeCollapseType.TopMax, after: v))).AddTo(Disposables);
             CollapsedConstantWidth = new ReactiveProperty<double>(1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.CollapsedConstantWidth = arg.after;
                 CollapsedConstantWidth!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.CollapsedConstantWidth = arg.before;
                 CollapsedConstantWidth!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.CollapsedConstantWidth ?? 1, after: v))).AddTo(Disposables);
 
             #endregion Layout
@@ -105,39 +114,39 @@ namespace TreeViewer.Models
                 tree.Style.XScale = arg.after;
                 XScale!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.XScale = arg.before;
                 XScale!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.XScale ?? 0, after: v))).AddTo(Disposables);
             YScale = new ReactiveProperty<int>(30).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.YScale = arg.after;
                 YScale!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.YScale = arg.before;
                 YScale!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.YScale ?? 0, after: v))).AddTo(Disposables);
             BranchThickness = new ReactiveProperty<int>(1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.BranchThickness = arg.after;
                 BranchThickness!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.BranchThickness = arg.before;
                 BranchThickness!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.BranchThickness ?? 0, after: v))).AddTo(Disposables);
 
             #endregion Tree
@@ -158,26 +167,26 @@ namespace TreeViewer.Models
                 tree.Style.ShowLeafLabels = arg.after;
                 ShowLeafLabels!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.ShowLeafLabels = arg.before;
                 ShowLeafLabels!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.ShowLeafLabels ?? false, after: v))).AddTo(Disposables);
             LeafLabelsFontSize = new ReactiveProperty<int>(20).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.LeafLabelsFontSize = arg.after;
                 LeafLabelsFontSize!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.LeafLabelsFontSize = arg.before;
                 LeafLabelsFontSize!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.LeafLabelsFontSize ?? 0, after: v))).AddTo(Disposables);
 
             #endregion LeafLabels
@@ -189,39 +198,39 @@ namespace TreeViewer.Models
                 tree.Style.ShowCladeLabels = arg.after;
                 ShowCladeLabels!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.ShowCladeLabels = arg.before;
                 ShowCladeLabels!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.ShowCladeLabels ?? false, after: v))).AddTo(Disposables);
             CladeLabelsFontSize = new ReactiveProperty<int>(20).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.CladeLabelsFontSize = arg.after;
                 CladeLabelsFontSize!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.CladeLabelsFontSize = arg.before;
                 CladeLabelsFontSize!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.CladeLabelsFontSize ?? 0, after: v))).AddTo(Disposables);
             CladeLabelsLineThickness = new ReactiveProperty<int>(5).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.CladeLabelLineThickness = arg.after;
                 CladeLabelsLineThickness!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.CladeLabelLineThickness = arg.before;
                 CladeLabelsLineThickness!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.CladeLabelLineThickness ?? 0, after: v)));
 
             #endregion CladeLabels
@@ -233,39 +242,39 @@ namespace TreeViewer.Models
                 tree.Style.ShowNodeValues = arg.after;
                 ShowNodeValues!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.ShowNodeValues = arg.before;
                 ShowNodeValues!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.ShowNodeValues ?? false, after: v))).AddTo(Disposables);
             NodeValueType = new ReactiveProperty<CladeValueType>(CladeValueType.Supports).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.NodeValueType = arg.after;
                 NodeValueType!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.NodeValueType = arg.before;
                 NodeValueType!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.NodeValueType ?? CladeValueType.BranchLength, after: v))).AddTo(Disposables);
             NodeValueFontSize = new ReactiveProperty<int>(15).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.NodeValueFontSize = arg.after;
                 NodeValueFontSize!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.NodeValueFontSize = arg.before;
                 NodeValueFontSize!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.NodeValueFontSize ?? 0, after: v))).AddTo(Disposables);
 
             #endregion NodeValues
@@ -277,52 +286,52 @@ namespace TreeViewer.Models
                 tree.Style.ShowBranchValues = arg.after;
                 ShowBranchValues!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.ShowBranchValues = arg.before;
                 ShowBranchValues!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.ShowBranchValues ?? false, after: v))).AddTo(Disposables);
             BranchValueType = new ReactiveProperty<CladeValueType>(CladeValueType.Supports).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.BranchValueType = arg.after;
                 BranchValueType!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.BranchValueType = arg.before;
                 BranchValueType!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.BranchValueType ?? CladeValueType.BranchLength, after: v))).AddTo(Disposables);
             BranchValueFontSize = new ReactiveProperty<int>(15).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.BranchValueFontSize = arg.after;
                 BranchValueFontSize!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.BranchValueFontSize = arg.before;
                 BranchValueFontSize!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.BranchValueFontSize ?? 0, after: v))).AddTo(Disposables);
             BranchValueHideRegexPattern = new ReactiveProperty<string?>().WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.BranchValueHideRegexPattern = arg.after;
                 BranchValueHideRegexPattern!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.BranchValueHideRegexPattern = arg.before;
                 BranchValueHideRegexPattern!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.BranchValueHideRegexPattern, after: v))).AddTo(Disposables);
 
             #endregion BranchValues
@@ -334,13 +343,13 @@ namespace TreeViewer.Models
                 tree.Style.ShowBranchDecorations = arg.after;
                 ShowBranchDecorations!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.ShowBranchDecorations = arg.before;
                 ShowBranchDecorations!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.ShowBranchDecorations ?? false, after: v))).AddTo(Disposables);
             BranchDecorations = new ReactiveCollection<BranchDecorationModel>().AddTo(Disposables);
 
@@ -353,52 +362,52 @@ namespace TreeViewer.Models
                 tree.Style.ShowScaleBar = arg.after;
                 ShowScaleBar!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.ShowScaleBar = arg.before;
                 ShowScaleBar!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.ShowScaleBar ?? false, after: v))).AddTo(Disposables);
             ScaleBarValue = new ReactiveProperty<double>(0.1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.ScaleBarValue = arg.after;
                 ScaleBarValue!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.ScaleBarValue = arg.before;
                 ScaleBarValue!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.ScaleBarValue ?? 0.1, after: v))).AddTo(Disposables);
             ScaleBarFontSize = new ReactiveProperty<int>(25).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.ScaleBarFontSize = arg.after;
                 ScaleBarFontSize!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.ScaleBarFontSize = arg.before;
                 ScaleBarFontSize!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.ScaleBarFontSize ?? 0, after: v))).AddTo(Disposables);
             ScaleBarThickness = new ReactiveProperty<int>(5).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
                 tree.Style.ScaleBarThickness = arg.after;
                 ScaleBarThickness!.Value = arg.after;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.Style.ScaleBarThickness = arg.before;
                 ScaleBarThickness!.Value = arg.before;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.ScaleBarThickness ?? 0, after: v))).AddTo(Disposables);
 
             #endregion ScaleBar
@@ -408,13 +417,11 @@ namespace TreeViewer.Models
             undoService.Clear();
         }
 
-#warning TODO: メソッド名をNotifyTreeChangedに変更
-
         /// <summary>
-        /// 系統樹の再描画をトリガーします。
+        /// ツリーの更新を通知します。
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void RequestRerenderTree()
+        public void NotifyTreeUpdated()
         {
             OnPropertyChanged(nameof(TargetTree));
         }
@@ -511,7 +518,7 @@ namespace TreeViewer.Models
         }
 
         /// <summary>
-        /// undo/redo可能な処理を実行し，<see cref="model.undoService"/>に登録します。
+        /// undo/redo可能な処理を実行し，<see cref="undoService"/>に登録します。
         /// </summary>
         /// <typeparam name="T">引数の型</typeparam>
         /// <param name="operation">処理</param>
@@ -630,6 +637,11 @@ namespace TreeViewer.Models
         public async Task Redo() => await undoService.Redo();
 
         /// <summary>
+        /// undoのキューをクリアします。
+        /// </summary>
+        public void ClearUndoQueue() => undoService.Clear();
+
+        /// <summary>
         /// 指定したクレードを選択します。
         /// </summary>
         /// <param name="targetClades">選択するクレード</param>
@@ -701,14 +713,14 @@ namespace TreeViewer.Models
                 Trees[arg.targetIndex] = arg.rerooted;
 
                 UnfocusAll();
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, arg =>
             {
                 TargetTree.Value = arg.prev;
                 Trees[arg.targetIndex] = arg.prev;
 
                 UnfocusAll();
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (prev: tree, rerooted, targetIndex));
         }
 
@@ -725,12 +737,12 @@ namespace TreeViewer.Models
             {
                 tree.SwapSisters(arg.target1, arg.target2);
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 tree.SwapSisters(arg.target1, arg.target2);
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (target1, target2));
         }
 
@@ -755,7 +767,7 @@ namespace TreeViewer.Models
 
                 TreeIndex.Value = arg.prevIndex + 2;
                 TargetTree.Value = arg.subtree;
-                RequestRerenderTree();
+                NotifyTreeUpdated();
 
                 EditMode.Value = TreeEditMode.Select;
                 OnPropertyChanged(nameof(EditMode));
@@ -766,7 +778,7 @@ namespace TreeViewer.Models
 
                 TreeIndex.Value = arg.prevIndex + 1;
                 TargetTree.Value = tree;
-                RequestRerenderTree();
+                NotifyTreeUpdated();
 
                 EditMode.Value = TreeEditMode.Subtree;
                 OnPropertyChanged(nameof(EditMode));
@@ -792,12 +804,12 @@ namespace TreeViewer.Models
             {
                 arg.clade.Style.Collapsed = !prevValue;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 arg.clade.Style.Collapsed = prevValue;
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (clade, prevValue));
         }
 
@@ -822,15 +834,176 @@ namespace TreeViewer.Models
                 Trees[arg.targetIndex] = arg.next;
 
                 UnfocusAll();
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, arg =>
             {
                 TargetTree.Value = arg.prev;
                 Trees[arg.targetIndex] = arg.prev;
 
                 UnfocusAll();
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (prev: tree, next: oredered, targetIndex));
+        }
+
+        /// <summary>
+        /// プロジェクトファイルを新規作成します。
+        /// </summary>
+        public void CreateNew()
+        {
+            ProjectPath.Value = null;
+            UnfocusAll();
+
+            TargetTree.Value = null;
+            Trees.ClearOnScheduler();
+            TreeIndex.Value = 1;
+            undoService.Clear();
+
+            NotifyTreeUpdated();
+            OnPropertyChanged(nameof(Trees));
+        }
+
+        /// <summary>
+        /// プロジェクトファイルを開きます。
+        /// </summary>
+        /// <param name="path">開くプロジェクトファイルのパス</param>
+        public async Task OpenProject(string path)
+        {
+            ProjectPath.Value = path;
+
+            try
+            {
+                ProjectData data = await ProjectData.LoadAsync(path);
+
+                UnfocusAll();
+                Trees.ClearOnScheduler();
+                Trees.AddRangeOnScheduler(data.Trees);
+
+                TargetTree.Value = null;
+
+                TreeIndex.Value = 1;
+                if (data.Trees.Length > 0)
+                {
+                    Tree mainTree = data.Trees[0];
+                    TargetTree.Value = mainTree;
+                    LoadTreeStyle(mainTree);
+                }
+
+                undoService.Clear();
+
+                NotifyTreeUpdated();
+                OnPropertyChanged(nameof(Trees));
+            }
+            catch
+            {
+                ProjectPath.Value = null;
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// プロジェクトファイルを保存します。
+        /// </summary>
+        /// <param name="path">保存するプロジェクトファイルのパス</param>
+        public async Task SaveProject(string path)
+        {
+            ProjectPath.Value = path;
+
+            if (TargetTree.Value is not null) ApplyTreeStyle(TargetTree.Value);
+
+            var projectData = new ProjectData()
+            {
+                Trees = [.. Trees],
+            };
+
+            await projectData.SaveAsync(path);
+        }
+
+        /// <summary>
+        /// 系統樹を読み込みます。
+        /// </summary>
+        /// <param name="path">読み込む系統樹ファイルのパス</param>
+        /// <param name="format">読み込む系統樹のフォーマット</param>
+        public async Task ImportTree(string path, TreeFormat format)
+        {
+            using var reader = new StreamReader(path);
+            Tree[] trees = await Tree.ReadAsync(reader, format);
+
+            if (trees.Length == 0) return;
+            Configurations config = await Configurations.LoadOrCreateAsync();
+
+            for (int i = 0; i < trees.Length; i++)
+            {
+                Tree tree = trees[i];
+
+                ApplyTreeStyle(tree);
+                switch (config.AutoOrderingMode)
+                {
+                    case AutoOrderingMode.Ascending:
+                        tree.OrderByLength(false);
+                        break;
+
+                    case AutoOrderingMode.Descending:
+                        tree.OrderByLength(true);
+                        break;
+                }
+            }
+
+            if (Trees.Count == 0)
+            {
+                Trees.AddRangeOnScheduler(trees);
+
+                TargetTree.Value = trees[0];
+                NotifyTreeUpdated();
+            }
+            else
+                OperateAsUndoable(arg =>
+                {
+                    Trees.AddRangeOnScheduler(arg.trees);
+                    OnPropertyChanged(nameof(MaxTreeIndex));
+
+                    TargetTree.Value = trees[0];
+                    TreeIndex.Value = arg.addedAt + 1;
+                    NotifyTreeUpdated();
+                }, arg =>
+                {
+                    for (int i = arg.addedAt; i < arg.addedAt + arg.trees.Length; i++) Trees.RemoveAtOnScheduler(i);
+                    OnPropertyChanged(nameof(MaxTreeIndex));
+
+                    TargetTree.Value = Trees[arg.prevIndex];
+                    TreeIndex.Value = arg.prevIndex + 1;
+                    NotifyTreeUpdated();
+                }, (trees, addedAt: Trees.Count, prevIndex: TreeIndex.Value - 1));
+        }
+
+        /// <summary>
+        /// 表示している系統樹を出力します。
+        /// </summary>
+        /// <param name="path">出力する系統樹ファイルのパス</param>
+        /// <param name="format">出力する系統樹のフォーマット</param>
+        public async Task ExportCurrentTreeAsTreeFile(string path, TreeFormat format)
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            using var writer = new StreamWriter(path);
+            await tree.WriteAsync(writer, format);
+        }
+
+        /// <summary>
+        /// <see cref="IExporter"/>によるエクスポートを行います。
+        /// </summary>
+        /// <param name="path">出力先のファイルパス</param>
+        /// <param name="type">エクスポートのフォーマット</param>
+        public async Task ExportWithExporter(string path, ExportType type)
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            ApplyTreeStyle(tree);
+
+            IExporter exporter = IExporter.Create(type);
+            using var stream = new FileStream(path, FileMode.Create);
+            await exporter.ExportAsync(tree, stream, (await Configurations.LoadOrCreateAsync()).ToExportOptions());
         }
     }
 }

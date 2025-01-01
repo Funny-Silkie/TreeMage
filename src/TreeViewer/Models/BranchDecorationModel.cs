@@ -55,56 +55,56 @@ namespace TreeViewer.Models
             {
                 TargetRegexPattern!.Value = arg.after;
                 Style.RegexPattern = arg.after;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, arg =>
             {
                 TargetRegexPattern!.Value = arg.before;
                 Style.RegexPattern = arg.before;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, (before: Style.RegexPattern, after: v))).AddTo(Disposables);
             DecorationType = new ReactiveProperty<BranchDecorationType>(Style.DecorationType, mode: ReactivePropertyMode.DistinctUntilChanged).WithSubscribe(v => this.mainModel.OperateAsUndoable(arg =>
             {
                 DecorationType!.Value = arg.after;
                 Style.DecorationType = arg.after;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, arg =>
             {
                 DecorationType!.Value = arg.before;
                 Style.DecorationType = arg.before;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, (before: Style.DecorationType, after: v))).AddTo(Disposables);
             ShapeSize = new ReactiveProperty<int>(style.ShapeSize, mode: ReactivePropertyMode.DistinctUntilChanged).WithSubscribe(v => this.mainModel.OperateAsUndoable(arg =>
             {
                 ShapeSize!.Value = arg.after;
                 Style.ShapeSize = arg.after;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, arg =>
             {
                 ShapeSize!.Value = arg.before;
                 Style.ShapeSize = arg.before;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, (before: Style.ShapeSize, after: v))).AddTo(Disposables);
             ShapeColor = new ReactiveProperty<string>(Style.ShapeColor, mode: ReactivePropertyMode.DistinctUntilChanged).WithSubscribe(v => this.mainModel.OperateAsUndoable(arg =>
             {
                 ShapeColor!.Value = arg.after;
                 Style.ShapeColor = arg.after;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, arg =>
             {
                 ShapeColor!.Value = arg.before;
                 Style.ShapeColor = arg.before;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, (before: Style.ShapeColor, after: v))).AddTo(Disposables);
             Visible = new ReactiveProperty<bool>(Style.Enabled, mode: ReactivePropertyMode.DistinctUntilChanged).WithSubscribe(v => this.mainModel.OperateAsUndoable(arg =>
             {
                 Visible!.Value = arg.after;
                 Style.Enabled = arg.after;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, arg =>
             {
                 Visible!.Value = arg.before;
                 Style.Enabled = arg.before;
-                this.mainModel.RequestRerenderTree();
+                this.mainModel.NotifyTreeUpdated();
             }, (before: Style.Enabled, after: v))).AddTo(Disposables);
         }
 
@@ -121,14 +121,14 @@ namespace TreeViewer.Models
                 mainModel.BranchDecorations.RemoveAtOnScheduler(index);
                 treeStyle.DecorationStyles = Array.FindAll(treeStyle.DecorationStyles, x => x != Style);
 
-                mainModel.RequestRerenderTree();
+                mainModel.NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 TreeStyle treeStyle = tree.Style;
                 mainModel.BranchDecorations.InsertOnScheduler(arg, this);
                 treeStyle.DecorationStyles = ArrayHelpers.Inserted(treeStyle.DecorationStyles, arg, Style);
 
-                mainModel.RequestRerenderTree();
+                mainModel.NotifyTreeUpdated();
             }, index);
         }
     }

@@ -353,7 +353,7 @@ namespace TreeViewer.Window
             string? path = await ShowFileSaveDialog();
             if (path is null) return;
 
-            await ViewModel.ExportCurrentTreeAsTreeFile(path, format);
+            await ViewModel.ExportTreeCommand.ExecuteAsync((path, format));
         }
 
         /// <summary>

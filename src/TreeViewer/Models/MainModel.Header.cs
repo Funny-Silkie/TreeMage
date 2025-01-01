@@ -48,7 +48,7 @@ namespace TreeViewer.Models
                     LoadTreeStyle(arg.nextTree);
 
                     TreeIndex.Value = arg.nextIndex + 1;
-                    RequestRerenderTree();
+                    NotifyTreeUpdated();
                 }, arg =>
                 {
                     ApplyTreeStyle(arg.nextTree);
@@ -59,7 +59,7 @@ namespace TreeViewer.Models
                     LoadTreeStyle(arg.prevTree);
 
                     TreeIndex.Value = arg.prevIndex + 1;
-                    RequestRerenderTree();
+                    NotifyTreeUpdated();
                 }, (prevTree, nextTree, prevIndex, nextIndex: value));
             }
         }

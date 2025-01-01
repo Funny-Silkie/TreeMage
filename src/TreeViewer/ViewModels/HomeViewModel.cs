@@ -2,16 +2,12 @@ using ElectronNET.API.Entities;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
-using System.Text.RegularExpressions;
 using TreeViewer.Core.Drawing;
 using TreeViewer.Core.Exporting;
-using TreeViewer.Core.ProjectData;
 using TreeViewer.Core.Trees;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
 using TreeViewer.Models;
-using TreeViewer.Settings;
 using TreeViewer.Window;
 
 namespace TreeViewer.ViewModels
@@ -21,7 +17,6 @@ namespace TreeViewer.ViewModels
     /// </summary>
     public class HomeViewModel : WindowViewModel<MainWindow, HomeViewModel>
     {
-        private string? projectPath;
         private readonly MainModel model;
 
         /// <summary>
@@ -85,6 +80,11 @@ namespace TreeViewer.ViewModels
         /// プロジェクトファイルを保存するコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<bool> SaveProjectCommand { get; }
+
+        /// <summary>
+        /// 系統樹を出力するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<(string path, TreeFormat format)> ExportTreeCommand { get; }
 
         /// <summary>
         /// エクスポートを行うコマンドを取得します。
@@ -302,7 +302,7 @@ namespace TreeViewer.ViewModels
                               .AddTo(Disposables);
             SvgElementClickedCommand = new AsyncReactiveCommand<CladeId>().WithSubscribe(OnSvgElementClicked)
                                                                           .AddTo(Disposables);
-            RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(RequestRerenderTree).AddTo(Disposables);
+            RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(model.NotifyTreeUpdated).AddTo(Disposables);
             RerootCommand = new AsyncReactiveCommand<(Clade target, bool asRooted)>().WithSubscribe(Reroot)
                                                                                      .AddTo(Disposables);
             SwapSisterCommand = new AsyncReactiveCommand<(Clade target1, Clade target2)>().WithSubscribe(SwapSisters)
@@ -310,13 +310,15 @@ namespace TreeViewer.ViewModels
             ExtractSubtreeCommand = new AsyncReactiveCommand<Clade>().WithSubscribe(ExtractSubtree)
                                                                      .AddTo(Disposables);
 
-            CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(CreateNew)
+            CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(model.CreateNew)
                                                          .AddTo(Disposables);
             OpenProjectCommand = new AsyncReactiveCommand().WithSubscribe(OpenProject)
                                                            .AddTo(Disposables);
             SaveProjectCommand = new AsyncReactiveCommand<bool>().WithSubscribe(SaveProject)
                                                                  .AddTo(Disposables);
-            ExportWithExporterCommand = new AsyncReactiveCommand<(string path, ExportType type)>().WithSubscribe(ExportWithExporter)
+            ExportTreeCommand = new AsyncReactiveCommand<(string path, TreeFormat format)>().WithSubscribe(model.ExportCurrentTreeAsTreeFile)
+                                                                                            .AddTo(Disposables);
+            ExportWithExporterCommand = new AsyncReactiveCommand<(string path, ExportType type)>().WithSubscribe(model.ExportWithExporter)
                                                                                                   .AddTo(Disposables);
             UndoCommand = new AsyncReactiveCommand().WithSubscribe(model.Undo)
                                                     .AddTo(Disposables);
@@ -404,16 +406,7 @@ namespace TreeViewer.ViewModels
 
             StyleSidebarViewModel = new StyleSidebarViewModel(this);
 
-            model.undoService.Clear();
-        }
-
-        /// <summary>
-        /// 系統樹の再描画をトリガーします。
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RequestRerenderTree()
-        {
-            OnPropertyChanged(nameof(TargetTree));
+            model.ClearUndoQueue();
         }
 
         /// <summary>
@@ -439,12 +432,6 @@ namespace TreeViewer.ViewModels
         {
             model.OperateAsUndoable(operation, undoOperation, argument);
         }
-
-        /// <inheritdoc cref="MainModel.ApplyTreeStyle(Tree)"/>
-        private void ApplyTreeStyle(Tree tree) => model.ApplyTreeStyle(tree);
-
-        /// <inheritdoc cref="MainModel.LoadTreeStyle(Tree)"/>
-        private void LoadTreeStyle(Tree tree) => model.LoadTreeStyle(tree);
 
         /// <summary>
         /// SVG要素がクリックされた際に実行されます。
@@ -489,9 +476,6 @@ namespace TreeViewer.ViewModels
                 Window.ShowErrorMessageAsync(e).Wait();
             }
         }
-
-        /// <inheritdoc cref="MainModel.UnfocusAll"/>
-        private void UnfocusAll() => model.UnfocusAll();
 
         /// <inheritdoc cref="MainModel.Reroot(Clade, bool)"/>
         private async Task Reroot(Clade clade, bool asRooted)
@@ -563,26 +547,7 @@ namespace TreeViewer.ViewModels
             }
         }
 
-        /// <summary>
-        /// プロジェクトファイルを新規作成します。
-        /// </summary>
-        private void CreateNew()
-        {
-            projectPath = null;
-            UnfocusAll();
-
-            TargetTree.Value = null;
-            Trees.ClearOnScheduler();
-            TreeIndex.Value = 1;
-            model.undoService.Clear();
-
-            RequestRerenderTree();
-            OnPropertyChanged(nameof(Trees));
-        }
-
-        /// <summary>
-        /// プロジェクトファイルを開きます。
-        /// </summary>
+        /// <inheritdoc cref="MainModel.OpenProject(string)"/>
         private async Task OpenProject()
         {
             string? path = await Window.ShowSingleFileOpenDialog([new FileFilter()
@@ -592,45 +557,22 @@ namespace TreeViewer.ViewModels
             }]);
             if (path is null) return;
 
-            projectPath = path;
-
             try
             {
-                ProjectData data = await ProjectData.LoadAsync(path);
-
-                UnfocusAll();
-                Trees.ClearOnScheduler();
-                Trees.AddRangeOnScheduler(data.Trees);
-
-                TargetTree.Value = null;
-
-                TreeIndex.Value = 1;
-                if (data.Trees.Length > 0)
-                {
-                    Tree mainTree = data.Trees[0];
-                    TargetTree.Value = mainTree;
-                    LoadTreeStyle(mainTree);
-                }
-
-                model.undoService.Clear();
-
-                RequestRerenderTree();
-                OnPropertyChanged(nameof(Trees));
+                await model.OpenProject(path);
             }
             catch (Exception e)
             {
+                await Console.Out.WriteLineAsync(e.ToString());
                 await Window.ShowErrorMessageAsync(e);
-                projectPath = null;
             }
         }
 
-        /// <summary>
-        /// プロジェクトファイルを保存します。
-        /// </summary>
-        /// <param name="asNew">新しいファイルとして保存するかどうかを表す値</param>
+        /// <inheritdoc cref="MainModel.SaveProject(string)"/>
         private async Task SaveProject(bool asNew)
         {
-            if (asNew || projectPath is null)
+            string path;
+            if (asNew || model.ProjectPath.Value is null)
             {
                 string? selectedPath = await Window.ShowFileSaveDialog([new FileFilter()
                 {
@@ -639,19 +581,13 @@ namespace TreeViewer.ViewModels
                 }]);
 
                 if (selectedPath is null) return;
-                projectPath = selectedPath;
+                path = selectedPath;
             }
-
-            if (TargetTree.Value is not null) ApplyTreeStyle(TargetTree.Value);
-
-            var projectData = new ProjectData()
-            {
-                Trees = [.. Trees],
-            };
+            else path = model.ProjectPath.Value;
 
             try
             {
-                await projectData.SaveAsync(projectPath);
+                await model.SaveProject(path);
             }
             catch (Exception e)
             {
@@ -659,110 +595,24 @@ namespace TreeViewer.ViewModels
             }
         }
 
-        /// <summary>
-        /// 系統樹を読み込みます。
-        /// </summary>
-        /// <param name="path">読み込む系統樹ファイルのパス</param>
-        /// <param name="format">読み込む系統樹のフォーマット</param>
+        /// <inheritdoc cref="MainModel.ImportTree(string, TreeFormat)"/>
         public async Task ImportTree(string path, TreeFormat format)
         {
             try
             {
-                using var reader = new StreamReader(path);
-                Tree[] trees;
-                try
-                {
-                    trees = await Tree.ReadAsync(reader, format);
-                }
-                catch (TreeFormatException e)
-                {
-                    await Window.ShowErrorMessageAsync("ツリーのフォーマットが無効です");
-                    await Console.Out.WriteLineAsync(e.ToString());
-                    return;
-                }
-
-                if (trees.Length == 0) return;
-                Configurations config = await Configurations.LoadOrCreateAsync();
-
-                for (int i = 0; i < trees.Length; i++)
-                {
-                    Tree tree = trees[i];
-
-                    ApplyTreeStyle(tree);
-                    switch (config.AutoOrderingMode)
-                    {
-                        case AutoOrderingMode.Ascending:
-                            tree.OrderByLength(false);
-                            break;
-
-                        case AutoOrderingMode.Descending:
-                            tree.OrderByLength(true);
-                            break;
-                    }
-                }
-
-                if (Trees.Count == 0)
-                {
-                    Trees.AddRangeOnScheduler(trees);
-
-                    TargetTree.Value = trees[0];
-                    RequestRerenderTree();
-                }
-                else
-                    OperateAsUndoable(arg =>
-                    {
-                        Trees.AddRangeOnScheduler(arg.trees);
-                        OnPropertyChanged(nameof(MaxTreeIndex));
-
-                        TargetTree.Value = trees[0];
-                        TreeIndex.Value = arg.addedAt + 1;
-                        RequestRerenderTree();
-                    }, arg =>
-                    {
-                        for (int i = arg.addedAt; i < arg.addedAt + arg.trees.Length; i++) Trees.RemoveAtOnScheduler(i);
-                        OnPropertyChanged(nameof(MaxTreeIndex));
-
-                        TargetTree.Value = Trees[arg.prevIndex];
-                        TreeIndex.Value = arg.prevIndex + 1;
-                        RequestRerenderTree();
-                    }, (trees, addedAt: Trees.Count, prevIndex: TreeIndex.Value - 1));
+                await model.ImportTree(path, format);
+            }
+            catch (TreeFormatException e)
+            {
+                await Window.ShowErrorMessageAsync("ツリーのフォーマットが無効です");
+                await Console.Out.WriteLineAsync(e.ToString());
+                return;
             }
             catch (Exception e)
             {
                 await Window.ShowErrorMessageAsync(e);
                 await Console.Out.WriteLineAsync(e.ToString());
             }
-        }
-
-        /// <summary>
-        /// 表示している系統樹を出力します。
-        /// </summary>
-        /// <param name="path">出力する系統樹ファイルのパス</param>
-        /// <param name="format">出力する系統樹のフォーマット</param>
-        public async Task ExportCurrentTreeAsTreeFile(string path, TreeFormat format)
-        {
-            Tree? tree = TargetTree.Value;
-            if (tree is null) return;
-
-            using var writer = new StreamWriter(path);
-            await tree.WriteAsync(writer, format);
-        }
-
-        /// <summary>
-        /// <see cref="IExporter"/>によるエクスポートを行います。
-        /// </summary>
-        /// <param name="path">出力先のファイルパス</param>
-        /// <param name="type">エクスポートのフォーマット</param>
-        private async Task ExportWithExporter(string path, ExportType type)
-        {
-            Tree? tree = TargetTree.Value;
-            if (tree is null) return;
-
-            ApplyTreeStyle(tree);
-
-            IExporter exporter = IExporter.Create(type);
-            using var stream = new FileStream(path, FileMode.Create);
-            await exporter.ExportAsync(tree, stream, (await Configurations.LoadOrCreateAsync()).ToExportOptions());
         }
     }
 }

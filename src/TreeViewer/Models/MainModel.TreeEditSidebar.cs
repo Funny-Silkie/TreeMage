@@ -224,13 +224,13 @@ namespace TreeViewer.Models
                 BranchDecorations.AddOnScheduler(arg.vm);
                 tree.Style.DecorationStyles = [.. tree.Style.DecorationStyles, arg.style];
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 BranchDecorations.RemoveOnScheduler(arg.vm);
                 tree.Style.DecorationStyles = tree.Style.DecorationStyles[..^1];
 
-                RequestRerenderTree();
+                NotifyTreeUpdated();
             }, (vm: decorationViewModel, style));
         }
 
