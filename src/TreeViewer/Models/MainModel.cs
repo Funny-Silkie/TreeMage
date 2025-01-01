@@ -1,4 +1,4 @@
-using Reactive.Bindings;
+﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
@@ -24,14 +24,14 @@ namespace TreeViewer.Models
         public ReactiveCollection<Tree> Trees { get; }
 
         /// <summary>
-        /// <see cref="TreeIndex"/>の最大値のプロパティを取得します。
-        /// </summary>
-        public ReactiveProperty<int> MaxTreeIndex { get; }
-
-        /// <summary>
         /// 対象の樹形を取得します。
         /// </summary>
         public ReactiveProperty<Tree?> TargetTree { get; }
+
+        /// <summary>
+        /// 選択されているSVG要素のID一覧を取得します。
+        /// </summary>
+        public HashSet<CladeId> FocusedSvgElementIdList { get; }
 
         /// <summary>
         /// <see cref="MainModel"/>の新しいインスタンスを初期化します。
@@ -39,12 +39,15 @@ namespace TreeViewer.Models
         public MainModel()
         {
             Trees = new ReactiveCollection<Tree>().AddTo(Disposables);
-            MaxTreeIndex = new ReactiveProperty<int>().AddTo(Disposables);
-            Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
             TargetTree = new ReactiveProperty<Tree?>().AddTo(Disposables);
+            FocusedSvgElementIdList = [];
 
             #region Header
 
+            TreeIndex = new ReactiveProperty<int>(1).WithSubscribe(OnTreeIndexChanged)
+                                                        .AddTo(Disposables);
+            MaxTreeIndex = new ReactiveProperty<int>().AddTo(Disposables);
+            Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
             EditMode = new ReactiveProperty<TreeEditMode>().AddTo(Disposables);
             EditMode.Zip(EditMode.Skip(1), (x, y) => (before: x, after: y)).Subscribe(v => OperateAsUndoable((arg, tree) =>
             {
@@ -57,6 +60,8 @@ namespace TreeViewer.Models
 
                 RequestRerenderTree();
             }, v));
+            SelectionTarget = new ReactiveProperty<SelectionMode>(SelectionMode.Node).WithSubscribe(OnSelectionTargetChanged)
+                                                                                     .AddTo(Disposables);
 
             #endregion Header
 
@@ -390,6 +395,8 @@ namespace TreeViewer.Models
             #endregion ScaleBar
 
             #endregion TreeEditSidebar
+
+            undoService.Clear();
         }
 
 #warning TODO: メソッド名をNotifyTreeChangedに変更
@@ -601,6 +608,68 @@ namespace TreeViewer.Models
             ScaleBarThickness.Value = tree.Style.ScaleBarThickness;
             CollapseType.Value = tree.Style.CollapseType;
             CollapsedConstantWidth.Value = tree.Style.CollapsedConstantWidth;
+        }
+
+        /// <summary>
+        /// undoを行います。
+        /// </summary>
+        public async Task Undo() => await undoService.Undo();
+
+        /// <summary>
+        /// redoを行います。
+        /// </summary>
+        public async Task Redo() => await undoService.Redo();
+
+        /// <summary>
+        /// 指定したクレードを選択します。
+        /// </summary>
+        /// <param name="targetClades">選択するクレード</param>
+        public void Focus(params IEnumerable<Clade> targetClades)
+        {
+            FocusedSvgElementIdList.Clear();
+
+            foreach (Clade current in targetClades)
+            {
+                CladeIdSuffix idSuffix;
+                switch (SelectionTarget.Value)
+                {
+                    case SelectionMode.Node:
+                    case SelectionMode.Clade:
+                        idSuffix = CladeIdSuffix.Branch;
+                        break;
+
+                    case SelectionMode.Taxa:
+                        idSuffix = CladeIdSuffix.Leaf;
+                        break;
+
+                    default: continue;
+                }
+
+                FocusedSvgElementIdList.Add(current.GetId(idSuffix));
+            }
+
+            OnPropertyChanged(nameof(FocusedSvgElementIdList));
+        }
+
+        /// <summary>
+        /// 全ての要素を選択します。
+        /// </summary>
+        public void FocusAll()
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            Focus(tree.GetAllClades());
+        }
+
+        /// <summary>
+        /// 全ての選択を解除します。
+        /// </summary>
+        public void UnfocusAll()
+        {
+            FocusedSvgElementIdList.Clear();
+
+            OnPropertyChanged(nameof(FocusedSvgElementIdList));
         }
     }
 }

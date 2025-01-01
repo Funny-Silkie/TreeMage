@@ -5,7 +5,6 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using TreeViewer.Core.Drawing;
-using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Exporting;
 using TreeViewer.Core.ProjectData;
 using TreeViewer.Core.Trees;
@@ -300,8 +299,8 @@ namespace TreeViewer.ViewModels
             model.PropertyChanged += (sender, e) => OnPropertyChanged(e.PropertyName);
 
             Trees = model.Trees;
-            TreeIndex = new ReactivePropertySlim<int>(1).WithSubscribe(OnTreeIndexChanged)
-                                                        .AddTo(Disposables);
+            TreeIndex = model.ToReactivePropertySlimAsSynchronized(x => x.TreeIndex.Value)
+                             .AddTo(Disposables);
             EditMode = model.ToReactivePropertySlimAsSynchronized(x => x.EditMode.Value)
                             .AddTo(Disposables);
             MaxTreeIndex = model.ToReactivePropertySlimAsSynchronized(x => x.MaxTreeIndex.Value)
@@ -327,19 +326,19 @@ namespace TreeViewer.ViewModels
                                                                  .AddTo(Disposables);
             ExportWithExporterCommand = new AsyncReactiveCommand<(string path, ExportType type)>().WithSubscribe(async x => await ExportWithExporter(x.path, x.type))
                                                                                                   .AddTo(Disposables);
-            UndoCommand = new AsyncReactiveCommand().WithSubscribe(model.undoService.Undo)
+            UndoCommand = new AsyncReactiveCommand().WithSubscribe(model.Undo)
                                                     .AddTo(Disposables);
-            RedoCommand = new AsyncReactiveCommand().WithSubscribe(model.undoService.Redo)
+            RedoCommand = new AsyncReactiveCommand().WithSubscribe(model.Redo)
                                                     .AddTo(Disposables);
 
-            FocusedSvgElementIdList = [];
-            FocusAllCommand = new AsyncReactiveCommand().WithSubscribe(FocusAll)
+            FocusedSvgElementIdList = model.FocusedSvgElementIdList;
+            FocusAllCommand = new AsyncReactiveCommand().WithSubscribe(model.FocusAll)
                                                           .AddTo(Disposables);
-            UnfocusAllCommand = new AsyncReactiveCommand().WithSubscribe(UnfocusAll)
+            UnfocusAllCommand = new AsyncReactiveCommand().WithSubscribe(model.UnfocusAll)
                                                           .AddTo(Disposables);
 
-            SelectionTarget = new ReactivePropertySlim<SelectionMode>(SelectionMode.Node).WithSubscribe(OnSelectionTargetChanged)
-                                                                                         .AddTo(Disposables);
+            SelectionTarget = model.ToReactivePropertySlimAsSynchronized(x => x.SelectionTarget.Value)
+                                   .AddTo(Disposables);
 
             CollapseType = model.ToReactivePropertySlimAsSynchronized(x => x.CollapseType.Value)
                                 .AddTo(Disposables);
@@ -453,54 +452,6 @@ namespace TreeViewer.ViewModels
         private void LoadTreeStyle(Tree tree) => model.LoadTreeStyle(tree);
 
         /// <summary>
-        /// <see cref="TreeIndex"/>が変更されたときに実行されます。
-        /// </summary>
-        /// <param name="value">変更後の値</param>
-        private void OnTreeIndexChanged(int value)
-        {
-            if (model.onUndoOperation) return;
-
-            value--;
-            if ((uint)value >= (uint)Trees.Count) return;
-
-            Tree? prevTree = TargetTree.Value;
-            Tree nextTree = Trees[value];
-            if (prevTree is null)
-            {
-                TargetTree.Value = Trees[value];
-                LoadTreeStyle(nextTree);
-            }
-            else
-            {
-                int prevIndex = Trees.IndexOf(prevTree);
-
-                OperateAsUndoable(arg =>
-                {
-                    ApplyTreeStyle(arg.prevTree);
-
-                    UnfocusAll();
-                    TargetTree.Value = arg.nextTree;
-
-                    LoadTreeStyle(arg.nextTree);
-
-                    TreeIndex.Value = arg.nextIndex + 1;
-                    RequestRerenderTree();
-                }, arg =>
-                {
-                    ApplyTreeStyle(arg.nextTree);
-
-                    UnfocusAll();
-                    TargetTree.Value = arg.prevTree;
-
-                    LoadTreeStyle(arg.prevTree);
-
-                    TreeIndex.Value = arg.prevIndex + 1;
-                    RequestRerenderTree();
-                }, (prevTree, nextTree, prevIndex, nextIndex: value));
-            }
-        }
-
-        /// <summary>
         /// SVG要素がクリックされた際に実行されます。
         /// </summary>
         /// <param name="id">SVG要素のID</param>
@@ -514,22 +465,22 @@ namespace TreeViewer.ViewModels
                     {
                         case SelectionMode.Node:
                             {
-                                Focus(id.Clade);
+                                model.Focus(id.Clade);
                             }
                             break;
 
                         case SelectionMode.Clade:
                             {
                                 Clade target = id.Clade;
-                                Focus(target.GetDescendants().Prepend(target));
+                                model.Focus(target.GetDescendants().Prepend(target));
                             }
                             break;
 
                         case SelectionMode.Taxa:
                             {
                                 Clade target = id.Clade;
-                                if (target.IsLeaf) Focus(target);
-                                else Focus(target.GetDescendants().Where(x => x.IsLeaf));
+                                if (target.IsLeaf) model.Focus(target);
+                                else model.Focus(target.GetDescendants().Where(x => x.IsLeaf));
                             }
                             break;
                     }
@@ -544,84 +495,11 @@ namespace TreeViewer.ViewModels
             }
         }
 
-        /// <summary>
-        /// 指定したクレードを選択します。
-        /// </summary>
-        /// <param name="targetClades">選択するクレード</param>
-        private void Focus(params IEnumerable<Clade> targetClades)
-        {
-            FocusedSvgElementIdList.Clear();
+        /// <inheritdoc cref="MainModel.Focus(IEnumerable{Clade})"/>
+        private void Focus(params IEnumerable<Clade> targetClades) => model.Focus(targetClades);
 
-            foreach (Clade current in targetClades)
-            {
-                CladeIdSuffix idSuffix;
-                switch (SelectionTarget.Value)
-                {
-                    case SelectionMode.Node:
-                    case SelectionMode.Clade:
-                        idSuffix = CladeIdSuffix.Branch;
-                        break;
-
-                    case SelectionMode.Taxa:
-                        idSuffix = CladeIdSuffix.Leaf;
-                        break;
-
-                    default: continue;
-                }
-
-                FocusedSvgElementIdList.Add(current.GetId(idSuffix));
-            }
-
-            OnPropertyChanged(nameof(FocusedSvgElementIdList));
-        }
-
-        /// <summary>
-        /// 全ての要素を選択します。
-        /// </summary>
-        private void FocusAll()
-        {
-            Tree? tree = TargetTree.Value;
-            if (tree is null) return;
-
-            Focus(tree.GetAllClades());
-        }
-
-        /// <summary>
-        /// 全ての選択を解除します。
-        /// </summary>
-        private void UnfocusAll()
-        {
-            FocusedSvgElementIdList.Clear();
-
-            OnPropertyChanged(nameof(FocusedSvgElementIdList));
-        }
-
-        /// <summary>
-        /// <see cref="SelectionTarget"/>が変更されたときに実行されます。
-        /// </summary>
-        /// <param name="value">変更後の値</param>
-        private void OnSelectionTargetChanged(SelectionMode value)
-        {
-            if (FocusedSvgElementIdList.Count == 0) return;
-
-            HashSet<Clade> selectedClades = FocusedSvgElementIdList.Select(x => x.Clade)
-                                                                   .ToHashSet();
-
-            switch (value)
-            {
-                case SelectionMode.Node:
-                    Focus(selectedClades);
-                    break;
-
-                case SelectionMode.Clade:
-                    Focus(selectedClades.SelectMany(x => x.GetDescendants().Prepend(x)));
-                    break;
-
-                case SelectionMode.Taxa:
-                    Focus(selectedClades.SelectMany(x => x.GetDescendants().Prepend(x)));
-                    break;
-            }
-        }
+        /// <inheritdoc cref="MainModel.UnfocusAll"/>
+        private void UnfocusAll() => model.UnfocusAll();
 
         /// <summary>
         /// リルートを行います。
