@@ -207,14 +207,14 @@ namespace TreeViewer.Window
                         {
                             Type = MenuType.normal,
                             Label = "Focus all",
-                            Click = () => FocusAll().Wait(),
+                            Click = () => ViewModel.FocusAllCommand.Execute(),
                             Accelerator = "Ctrl+A",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
                             Label = "Unfocus all",
-                            Click = () => UnfocusAll().Wait(),
+                            Click = () => ViewModel.UnfocusAllCommand.Execute(),
                             Accelerator = "Esc",
                         },
                         new MenuItem()
@@ -373,26 +373,6 @@ namespace TreeViewer.Window
         }
 
         #endregion File
-
-        #region Tree
-
-        /// <summary>
-        /// 全要素を選択します。
-        /// </summary>
-        private async Task FocusAll()
-        {
-            await ViewModel.FocusAllCommand.ExecuteAsync();
-        }
-
-        /// <summary>
-        /// 選択を解除します。
-        /// </summary>
-        private async Task UnfocusAll()
-        {
-            await ViewModel.UnfocusAllCommand.ExecuteAsync();
-        }
-
-        #endregion Tree
 
         #region Window
 

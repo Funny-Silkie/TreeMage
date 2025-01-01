@@ -1,6 +1,8 @@
+@inject StyleSidebarViewModel ViewModel
+
 <RadzenStack Orientation="Orientation.Vertical">
     <RadzenText TextStyle="TextStyle.DisplayH6">Properties</RadzenText>
-    @if (ViewModel is not null && ViewModel.IsEnable.Value && ViewModel.FocusedCount.Value > 0 && ViewModel.FirstSelectedElement.Value.Clade is not null)
+    @if (ViewModel.IsEnable.Value && ViewModel.FocusedCount.Value > 0 && ViewModel.FirstSelectedElement.Value.Clade is not null)
     {
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
             <RadzenText>Color: </RadzenText>
@@ -18,6 +20,10 @@
 
 
 @code {
-    [Parameter]
-    public StyleSidebarViewModel? ViewModel { get; set; }
+    /// <inheritdoc/>
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel!.PropertyChanged += (_, _) => InvokeAsync(StateHasChanged);
+        await Task.CompletedTask;
+    }
 }

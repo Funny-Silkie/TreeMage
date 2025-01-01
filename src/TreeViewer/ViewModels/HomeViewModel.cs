@@ -20,11 +20,6 @@ namespace TreeViewer.ViewModels
         private readonly MainModel model;
 
         /// <summary>
-        /// スタイル編集用のViewModelを取得します。
-        /// </summary>
-        public StyleSidebarViewModel StyleSidebarViewModel { get; }
-
-        /// <summary>
         /// 読み込まれた系統樹一覧を取得します。
         /// </summary>
         private ReactiveCollection<Tree> Trees { get; }
@@ -404,33 +399,7 @@ namespace TreeViewer.ViewModels
             ScaleBarThickness = model.ToReactivePropertySlimAsSynchronized(x => x.ScaleBarThickness.Value)
                                      .AddTo(Disposables);
 
-            StyleSidebarViewModel = new StyleSidebarViewModel(this);
-
             model.ClearUndoQueue();
-        }
-
-        /// <summary>
-        /// undo/redo可能な処理を実行し，<see cref="model.undoService"/>に登録します。
-        /// </summary>
-        /// <typeparam name="T">引数の型</typeparam>
-        /// <param name="operation">処理</param>
-        /// <param name="undoOperation">undo処理</param>
-        /// <param name="argument">引数</param>
-        public void OperateAsUndoable<T>(Action<T> operation, Action<T> undoOperation, T argument)
-        {
-            model.OperateAsUndoable(operation, undoOperation, argument);
-        }
-
-        /// <summary>
-        /// undo/redo可能な処理を実行し，<see cref="model.undoService"/>に登録します。
-        /// </summary>
-        /// <typeparam name="T">引数の型</typeparam>
-        /// <param name="operation">処理</param>
-        /// <param name="undoOperation">undo処理</param>
-        /// <param name="argument">引数</param>
-        public void OperateAsUndoable<T>(Action<T, Tree> operation, Action<T, Tree> undoOperation, T argument)
-        {
-            model.OperateAsUndoable(operation, undoOperation, argument);
         }
 
         /// <summary>
