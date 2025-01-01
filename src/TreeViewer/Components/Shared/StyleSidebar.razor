@@ -1,6 +1,6 @@
 <RadzenStack Orientation="Orientation.Vertical">
     <RadzenText TextStyle="TextStyle.DisplayH6">Properties</RadzenText>
-    @if (ViewModel is not null && ViewModel.FocusedCount.Value > 0 && ViewModel.FirstSelectedElement.Value.Clade is not null)
+    @if (ViewModel is not null && ViewModel.IsEnable.Value && ViewModel.FocusedCount.Value > 0 && ViewModel.FirstSelectedElement.Value.Clade is not null)
     {
         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
             <RadzenText>Color: </RadzenText>

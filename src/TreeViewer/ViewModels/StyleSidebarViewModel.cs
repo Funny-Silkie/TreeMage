@@ -3,6 +3,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Data;
+using TreeViewer.Window;
 
 namespace TreeViewer.ViewModels
 {
@@ -13,6 +14,11 @@ namespace TreeViewer.ViewModels
     {
         private readonly HomeViewModel homeViewModel;
         private bool updating;
+
+        /// <summary>
+        /// 有効かどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReadOnlyReactivePropertySlim<bool> IsEnable { get; }
 
         /// <summary>
         /// 選択モードの値のプロパティを取得します。
@@ -43,6 +49,10 @@ namespace TreeViewer.ViewModels
             updating = true;
             this.homeViewModel = homeViewModel;
 
+            IsEnable = homeViewModel.EditMode.ObserveProperty(x => x.Value)
+                                             .Select(x => x is TreeEditMode.Select)
+                                             .ToReadOnlyReactivePropertySlim()
+                                             .AddTo(Disposables);
             SelectionTarget = homeViewModel.SelectionTarget.ToReadOnlyReactivePropertySlim()
                                                            .AddTo(Disposables);
             FocusedCount = homeViewModel.ObserveProperty(x => x.FocusedSvgElementIdList)
