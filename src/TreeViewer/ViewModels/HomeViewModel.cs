@@ -218,7 +218,7 @@ namespace TreeViewer.ViewModels
 
         #endregion Search
 
-        #region LeafLavels
+        #region LeafLabels
 
         /// <summary>
         /// 系統名を表示するかどうかを表す値のプロパティを取得します。
@@ -230,7 +230,26 @@ namespace TreeViewer.ViewModels
         /// </summary>
         public ReactivePropertySlim<int> LeafLabelsFontSize { get; }
 
-        #endregion LeafLavels
+        #endregion LeafLabels
+
+        #region CladeLabels
+
+        /// <summary>
+        /// クレード名を表示するかどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<bool> ShowCladeLabels { get; }
+
+        /// <summary>
+        /// クレード名のフォントサイズのプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<int> CladeLabelsFontSize { get; }
+
+        /// <summary>
+        /// クレード名脇の線幅のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<int> CladeLabelsLineThickness { get; }
+
+        #endregion CladeLabels
 
         #region NodeValues
 
@@ -479,6 +498,46 @@ namespace TreeViewer.ViewModels
 
                 RequestRerenderTree();
             }, (before: TargetTree.Value?.Style?.LeafLabelsFontSize ?? 0, after: v))).AddTo(Disposables);
+
+            ShowCladeLabels = new ReactivePropertySlim<bool>(true).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.ShowCladeLabels = arg.after;
+                ShowCladeLabels!.Value = arg.after;
+
+                RequestRerenderTree();
+            }, (arg, tree) =>
+            {
+                tree.Style.ShowCladeLabels = arg.before;
+                ShowCladeLabels!.Value = arg.before;
+
+                RequestRerenderTree();
+            }, (before: TargetTree.Value?.Style?.ShowCladeLabels ?? false, after: v))).AddTo(Disposables);
+            CladeLabelsFontSize = new ReactivePropertySlim<int>(20).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.CladeLabelsFontSize = arg.after;
+                CladeLabelsFontSize!.Value = arg.after;
+
+                RequestRerenderTree();
+            }, (arg, tree) =>
+            {
+                tree.Style.CladeLabelsFontSize = arg.before;
+                CladeLabelsFontSize!.Value = arg.before;
+
+                RequestRerenderTree();
+            }, (before: TargetTree.Value?.Style?.CladeLabelsFontSize ?? 0, after: v))).AddTo(Disposables);
+            CladeLabelsLineThickness = new ReactivePropertySlim<int>(5).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.CladeLabelLineThickness = arg.after;
+                CladeLabelsLineThickness!.Value = arg.after;
+
+                RequestRerenderTree();
+            }, (arg, tree) =>
+            {
+                tree.Style.CladeLabelLineThickness = arg.before;
+                CladeLabelsLineThickness!.Value = arg.before;
+
+                RequestRerenderTree();
+            }, (before: TargetTree.Value?.Style?.CladeLabelLineThickness ?? 0, after: v)));
 
             ShowNodeValues = new ReactivePropertySlim<bool>(false).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
@@ -805,6 +864,9 @@ namespace TreeViewer.ViewModels
             tree.Style.BranchThickness = BranchThickness.Value;
             tree.Style.ShowLeafLabels = ShowLeafLabels.Value;
             tree.Style.LeafLabelsFontSize = LeafLabelsFontSize.Value;
+            tree.Style.ShowCladeLabels = ShowCladeLabels.Value;
+            tree.Style.CladeLabelsFontSize = CladeLabelsFontSize.Value;
+            tree.Style.CladeLabelLineThickness = CladeLabelsLineThickness.Value;
             tree.Style.ShowNodeValues = ShowNodeValues.Value;
             tree.Style.NodeValueType = NodeValueType.Value;
             tree.Style.NodeValueFontSize = NodeValueFontSize.Value;
@@ -833,6 +895,9 @@ namespace TreeViewer.ViewModels
             BranchThickness.Value = tree.Style.BranchThickness;
             ShowLeafLabels.Value = tree.Style.ShowLeafLabels;
             LeafLabelsFontSize.Value = tree.Style.LeafLabelsFontSize;
+            ShowCladeLabels.Value = tree.Style.ShowCladeLabels;
+            CladeLabelsFontSize.Value = tree.Style.CladeLabelsFontSize;
+            CladeLabelsLineThickness.Value = tree.Style.CladeLabelLineThickness;
             ShowNodeValues.Value = tree.Style.ShowNodeValues;
             NodeValueType.Value = tree.Style.NodeValueType;
             NodeValueFontSize.Value = tree.Style.NodeValueFontSize;

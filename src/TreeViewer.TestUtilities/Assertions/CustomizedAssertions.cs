@@ -1,4 +1,4 @@
-using System.Buffers;
+﻿using System.Buffers;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 using Xunit.Sdk;
@@ -137,6 +137,9 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.BranchThickness, actual.BranchThickness);
                 Assert.Equal(expected.ShowLeafLabels, actual.ShowLeafLabels);
                 Assert.Equal(expected.LeafLabelsFontSize, actual.LeafLabelsFontSize);
+                Assert.Equal(expected.ShowCladeLabels, actual.ShowCladeLabels);
+                Assert.Equal(expected.CladeLabelsFontSize, actual.CladeLabelsFontSize);
+                Assert.Equal(expected.CladeLabelLineThickness, actual.CladeLabelLineThickness);
                 Assert.Equal(expected.ShowNodeValues, actual.ShowNodeValues);
                 Assert.Equal(expected.NodeValueType, actual.NodeValueType);
                 Assert.Equal(expected.NodeValueFontSize, actual.NodeValueFontSize);
@@ -170,6 +173,7 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.BranchColor, actual.BranchColor);
                 Assert.Equal(expected.LeafColor, actual.LeafColor);
                 Assert.Equal(expected.Collapsed, actual.Collapsed);
+                Assert.Equal(expected.CladeLabel, actual.CladeLabel);
             });
         }
 

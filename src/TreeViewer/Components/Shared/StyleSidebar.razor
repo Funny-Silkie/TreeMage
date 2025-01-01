@@ -6,6 +6,13 @@
             <RadzenText>Color: </RadzenText>
             <RadzenColorPicker @bind-Value="ViewModel.Color.Value" />
         </RadzenStack>
+        @if (ViewModel.FocusedCount.Value == 1 && ViewModel.SelectionTarget.Value is SelectionMode.Node)
+        {
+            <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                <RadzenText>Clade label:</RadzenText>
+                <RadzenTextBox @bind-Value="ViewModel.CladeLabel.Value" />
+            </RadzenRow>
+        }
     }
 </RadzenStack>
 

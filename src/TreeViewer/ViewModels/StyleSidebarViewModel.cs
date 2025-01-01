@@ -1,7 +1,8 @@
-using Reactive.Bindings;
+﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using TreeViewer.Core.Drawing.Styles;
+using TreeViewer.Core.Trees;
 using TreeViewer.Data;
 using TreeViewer.Window;
 
@@ -41,6 +42,11 @@ namespace TreeViewer.ViewModels
         public ReactivePropertySlim<string?> Color { get; }
 
         /// <summary>
+        /// クレード名のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<string?> CladeLabel { get; }
+
+        /// <summary>
         /// <see cref="StyleSidebarViewModel"/>の新しいインスタンスを初期化します。
         /// </summary>
         /// <param name="homeViewModel">親となる<see cref="HomeViewModel"/>のインスタンス</param>
@@ -64,6 +70,27 @@ namespace TreeViewer.ViewModels
                                                 .ToReadOnlyReactivePropertySlim()
                                                 .WithSubscribe(x => Update())
                                                 .AddTo(Disposables);
+            CladeLabel = new ReactivePropertySlim<string?>().WithSubscribe(v =>
+            {
+                if (updating) return;
+
+                CladeId id = FirstSelectedElement.Value;
+                if (id.Clade is null) return;
+
+                this.homeViewModel.OperateAsUndoable((arg, tree) =>
+                {
+                    CladeLabel!.Value = arg.after;
+                    arg.clade.Style.CladeLabel = arg.after;
+
+                    this.homeViewModel.RerenderTreeCommand.Execute();
+                }, (arg, tree) =>
+                {
+                    CladeLabel!.Value = arg.before;
+                    arg.clade.Style.CladeLabel = arg.before;
+
+                    this.homeViewModel.RerenderTreeCommand.Execute();
+                }, (clade: id.Clade, before: id.Clade.Style.CladeLabel, after: string.IsNullOrEmpty(v) ? null : v));
+            }).AddTo(Disposables);
             Color = new ReactivePropertySlim<string?>("black").WithSubscribe(OnColorChanged)
                                                               .AddTo(Disposables);
 
@@ -148,6 +175,15 @@ namespace TreeViewer.ViewModels
                     _ => ["black"],
                 };
                 Color.Value = colors.Count == 1 ? colors[0] : null;
+                CladeLabel.Value = null;
+
+                if (homeViewModel.FocusedSvgElementIdList.Count == 1)
+                {
+                    Clade? clade = FirstSelectedElement.Value.Clade;
+                    if (clade is null) return;
+
+                    CladeLabel.Value = clade.Style.CladeLabel;
+                }
             }
             catch (Exception e)
             {

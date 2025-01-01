@@ -29,6 +29,9 @@ namespace TreeViewer.Core.Drawing.Styles
                 Assert.Equal(1, options.BranchThickness);
                 Assert.True(options.ShowLeafLabels);
                 Assert.Equal(20, options.LeafLabelsFontSize);
+                Assert.True(options.ShowCladeLabels);
+                Assert.Equal(20, options.CladeLabelsFontSize);
+                Assert.Equal(5, options.CladeLabelLineThickness);
                 Assert.True(options.ShowNodeValues);
                 Assert.Equal(CladeValueType.Supports, options.NodeValueType);
                 Assert.Equal(15, options.NodeValueFontSize);
@@ -114,7 +117,10 @@ namespace TreeViewer.Core.Drawing.Styles
                 BranchThickness = 10,
                 ShowLeafLabels = false,
                 LeafLabelsFontSize = 1,
+                ShowCladeLabels = false,
+                CladeLabelsFontSize = 1,
                 ShowNodeValues = false,
+                CladeLabelLineThickness = 1,
                 NodeValueFontSize = 1,
                 NodeValueType = CladeValueType.BranchLength,
                 ShowBranchValues = false,
@@ -150,6 +156,9 @@ namespace TreeViewer.Core.Drawing.Styles
             style.BranchThickness = 10;
             style.ShowLeafLabels = false;
             style.LeafLabelsFontSize = 1;
+            style.ShowCladeLabels = false;
+            style.CladeLabelsFontSize = 1;
+            style.CladeLabelLineThickness = 1;
             style.ShowNodeValues = false;
             style.NodeValueFontSize = 1;
             style.NodeValueType = CladeValueType.BranchLength;
@@ -186,6 +195,9 @@ namespace TreeViewer.Core.Drawing.Styles
             style.BranchThickness = 10;
             style.ShowLeafLabels = false;
             style.LeafLabelsFontSize = 1;
+            style.ShowCladeLabels = false;
+            style.CladeLabelsFontSize = 1;
+            style.CladeLabelLineThickness = 1;
             style.ShowNodeValues = false;
             style.NodeValueFontSize = 1;
             style.NodeValueType = CladeValueType.BranchLength;

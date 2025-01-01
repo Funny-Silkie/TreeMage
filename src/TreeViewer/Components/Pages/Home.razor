@@ -62,6 +62,10 @@
                                 font-size: @(ViewModel.LeafLabelsFontSize.Value + "px");
                             }
 
+                            .clade-label {
+                                font-size: @(ViewModel.CladeLabelsFontSize.Value + "px");
+                            }
+
                             .node-value {
                                 font-size: @(ViewModel.NodeValueFontSize.Value + "px");
                             }
@@ -151,6 +155,19 @@
                                             @svgText
                                         }
                                     }
+                                }
+
+                                // クレード名
+                                if (tree.Style.ShowCladeLabels && !string.IsNullOrEmpty(current.Style.CladeLabel))
+                                {
+                                    var (line, text) = positionManager.CalcCladeLabelPosition(current);
+
+                                    @if (tree.Style.CladeLabelLineThickness > 0)
+                                    {
+                                        <line x1="@line.x" x2="@line.x" y1="@line.yTop" y2="@line.yBottom" stroke="black" stroke-width="@tree.Style.CladeLabelLineThickness" />
+                                    }
+                                    var svgText = new MarkupString($"<text class=\"clade-label\" x=\"{text.x}\" y=\"{text.y}\">{current.Style.CladeLabel}</text>");
+                                    @svgText
                                 }
 
                                 if (current.BranchLength > 0)

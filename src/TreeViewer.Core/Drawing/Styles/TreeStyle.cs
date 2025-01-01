@@ -35,6 +35,21 @@ namespace TreeViewer.Core.Drawing.Styles
         public int LeafLabelsFontSize { get; set; } = 20;
 
         /// <summary>
+        /// クレード名を出力するかどうかを表す値を取得または設定します。
+        /// </summary>
+        public bool ShowCladeLabels { get; set; } = true;
+
+        /// <summary>
+        /// クレード名のフォントサイズを取得または設定します。
+        /// </summary>
+        public int CladeLabelsFontSize { get; set; } = 20;
+
+        /// <summary>
+        /// クレード名の脇の直線の太さを取得または設定します。
+        /// </summary>
+        public int CladeLabelLineThickness { get; set; } = 5;
+
+        /// <summary>
         /// 結節点の値を出力するかどうかを表す値を取得または設定します。
         /// </summary>
         public bool ShowNodeValues { get; set; } = true;
@@ -158,6 +173,9 @@ namespace TreeViewer.Core.Drawing.Styles
             BranchThickness = style.BranchThickness;
             ShowLeafLabels = style.ShowLeafLabels;
             LeafLabelsFontSize = style.LeafLabelsFontSize;
+            ShowCladeLabels = style.ShowCladeLabels;
+            CladeLabelsFontSize = style.CladeLabelsFontSize;
+            CladeLabelLineThickness = style.CladeLabelLineThickness;
             ShowNodeValues = style.ShowNodeValues;
             NodeValueType = style.NodeValueType;
             NodeValueFontSize = style.NodeValueFontSize;
@@ -187,6 +205,9 @@ namespace TreeViewer.Core.Drawing.Styles
             BranchThickness = BranchThickness,
             ShowLeafLabels = ShowLeafLabels,
             LeafLabelsFontSize = LeafLabelsFontSize,
+            ShowCladeLabels = ShowCladeLabels,
+            CladeLabelsFontSize = CladeLabelsFontSize,
+            CladeLabelLineThickness = CladeLabelLineThickness,
             ShowNodeValues = ShowNodeValues,
             NodeValueType = NodeValueType,
             NodeValueFontSize = NodeValueFontSize,
