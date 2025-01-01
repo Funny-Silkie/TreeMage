@@ -166,7 +166,7 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// 並び替えを行うコマンドを取得します。
         /// </summary>
-        public AsyncReactiveCommand OrderByBranchLengthCommand { get; }
+        public AsyncReactiveCommand<bool> OrderByBranchLengthCommand { get; }
 
         #endregion Layout
 
@@ -422,8 +422,8 @@ namespace TreeViewer.ViewModels
             }, (before: TargetTree.Value?.Style?.CollapsedConstantWidth ?? 1, after: v))).AddTo(Disposables);
             CollapseCommand = new AsyncReactiveCommand().WithSubscribe(CollapseClade)
                                                         .AddTo(Disposables);
-            OrderByBranchLengthCommand = new AsyncReactiveCommand().WithSubscribe(OrderByBranchLength)
-                                                                   .AddTo(Disposables);
+            OrderByBranchLengthCommand = new AsyncReactiveCommand<bool>().WithSubscribe(OrderByBranchLength)
+                                                                         .AddTo(Disposables);
 
             XScale = new ReactivePropertySlim<int>(300).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
@@ -1218,13 +1218,14 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// 枝長で並び替えます。
         /// </summary>
-        private void OrderByBranchLength()
+        /// <param name="descending">降順ソートかどうかを表す値</param>
+        private void OrderByBranchLength(bool descending)
         {
             Tree? tree = TargetTree.Value;
             if (tree is null) return;
 
             Tree oredered = tree.Clone();
-            oredered.OrderByLength();
+            oredered.OrderByLength(descending);
             ApplyTreeStyle(oredered);
 
             int targetIndex = TreeIndex.Value - 1;

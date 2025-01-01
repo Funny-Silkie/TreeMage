@@ -225,7 +225,18 @@ namespace TreeViewer.Window
                         {
                             Type = MenuType.normal,
                             Label = "Order by branch length",
-                            Click = () => ViewModel.OrderByBranchLengthCommand.ExecuteAsync().Wait(),
+                            Submenu = [
+                                new MenuItem(){
+                                    Type = MenuType.normal,
+                                    Label = "Ascending",
+                                    Click = () => ViewModel.OrderByBranchLengthCommand.Execute(false),
+                                },
+                                new MenuItem(){
+                                    Type = MenuType.normal,
+                                    Label = "Descending",
+                                    Click = () => ViewModel.OrderByBranchLengthCommand.Execute(true),
+                                },
+                            ],
                         },
                     ],
                 },
