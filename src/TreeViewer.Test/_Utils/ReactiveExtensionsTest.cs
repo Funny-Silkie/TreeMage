@@ -7,6 +7,33 @@ namespace TreeViewer
         #region Static Methods
 
         [Fact]
+        public void WithSubscribe_WithReactiveProperty()
+        {
+            string? arg = null;
+            using var property = new ReactiveProperty<string?>();
+
+            Assert.Same(property, property.WithSubscribe(x => arg = x));
+            Assert.Null(arg);
+
+            property.Value = "hoge";
+            Assert.Equal("hoge", arg);
+        }
+
+        [Fact]
+        public void WithSubscribe_WithReadOnlyReactiveProperty()
+        {
+            string? arg = null;
+            using var p = new ReactiveProperty<string?>();
+            using ReadOnlyReactiveProperty<string?> property = p.ToReadOnlyReactiveProperty();
+
+            Assert.Same(property, property.WithSubscribe(x => arg = x));
+            Assert.Null(arg);
+
+            p.Value = "hoge";
+            Assert.Equal("hoge", arg);
+        }
+
+        [Fact]
         public void WithSubscribe_WithReactivePropertySlim()
         {
             string? arg = null;

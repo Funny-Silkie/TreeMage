@@ -14,6 +14,32 @@ namespace TreeViewer
         /// <param name="property">対象のプロパティ</param>
         /// <param name="onNext">登録するコールバック</param>
         /// <returns><paramref name="property"/></returns>
+        public static ReactiveProperty<T> WithSubscribe<T>(this ReactiveProperty<T> property, Action<T> onNext)
+        {
+            property.Subscribe(onNext);
+            return property;
+        }
+
+        /// <summary>
+        /// 値変更時のコールバックを登録します。
+        /// </summary>
+        /// <typeparam name="T">プロパティの値の型</typeparam>
+        /// <param name="property">対象のプロパティ</param>
+        /// <param name="onNext">登録するコールバック</param>
+        /// <returns><paramref name="property"/></returns>
+        public static ReadOnlyReactiveProperty<T> WithSubscribe<T>(this ReadOnlyReactiveProperty<T> property, Action<T> onNext)
+        {
+            property.Subscribe(onNext);
+            return property;
+        }
+
+        /// <summary>
+        /// 値変更時のコールバックを登録します。
+        /// </summary>
+        /// <typeparam name="T">プロパティの値の型</typeparam>
+        /// <param name="property">対象のプロパティ</param>
+        /// <param name="onNext">登録するコールバック</param>
+        /// <returns><paramref name="property"/></returns>
         public static ReactivePropertySlim<T> WithSubscribe<T>(this ReactivePropertySlim<T> property, Action<T> onNext)
         {
             property.Subscribe(onNext);

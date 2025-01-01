@@ -11,7 +11,7 @@ using TreeViewer.Core.ProjectData;
 using TreeViewer.Core.Trees;
 using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
-using TreeViewer.Services;
+using TreeViewer.Models;
 using TreeViewer.Settings;
 using TreeViewer.Window;
 
@@ -23,8 +23,7 @@ namespace TreeViewer.ViewModels
     public class HomeViewModel : WindowViewModel<MainWindow, HomeViewModel>
     {
         private string? projectPath;
-        private bool onUndoOperation = false;
-        private readonly UndoService undoService = new UndoService();
+        private readonly MainModel model;
 
         /// <summary>
         /// スタイル編集用のViewModelを取得します。
@@ -342,9 +341,12 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// <see cref="HomeViewModel"/>の新しいインスタンスを初期化します。
         /// </summary>
-        public HomeViewModel() : base(MainWindow.Instance)
+        public HomeViewModel(MainModel model) : base(MainWindow.Instance)
         {
-            Trees = new ReactiveCollection<Tree>().AddTo(Disposables);
+            this.model = model;
+            model.PropertyChanged += (sender, e) => OnPropertyChanged(e.PropertyName);
+
+            Trees = model.Trees;
             TreeIndex = new ReactivePropertySlim<int>(1).WithSubscribe(OnTreeIndexChanged)
                                                         .AddTo(Disposables);
             EditMode = new ReactivePropertySlim<TreeEditMode>().AddTo(Disposables);
@@ -359,9 +361,11 @@ namespace TreeViewer.ViewModels
 
                 RequestRerenderTree();
             }, v));
-            MaxTreeIndex = new ReactivePropertySlim<int>().AddTo(Disposables);
+            MaxTreeIndex = model.ToReactivePropertySlimAsSynchronized(x => x.MaxTreeIndex.Value)
+                                .AddTo(Disposables);
             Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
-            TargetTree = new ReactivePropertySlim<Tree?>().AddTo(Disposables);
+            TargetTree = model.ToReactivePropertySlimAsSynchronized(x => x.TargetTree.Value)
+                              .AddTo(Disposables);
             SvgElementClickedCommand = new AsyncReactiveCommand<CladeId>().WithSubscribe(OnSvgElementClicked)
                                                                           .AddTo(Disposables);
             RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(RequestRerenderTree).AddTo(Disposables);
@@ -380,9 +384,9 @@ namespace TreeViewer.ViewModels
                                                                  .AddTo(Disposables);
             ExportWithExporterCommand = new AsyncReactiveCommand<(string path, ExportType type)>().WithSubscribe(async x => await ExportWithExporter(x.path, x.type))
                                                                                                   .AddTo(Disposables);
-            UndoCommand = new AsyncReactiveCommand().WithSubscribe(undoService.Undo)
+            UndoCommand = new AsyncReactiveCommand().WithSubscribe(model.undoService.Undo)
                                                     .AddTo(Disposables);
-            RedoCommand = new AsyncReactiveCommand().WithSubscribe(undoService.Redo)
+            RedoCommand = new AsyncReactiveCommand().WithSubscribe(model.undoService.Redo)
                                                     .AddTo(Disposables);
 
             FocusedSvgElementIdList = [];
@@ -425,45 +429,12 @@ namespace TreeViewer.ViewModels
             OrderByBranchLengthCommand = new AsyncReactiveCommand<bool>().WithSubscribe(OrderByBranchLength)
                                                                          .AddTo(Disposables);
 
-            XScale = new ReactivePropertySlim<int>(300).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.XScale = arg.after;
-                XScale!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.XScale = arg.before;
-                XScale!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.XScale ?? 0, after: v))).AddTo(Disposables);
-            YScale = new ReactivePropertySlim<int>(30).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.YScale = arg.after;
-                YScale!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.YScale = arg.before;
-                YScale!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.YScale ?? 0, after: v))).AddTo(Disposables);
-            BranchThickness = new ReactivePropertySlim<int>(1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
-            {
-                tree.Style.BranchThickness = arg.after;
-                BranchThickness!.Value = arg.after;
-
-                RequestRerenderTree();
-            }, (arg, tree) =>
-            {
-                tree.Style.BranchThickness = arg.before;
-                BranchThickness!.Value = arg.before;
-
-                RequestRerenderTree();
-            }, (before: TargetTree.Value?.Style?.BranchThickness ?? 0, after: v))).AddTo(Disposables);
+            XScale = model.ToReactivePropertySlimAsSynchronized(x => x.XScale.Value)
+                          .AddTo(Disposables);
+            YScale = model.ToReactivePropertySlimAsSynchronized(x => x.YScale.Value)
+                          .AddTo(Disposables);
+            BranchThickness = model.ToReactivePropertySlimAsSynchronized(x => x.BranchThickness.Value)
+                                   .AddTo(Disposables);
 
             SearchQuery = new ReactivePropertySlim<string>(string.Empty).AddTo(Disposables);
             SearchTarget = new ReactivePropertySlim<TreeSearchTarget>().AddTo(Disposables);
@@ -704,7 +675,7 @@ namespace TreeViewer.ViewModels
 
             StyleSidebarViewModel = new StyleSidebarViewModel(this);
 
-            undoService.Clear();
+            model.undoService.Clear();
         }
 
         /// <summary>
@@ -717,7 +688,7 @@ namespace TreeViewer.ViewModels
         }
 
         /// <summary>
-        /// undo/redo可能な処理を実行し，<see cref="undoService"/>に登録します。
+        /// undo/redo可能な処理を実行し，<see cref="model.undoService"/>に登録します。
         /// </summary>
         /// <typeparam name="T">引数の型</typeparam>
         /// <param name="operation">処理</param>
@@ -725,43 +696,11 @@ namespace TreeViewer.ViewModels
         /// <param name="argument">引数</param>
         public void OperateAsUndoable<T>(Action<T> operation, Action<T> undoOperation, T argument)
         {
-            if (onUndoOperation) return;
-
-            onUndoOperation = true;
-
-            async Task AsyncOperation(T x)
-            {
-                onUndoOperation = true;
-
-                operation.Invoke(x);
-
-                onUndoOperation = false;
-                await Task.CompletedTask;
-            }
-            async Task AsyncUndoOperation(T x)
-            {
-                onUndoOperation = true;
-
-                undoOperation.Invoke(x);
-
-                onUndoOperation = false;
-                await Task.CompletedTask;
-            }
-
-            try
-            {
-                operation.Invoke(argument);
-
-                undoService.AddOperation(AsyncUndoOperation, AsyncOperation, argument);
-            }
-            finally
-            {
-                onUndoOperation = false;
-            }
+            model.OperateAsUndoable(operation, undoOperation, argument);
         }
 
         /// <summary>
-        /// undo/redo可能な処理を実行し，<see cref="undoService"/>に登録します。
+        /// undo/redo可能な処理を実行し，<see cref="model.undoService"/>に登録します。
         /// </summary>
         /// <typeparam name="T">引数の型</typeparam>
         /// <param name="operation">処理</param>
@@ -769,46 +708,11 @@ namespace TreeViewer.ViewModels
         /// <param name="argument">引数</param>
         public void OperateAsUndoable<T>(Action<T, Tree> operation, Action<T, Tree> undoOperation, T argument)
         {
-            if (onUndoOperation) return;
-
-            Tree? tree = TargetTree.Value;
-            if (tree is null) return;
-
-            onUndoOperation = true;
-
-            async Task AsyncOperation(T x)
-            {
-                onUndoOperation = true;
-
-                operation.Invoke(x, tree);
-
-                onUndoOperation = false;
-                await Task.CompletedTask;
-            }
-            async Task AsyncUndoOperation(T x)
-            {
-                onUndoOperation = true;
-
-                undoOperation.Invoke(x, tree);
-
-                onUndoOperation = false;
-                await Task.CompletedTask;
-            }
-
-            try
-            {
-                operation.Invoke(argument, tree);
-
-                undoService.AddOperation(AsyncUndoOperation, AsyncOperation, argument);
-            }
-            finally
-            {
-                onUndoOperation = false;
-            }
+            model.OperateAsUndoable(operation, undoOperation, argument);
         }
 
         /// <summary>
-        /// undo/redo可能な処理を実行し，<see cref="undoService"/>に登録します。
+        /// undo/redo可能な処理を実行し，<see cref="model.undoService"/>に登録します。
         /// </summary>
         /// <typeparam name="T">引数の型</typeparam>
         /// <param name="operation">処理</param>
@@ -816,41 +720,7 @@ namespace TreeViewer.ViewModels
         /// <param name="argument">引数</param>
         public async Task OperateAsUndoable<T>(Func<T, Tree, Task> operation, Func<T, Tree, Task> undoOperation, T argument)
         {
-            if (onUndoOperation) return;
-
-            Tree? tree = TargetTree.Value;
-            if (tree is null) return;
-
-            onUndoOperation = true;
-
-            async Task Operation(T argument)
-            {
-                onUndoOperation = true;
-
-                await operation.Invoke(argument, tree);
-
-                onUndoOperation = false;
-            }
-
-            async Task UndoOperation(T argument)
-            {
-                onUndoOperation = true;
-
-                await undoOperation.Invoke(argument, tree);
-
-                onUndoOperation = false;
-            }
-
-            try
-            {
-                await operation.Invoke(argument, tree);
-
-                undoService.AddOperation(UndoOperation, Operation, argument);
-            }
-            finally
-            {
-                onUndoOperation = false;
-            }
+            await model.OperateAsUndoable(operation, undoOperation, argument);
         }
 
         /// <summary>
@@ -922,7 +792,7 @@ namespace TreeViewer.ViewModels
         /// <param name="value">変更後の値</param>
         private void OnTreeIndexChanged(int value)
         {
-            if (onUndoOperation) return;
+            if (model.onUndoOperation) return;
 
             value--;
             if ((uint)value >= (uint)Trees.Count) return;
@@ -1314,7 +1184,7 @@ namespace TreeViewer.ViewModels
             TargetTree.Value = null;
             Trees.ClearOnScheduler();
             TreeIndex.Value = 1;
-            undoService.Clear();
+            model.undoService.Clear();
 
             RequestRerenderTree();
             OnPropertyChanged(nameof(Trees));
@@ -1352,7 +1222,7 @@ namespace TreeViewer.ViewModels
                     LoadTreeStyle(mainTree);
                 }
 
-                undoService.Clear();
+                model.undoService.Clear();
 
                 RequestRerenderTree();
                 OnPropertyChanged(nameof(Trees));

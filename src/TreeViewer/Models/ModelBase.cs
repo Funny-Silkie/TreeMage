@@ -1,12 +1,12 @@
 ﻿using Reactive.Bindings.Disposables;
 using System.ComponentModel;
 
-namespace TreeViewer.ViewModels
+namespace TreeViewer.Models
 {
     /// <summary>
-    /// ViewModelの基底クラスです。
+    /// Modelの基底クラスです。
     /// </summary>
-    public abstract class ViewModelBase : INotifyPropertyChanged, IDisposable
+    public abstract class ModelBase : INotifyPropertyChanged, IDisposable
     {
         private bool disposedValue;
 
@@ -19,9 +19,9 @@ namespace TreeViewer.ViewModels
         public event PropertyChangedEventHandler? PropertyChanged;
 
         /// <summary>
-        /// <see cref="ViewModelBase"/>の新しいインスタンスを初期化します。
+        /// <see cref="ModelBase"/>の新しいインスタンスを初期化します。
         /// </summary>
-        protected ViewModelBase()
+        protected ModelBase()
         {
             Disposables = [];
         }
