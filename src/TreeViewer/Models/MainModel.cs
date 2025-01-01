@@ -671,5 +671,157 @@ namespace TreeViewer.Models
 
             OnPropertyChanged(nameof(FocusedSvgElementIdList));
         }
+
+        /// <summary>
+        /// リルートを行います。
+        /// </summary>
+        /// <param name="clade">対象クレード</param>
+        /// <param name="asRooted">Rootedな系統樹として処理するかどうかを表す値</param>
+        public void Reroot(Clade clade, bool asRooted)
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null || clade.IsLeaf || clade.Tree != tree) return;
+
+            Tree rerooted = tree.Rerooted(clade, asRooted);
+            ApplyTreeStyle(rerooted);
+            int targetIndex = TreeIndex.Value - 1;
+
+            OperateAsUndoable(arg =>
+            {
+                TargetTree.Value = arg.rerooted;
+                Trees[arg.targetIndex] = arg.rerooted;
+
+                UnfocusAll();
+                RequestRerenderTree();
+            }, arg =>
+            {
+                TargetTree.Value = arg.prev;
+                Trees[arg.targetIndex] = arg.prev;
+
+                UnfocusAll();
+                RequestRerenderTree();
+            }, (prev: tree, rerooted, targetIndex));
+        }
+
+        /// <summary>
+        /// 姉妹の入れ替えを行います。
+        /// </summary>
+        /// <param name="target1">選択したクレード1</param>
+        /// <param name="target2">選択したクレード2</param>
+        public void SwapSisters(Clade target1, Clade target2)
+        {
+            if (target1.IsRoot || target2.IsRoot || target1 == target2) return;
+
+            OperateAsUndoable((arg, tree) =>
+            {
+                tree.SwapSisters(arg.target1, arg.target2);
+
+                RequestRerenderTree();
+            }, (arg, tree) =>
+            {
+                tree.SwapSisters(arg.target1, arg.target2);
+
+                RequestRerenderTree();
+            }, (target1, target2));
+        }
+
+        /// <summary>
+        /// サブツリーの抽出を行います。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        public void ExtractSubtree(Clade clade)
+        {
+            if (clade.IsRoot || clade.IsLeaf) return;
+
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            var subtree = new Tree(clade.Clone(true));
+            ApplyTreeStyle(tree);
+
+            OperateAsUndoable((arg, tree) =>
+            {
+                Trees.InsertOnScheduler(arg.prevIndex + 1, arg.subtree);
+                OnPropertyChanged(nameof(MaxTreeIndex));
+
+                TreeIndex.Value = arg.prevIndex + 2;
+                TargetTree.Value = arg.subtree;
+                RequestRerenderTree();
+
+                EditMode.Value = TreeEditMode.Select;
+                OnPropertyChanged(nameof(EditMode));
+            }, (arg, tree) =>
+            {
+                Trees.RemoveAtOnScheduler(arg.prevIndex + 1);
+                OnPropertyChanged(nameof(MaxTreeIndex));
+
+                TreeIndex.Value = arg.prevIndex + 1;
+                TargetTree.Value = tree;
+                RequestRerenderTree();
+
+                EditMode.Value = TreeEditMode.Subtree;
+                OnPropertyChanged(nameof(EditMode));
+            }, (subtree, prevIndex: TreeIndex.Value - 1));
+        }
+
+        /// <summary>
+        /// 折り畳みを行います。
+        /// </summary>
+        public void CollapseClade()
+        {
+            if (FocusedSvgElementIdList.Count != 1 || SelectionTarget.Value is not SelectionMode.Node) return;
+
+            CladeId id = FocusedSvgElementIdList.First();
+            if (id.Suffix != CladeIdSuffix.Branch) return;
+
+            Clade clade = id.Clade;
+            if (clade.IsLeaf || clade.IsRoot) return;
+
+            bool prevValue = clade.Style.Collapsed;
+
+            OperateAsUndoable((arg, tree) =>
+            {
+                arg.clade.Style.Collapsed = !prevValue;
+
+                RequestRerenderTree();
+            }, (arg, tree) =>
+            {
+                arg.clade.Style.Collapsed = prevValue;
+
+                RequestRerenderTree();
+            }, (clade, prevValue));
+        }
+
+        /// <summary>
+        /// 枝長で並び替えます。
+        /// </summary>
+        /// <param name="descending">降順ソートかどうかを表す値</param>
+        public void OrderByBranchLength(bool descending)
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            Tree oredered = tree.Clone();
+            oredered.OrderByLength(descending);
+            ApplyTreeStyle(oredered);
+
+            int targetIndex = TreeIndex.Value - 1;
+
+            OperateAsUndoable(arg =>
+            {
+                TargetTree.Value = arg.next;
+                Trees[arg.targetIndex] = arg.next;
+
+                UnfocusAll();
+                RequestRerenderTree();
+            }, arg =>
+            {
+                TargetTree.Value = arg.prev;
+                Trees[arg.targetIndex] = arg.prev;
+
+                UnfocusAll();
+                RequestRerenderTree();
+            }, (prev: tree, next: oredered, targetIndex));
+        }
     }
 }

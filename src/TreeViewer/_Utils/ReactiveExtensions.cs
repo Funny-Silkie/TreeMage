@@ -91,5 +91,18 @@ namespace TreeViewer
             });
             return command;
         }
+
+        /// <summary>
+        /// 処理を登録します。
+        /// </summary>
+        /// <typeparam name="T">引数の型</typeparam>
+        /// <param name="command">対象のコマンド</param>
+        /// <param name="process">登録する同期処理</param>
+        /// <returns><paramref name="command"/></returns>
+        public static AsyncReactiveCommand<(T1, T2)> WithSubscribe<T1, T2>(this AsyncReactiveCommand<(T1, T2)> command, Func<T1, T2, Task> process)
+        {
+            command.Subscribe(async x => await process.Invoke(x.Item1, x.Item2));
+            return command;
+        }
     }
 }
