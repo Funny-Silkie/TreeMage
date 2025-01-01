@@ -971,7 +971,6 @@ namespace TreeViewer.ViewModels
                 FocusedSvgElementIdList.Add(current.GetId(idSuffix));
             }
 
-            StyleSidebarViewModel.Update();
             OnPropertyChanged(nameof(FocusedSvgElementIdList));
         }
 
@@ -993,7 +992,6 @@ namespace TreeViewer.ViewModels
         {
             FocusedSvgElementIdList.Clear();
 
-            StyleSidebarViewModel.Update();
             OnPropertyChanged(nameof(FocusedSvgElementIdList));
         }
 
@@ -1426,61 +1424,6 @@ namespace TreeViewer.ViewModels
 
                 RequestRerenderTree();
             }, (vm: decorationViewModel, style));
-        }
-
-        /// <summary>
-        /// 色の更新を行います。
-        /// </summary>
-        /// <param name="color">更新する色</param>
-        public void SetColorToFocusedObject(string color)
-        {
-            (CladeStyle style, string before)[] targets = FocusedSvgElementIdList.Select(x =>
-            {
-                CladeStyle style = x.Clade.Style;
-                string before = SelectionTarget.Value switch
-                {
-                    SelectionMode.Node or SelectionMode.Clade => style.BranchColor,
-                    SelectionMode.Taxa => style.LeafColor,
-                    _ => "black",
-                };
-                return (style, before);
-            }).ToArray();
-
-            OperateAsUndoable(arg =>
-            {
-                foreach ((CladeStyle style, string before) in arg.targets)
-                    switch (arg.selectionTarget)
-                    {
-                        case SelectionMode.Node:
-                        case SelectionMode.Clade:
-                            style.BranchColor = arg.after;
-                            break;
-
-                        case SelectionMode.Taxa:
-                            style.LeafColor = arg.after;
-                            break;
-                    }
-
-                RequestRerenderTree();
-                StyleSidebarViewModel.Update();
-            }, arg =>
-            {
-                foreach ((CladeStyle style, string before) in arg.targets)
-                    switch (arg.selectionTarget)
-                    {
-                        case SelectionMode.Node:
-                        case SelectionMode.Clade:
-                            style.BranchColor = before;
-                            break;
-
-                        case SelectionMode.Taxa:
-                            style.LeafColor = before;
-                            break;
-                    }
-
-                StyleSidebarViewModel.Update();
-                RequestRerenderTree();
-            }, (targets, after: color, selectionTarget: SelectionTarget.Value));
         }
     }
 }
