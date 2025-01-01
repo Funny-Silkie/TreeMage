@@ -21,6 +21,7 @@ namespace TreeViewer.Core.Exporting
             tree = TreeTest.CreateDummyTree();
             tree.Style.XScale = 30;
             tree.Style.ScaleBarValue = 1;
+            tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.CladeLabel = "hoge";
             exporter = new SvgExporter();
             exportOptions = new ExportOptions();
         }
@@ -53,6 +54,7 @@ namespace TreeViewer.Core.Exporting
         public void CreateSvg_Minumum()
         {
             tree.Style.ShowLeafLabels = false;
+            tree.Style.ShowCladeLabels = false;
             tree.Style.ShowNodeValues = false;
             tree.Style.ShowBranchValues = false;
             tree.Style.ShowBranchDecorations = false;
@@ -68,7 +70,8 @@ namespace TreeViewer.Core.Exporting
                 Assert.Equal(21, branchesGroup.Children.Count);
                 Assert.True(branchesGroup.Children.All(x => x is SvgLine));
 
-                Assert.Null(svg.GetElementById("leaves"));
+                Assert.Null(svg.GetElementById("leaf-labels"));
+                Assert.Null(svg.GetElementById("clade-labels"));
                 Assert.Null(svg.GetElementById("node-values"));
                 Assert.Null(svg.GetElementById("branch-values"));
                 Assert.Null(svg.GetElementById("branch-decorations"));
@@ -77,7 +80,7 @@ namespace TreeViewer.Core.Exporting
         }
 
         [Fact]
-        public void CreateSvg_OnOutputLeaves()
+        public void CreateSvg_OnOutputLeafLabels()
         {
             tree.Style.ShowLeafLabels = true;
 
@@ -91,7 +94,7 @@ namespace TreeViewer.Core.Exporting
                 Assert.Equal(21, branchesGroup.Children.Count);
                 Assert.True(branchesGroup.Children.All(x => x is SvgLine));
 
-                SvgElement? leavesGroup = svg.GetElementById("leaves");
+                SvgElement? leavesGroup = svg.GetElementById("leaf-labels");
                 Assert.NotNull(leavesGroup);
                 Assert.IsType<SvgGroup>(leavesGroup);
                 Assert.Equal(7, leavesGroup.Children.Count);
@@ -227,6 +230,7 @@ namespace TreeViewer.Core.Exporting
         public void CreateSvg_Maximum()
         {
             tree.Style.ShowLeafLabels = true;
+            tree.Style.ShowCladeLabels = true;
             tree.Style.ShowNodeValues = true;
             tree.Style.ShowBranchValues = true;
             tree.Style.ShowBranchDecorations = true;
@@ -243,7 +247,7 @@ namespace TreeViewer.Core.Exporting
 
             Assert.Multiple(() =>
             {
-                Assert.Equal(392, svg.Width, 0.1);
+                Assert.Equal(459.2, svg.Width, 0.1);
                 Assert.Equal(348, svg.Height, 0.1);
 
                 SvgElement branchesGroup = svg.GetElementById("branches");
@@ -252,11 +256,17 @@ namespace TreeViewer.Core.Exporting
                 Assert.Equal(21, branchesGroup.Children.Count);
                 Assert.True(branchesGroup.Children.All(x => x is SvgLine));
 
-                SvgElement? leavesGroup = svg.GetElementById("leaves");
-                Assert.NotNull(leavesGroup);
-                Assert.IsType<SvgGroup>(leavesGroup);
-                Assert.Equal(7, leavesGroup.Children.Count);
-                Assert.True(leavesGroup.Children.All(x => x is SvgText));
+                SvgElement? leafLabelsGroup = svg.GetElementById("leaf-labels");
+                Assert.NotNull(leafLabelsGroup);
+                Assert.IsType<SvgGroup>(leafLabelsGroup);
+                Assert.Equal(7, leafLabelsGroup.Children.Count);
+                Assert.True(leafLabelsGroup.Children.All(x => x is SvgText));
+
+                SvgElement? cladeLabelsGroup = svg.GetElementById("clade-labels");
+                Assert.NotNull(cladeLabelsGroup);
+                Assert.IsType<SvgGroup>(cladeLabelsGroup);
+                Assert.Single(cladeLabelsGroup.Children);
+                Assert.True(cladeLabelsGroup.Children.All(x => x is SvgGroup));
 
                 SvgElement? nodeValuesGroup = svg.GetElementById("node-values");
                 Assert.NotNull(nodeValuesGroup);
