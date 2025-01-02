@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 using TreeViewer.Data;
+using TreeViewer.Models;
 using TreeViewer.Window;
 
 namespace TreeViewer.ViewModels
@@ -13,7 +14,7 @@ namespace TreeViewer.ViewModels
     /// </summary>
     public class StyleSidebarViewModel : ViewModelBase
     {
-        private readonly HomeViewModel homeViewModel;
+        private readonly MainModel model;
         private bool updating;
 
         /// <summary>
@@ -49,27 +50,26 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// <see cref="StyleSidebarViewModel"/>の新しいインスタンスを初期化します。
         /// </summary>
-        /// <param name="homeViewModel">親となる<see cref="HomeViewModel"/>のインスタンス</param>
-        public StyleSidebarViewModel(HomeViewModel homeViewModel)
+        public StyleSidebarViewModel(MainModel model)
         {
             updating = true;
-            this.homeViewModel = homeViewModel;
+            this.model = model;
 
-            IsEnable = homeViewModel.EditMode.ObserveProperty(x => x.Value)
-                                             .Select(x => x is TreeEditMode.Select)
-                                             .ToReadOnlyReactivePropertySlim()
-                                             .AddTo(Disposables);
-            SelectionTarget = homeViewModel.SelectionTarget.ToReadOnlyReactivePropertySlim()
-                                                           .AddTo(Disposables);
-            FocusedCount = homeViewModel.ObserveProperty(x => x.FocusedSvgElementIdList)
-                                        .Select(x => x.Count)
+            IsEnable = model.EditMode.ObserveProperty(x => x.Value)
+                                     .Select(x => x is TreeEditMode.Select)
+                                     .ToReadOnlyReactivePropertySlim()
+                                     .AddTo(Disposables);
+            SelectionTarget = model.SelectionTarget.ToReadOnlyReactivePropertySlim()
+                                                   .AddTo(Disposables);
+            FocusedCount = model.ObserveProperty(x => x.FocusedSvgElementIdList)
+                                .Select(x => x.Count)
+                                .ToReadOnlyReactivePropertySlim()
+                                .AddTo(Disposables);
+            FirstSelectedElement = model.ObserveProperty(x => x.FocusedSvgElementIdList)
+                                        .Select(x => x.FirstOrDefault())
                                         .ToReadOnlyReactivePropertySlim()
+                                        .WithSubscribe(x => Update())
                                         .AddTo(Disposables);
-            FirstSelectedElement = homeViewModel.ObserveProperty(x => x.FocusedSvgElementIdList)
-                                                .Select(x => x.FirstOrDefault())
-                                                .ToReadOnlyReactivePropertySlim()
-                                                .WithSubscribe(x => Update())
-                                                .AddTo(Disposables);
             CladeLabel = new ReactivePropertySlim<string?>().WithSubscribe(v =>
             {
                 if (updating) return;
@@ -77,18 +77,18 @@ namespace TreeViewer.ViewModels
                 CladeId id = FirstSelectedElement.Value;
                 if (id.Clade is null) return;
 
-                this.homeViewModel.OperateAsUndoable((arg, tree) =>
+                this.model.OperateAsUndoable((arg, tree) =>
                 {
                     CladeLabel!.Value = arg.after;
                     arg.clade.Style.CladeLabel = arg.after;
 
-                    this.homeViewModel.RerenderTreeCommand.Execute();
+                    this.model.NotifyTreeUpdated();
                 }, (arg, tree) =>
                 {
                     CladeLabel!.Value = arg.before;
                     arg.clade.Style.CladeLabel = arg.before;
 
-                    this.homeViewModel.RerenderTreeCommand.Execute();
+                    this.model.NotifyTreeUpdated();
                 }, (clade: id.Clade, before: id.Clade.Style.CladeLabel, after: string.IsNullOrEmpty(v) ? null : v));
             }).AddTo(Disposables);
             Color = new ReactivePropertySlim<string?>("black").WithSubscribe(OnColorChanged)
@@ -105,7 +105,7 @@ namespace TreeViewer.ViewModels
         {
             if (updating || value is null) return;
 
-            (CladeStyle style, string before)[] targets = homeViewModel.FocusedSvgElementIdList.Select(x =>
+            (CladeStyle style, string before)[] targets = model.FocusedSvgElementIdList.Select(x =>
             {
                 CladeStyle style = x.Clade.Style;
                 string before = SelectionTarget.Value switch
@@ -117,7 +117,7 @@ namespace TreeViewer.ViewModels
                 return (style, before);
             }).ToArray();
 
-            homeViewModel.OperateAsUndoable(arg =>
+            model.OperateAsUndoable(arg =>
             {
                 foreach ((CladeStyle style, string before) in arg.targets)
                     switch (arg.selectionTarget)
@@ -132,7 +132,7 @@ namespace TreeViewer.ViewModels
                             break;
                     }
 
-                homeViewModel.RerenderTreeCommand.Execute();
+                model.NotifyTreeUpdated();
                 Update();
             }, arg =>
             {
@@ -150,7 +150,7 @@ namespace TreeViewer.ViewModels
                     }
 
                 Update();
-                homeViewModel.RerenderTreeCommand.Execute();
+                model.NotifyTreeUpdated();
             }, (targets, after: value, selectionTarget: SelectionTarget.Value));
         }
 
@@ -164,26 +164,28 @@ namespace TreeViewer.ViewModels
 
             try
             {
-                List<string> colors = homeViewModel.SelectionTarget.Value switch
+                List<string> colors = model.SelectionTarget.Value switch
                 {
-                    SelectionMode.Node or SelectionMode.Clade => homeViewModel.FocusedSvgElementIdList.Select(x => x.Clade.Style.BranchColor)
-                                                                                                      .Distinct()
-                                                                                                      .ToList(),
-                    SelectionMode.Taxa => homeViewModel.FocusedSvgElementIdList.Select(x => x.Clade.Style.LeafColor)
-                                                                               .Distinct()
-                                                                               .ToList(),
+                    SelectionMode.Node or SelectionMode.Clade => model.FocusedSvgElementIdList.Select(x => x.Clade.Style.BranchColor)
+                                                                                              .Distinct()
+                                                                                              .ToList(),
+                    SelectionMode.Taxa => model.FocusedSvgElementIdList.Select(x => x.Clade.Style.LeafColor)
+                                                                       .Distinct()
+                                                                       .ToList(),
                     _ => ["black"],
                 };
                 Color.Value = colors.Count == 1 ? colors[0] : null;
                 CladeLabel.Value = null;
 
-                if (homeViewModel.FocusedSvgElementIdList.Count == 1)
+                if (model.FocusedSvgElementIdList.Count == 1)
                 {
                     Clade? clade = FirstSelectedElement.Value.Clade;
                     if (clade is null) return;
 
                     CladeLabel.Value = clade.Style.CladeLabel;
                 }
+
+                OnPropertyChanged(nameof(FirstSelectedElement));
             }
             catch (Exception e)
             {
