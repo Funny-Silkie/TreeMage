@@ -20,6 +20,7 @@ namespace TreeViewer
             builder.Services.AddRadzenComponents();
             builder.Services.AddScoped<MainModel>();
             builder.Services.AddTransient<HomeViewModel>();
+            builder.Services.AddTransient<TreeEditSidebarViewModel>();
             builder.Services.AddTransient<StyleSidebarViewModel>();
             builder.Services.AddTransient<EditConfigViewModel>();
             builder.Services.AddTransient<VersionViewModel>();

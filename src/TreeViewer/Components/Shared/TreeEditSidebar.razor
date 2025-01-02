@@ -1,4 +1,5 @@
 ﻿@rendermode InteractiveServer
+@inject TreeEditSidebarViewModel ViewModel
 
 @if (ViewModel is not null)
 {
@@ -168,7 +169,7 @@
             <ChildContent>
                 <RadzenButton Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="ViewModel.AddBranchDecorationCommand.ToDelegate()" />
                 <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch">
-                    @foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations.Select(x => new BranchDecorationViewModel(ViewModel, x)))
+                    @foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations.Select(x => new BranchDecorationViewModel(x)))
                     {
                         <RadzenPanel class="rz-border-radius" AllowCollapse="true" Style="background-color: whitesmoke">
                             <HeaderTemplate>
@@ -237,6 +238,10 @@
     private const string sidebarFormLabelStyle = "width: 150px; height: 23px";
     private const string sidebarFormValueStyle = "width: 100px; height: 30px";
 
-    [Parameter]
-    public HomeViewModel? ViewModel { get; set; }
+    /// <inheritdoc/>
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += (_, _) => InvokeAsync(StateHasChanged);
+        await Task.CompletedTask;
+    }
 }

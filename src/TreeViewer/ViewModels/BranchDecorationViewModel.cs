@@ -40,7 +40,7 @@ namespace TreeViewer.ViewModels
         /// </summary>
         /// <param name="homeViewModel">親となる<see cref="HomeViewModel"/>のインスタンス</param>
         /// <param name="model">対象のModel</param>
-        public BranchDecorationViewModel(HomeViewModel homeViewModel, BranchDecorationModel model)
+        public BranchDecorationViewModel(BranchDecorationModel model)
         {
             this.model = model;
 

@@ -38,7 +38,7 @@
         </RadzenStack>
     </RadzenHeader>
     <RadzenSidebar Responsive="false" @bind-Expanded="toggleExpanded" Style="width: 300px">
-        <TreeEditSidebar ViewModel="ViewModel" />
+        <TreeEditSidebar />
     </RadzenSidebar>
     <RadzenBody>
         <RadzenSplitter Orientation="Orientation.Horizontal">
@@ -59,39 +59,39 @@
                             }
 
                             .leaf {
-                                font-size: @(ViewModel.LeafLabelsFontSize.Value + "px");
+                                font-size: @(tree.Style.LeafLabelsFontSize + "px");
                             }
 
                             .clade-label {
-                                font-size: @(ViewModel.CladeLabelsFontSize.Value + "px");
+                                font-size: @(tree.Style.CladeLabelsFontSize + "px");
                             }
 
                             .node-value {
-                                font-size: @(ViewModel.NodeValueFontSize.Value + "px");
+                                font-size: @(tree.Style.NodeValueFontSize + "px");
                             }
 
                             .branch-value {
-                                font-size: @(ViewModel.BranchValueFontSize.Value + "px");
+                                font-size: @(tree.Style.BranchValueFontSize + "px");
                             }
 
                             .branch {
                                 fill: none;
-                                stroke-width: @(ViewModel.BranchThickness.Value + "px");
+                                stroke-width: @(tree.Style.BranchThickness + "px");
                             }
 
                             .collapsed-rectangle {
                                 fill: none;
-                                stroke-width: @(ViewModel.BranchThickness.Value + "px");
+                                stroke-width: @(tree.Style.BranchThickness + "px");
                             }
 
                             .scalebar-line {
                                 fill: none;
                                 stroke: black;
-                                stroke-width: @(ViewModel.ScaleBarThickness.Value + "px");
+                                stroke-width: @(tree.Style.ScaleBarThickness + "px");
                             }
 
                             .scalebar-text {
-                                font-size: @(ViewModel.ScaleBarFontSize.Value + "px");
+                                font-size: @(tree.Style.ScaleBarFontSize + "px");
                             }
 
                             .clickable-leaf {
@@ -144,9 +144,9 @@
                                 else
                                 {
                                     // 結節点の値
-                                    @if (ViewModel.ShowNodeValues.Value && !current.GetIsExternal())
+                                    @if (tree.Style.ShowNodeValues && !current.GetIsExternal())
                                     {
-                                        string nodeValue = SelectShowValue(current, ViewModel.NodeValueType.Value);
+                                        string nodeValue = SelectShowValue(current, tree.Style.NodeValueType);
                                         if (nodeValue.Length > 0)
                                         {
                                             (double x, double y) = positionManager.CalcNodeValuePosition(current, nodeValue);
@@ -183,7 +183,7 @@
                                     }
 
                                     // 枝の装飾
-                                    if (ViewModel.EditMode.Value is TreeEditMode.Select or TreeEditMode.Swap && ViewModel.ShowBranchDecorations.Value && !string.IsNullOrEmpty(current.Supports))
+                                    if (ViewModel.EditMode.Value is TreeEditMode.Select or TreeEditMode.Swap && tree.Style.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
                                         foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Enabled && (x.Regex?.IsMatch(current.Supports) ?? false)))
                                         {
                                             string color = currentDecoration.ShapeColor;
@@ -252,9 +252,9 @@
                                     }
 
                                     // 二分岐の値
-                                    if (ViewModel.ShowBranchValues.Value)
+                                    if (tree.Style.ShowBranchValues)
                                     {
-                                        string branchValue = SelectShowValue(current, ViewModel.BranchValueType.Value);
+                                        string branchValue = SelectShowValue(current, tree.Style.BranchValueType);
                                         if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
                                         {
                                             (double x, double y) = positionManager.CalcBranchValuePosition(current, branchValue);
@@ -302,7 +302,7 @@
                                         string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
 
                                         <path id="@id" class="clickable-branch" d="@path"
-                                              style="stroke: @strokeColor; stroke-width: @(ViewModel.BranchThickness.Value + 4)"
+                                              style="stroke: @strokeColor; stroke-width: @(tree.Style.BranchThickness + 4)"
                                               onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
                                     }
                                 }
@@ -334,13 +334,13 @@
                         </g>
 
                         // Scale bar
-                        @if (ViewModel.ShowScaleBar.Value && ViewModel.ScaleBarValue.Value > 0)
+                        @if (tree.Style.ShowScaleBar && tree.Style.ScaleBarValue > 0)
                         {
                             (double offsetX, double offsetY) = positionManager.CalcScaleBarOffset();
                             ((double xLeft, double xRight, double y) line, (double x, double y) text) = positionManager.CalcScaleBarPositions();
 
                             <g transform="translate(@offsetX, @offsetY)">
-                                <text class="scalebar-text" x="@(text.x)" y="@(text.y)" text-anchor="middle">@ViewModel.ScaleBarValue.Value</text>
+                                <text class="scalebar-text" x="@(text.x)" y="@(text.y)" text-anchor="middle">@tree.Style.ScaleBarValue</text>
                                 <line class="scalebar-line" x1="@(line.xLeft)" y1="@(line.y)" x2="@(line.xRight)" y2="@(line.y)" />
                             </g>
                         }
