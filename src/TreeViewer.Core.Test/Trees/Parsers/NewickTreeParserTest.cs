@@ -1,5 +1,6 @@
 ﻿using TreeViewer.TestUtilities.Assertions;
 using TreeViewer.Core.Drawing.Styles;
+using TreeViewer.TestUtilities;
 
 namespace TreeViewer.Core.Trees.Parsers
 {
@@ -58,7 +59,7 @@ namespace TreeViewer.Core.Trees.Parsers
             Assert.Multiple(() =>
             {
                 Assert.Single(trees);
-                CustomizedAssertions.Equal(TreeTest.CreateDummyTree().Root, trees[0].Root);
+                CustomizedAssertions.Equal(DummyData.CreateTree().Root, trees[0].Root);
                 CustomizedAssertions.Equal(new TreeStyle(), trees[0].Style);
             });
         }
@@ -80,14 +81,14 @@ namespace TreeViewer.Core.Trees.Parsers
         public async Task WriteAsync_WithTreesContainingNullTree()
         {
             using var writer = new StringWriter();
-            await Assert.ThrowsAsync<ArgumentException>(() => parser.WriteAsync(writer, [null!, TreeTest.CreateDummyTree()]));
+            await Assert.ThrowsAsync<ArgumentException>(() => parser.WriteAsync(writer, [null!, DummyData.CreateTree()]));
         }
 
         [Fact]
         public async Task WriteAsync_AsPositive()
         {
             using var writer = new StringWriter();
-            await parser.WriteAsync(writer, TreeTest.CreateDummyTree());
+            await parser.WriteAsync(writer, DummyData.CreateTree());
 
             Assert.Equal("(A:2,((BAA:5,BAB:3)20/30:1,((BBAA:2,BBAB:1)85/95:1,BBB:3)100/100:2)30/45:2,C:1);", writer.ToString());
         }

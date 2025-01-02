@@ -2,6 +2,7 @@
 using TreeViewer.TestUtilities.Assertions;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
+using TreeViewer.TestUtilities;
 
 namespace TreeViewer.Core.Exporting
 {
@@ -18,7 +19,7 @@ namespace TreeViewer.Core.Exporting
 
         public SvgExporterTest()
         {
-            tree = TreeTest.CreateDummyTree();
+            tree = DummyData.CreateTree();
             tree.Style.XScale = 30;
             tree.Style.ScaleBarValue = 1;
             tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.CladeLabel = "hoge";
