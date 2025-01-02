@@ -19,19 +19,14 @@ namespace TreeViewer.ViewModels
         private readonly MainModel model;
 
         /// <summary>
-        /// 読み込まれた系統樹一覧を取得します。
-        /// </summary>
-        private ReactiveCollection<Tree> Trees { get; }
-
-        /// <summary>
         /// <see cref="TreeIndex"/>の最大値のプロパティを取得します。
         /// </summary>
-        public ReactivePropertySlim<int> MaxTreeIndex { get; }
+        public ReadOnlyReactivePropertySlim<int> MaxTreeIndex { get; }
 
         /// <summary>
         /// 対象の樹形を取得します。
         /// </summary>
-        public ReactivePropertySlim<Tree?> TargetTree { get; }
+        public ReadOnlyReactivePropertySlim<Tree?> TargetTree { get; }
 
         /// <summary>
         /// SVG要素のクリック時に実行されるコマンドを取得します。
@@ -167,16 +162,14 @@ namespace TreeViewer.ViewModels
             this.model = model;
             model.PropertyChanged += (_, e) => OnPropertyChanged(e.PropertyName);
 
-            Trees = model.Trees;
             TreeIndex = model.ToReactivePropertySlimAsSynchronized(x => x.TreeIndex.Value)
                              .AddTo(Disposables);
             EditMode = model.ToReactivePropertySlimAsSynchronized(x => x.EditMode.Value)
                             .AddTo(Disposables);
-            MaxTreeIndex = model.ToReactivePropertySlimAsSynchronized(x => x.MaxTreeIndex.Value)
-                                .AddTo(Disposables);
-            Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
-            TargetTree = model.ToReactivePropertySlimAsSynchronized(x => x.TargetTree.Value)
-                              .AddTo(Disposables);
+            MaxTreeIndex = model.MaxTreeIndex.ToReadOnlyReactivePropertySlim()
+                                             .AddTo(Disposables);
+            TargetTree = model.TargetTree.ToReadOnlyReactivePropertySlim()
+                                         .AddTo(Disposables);
             SvgElementClickedCommand = new AsyncReactiveCommand<CladeId>().WithSubscribe(OnSvgElementClicked)
                                                                           .AddTo(Disposables);
             RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(model.NotifyTreeUpdated).AddTo(Disposables);
