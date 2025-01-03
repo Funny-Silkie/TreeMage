@@ -24,6 +24,7 @@ namespace TreeViewer.Core.Trees
         public TreeTest()
         {
             tree = DummyData.CreateTree(out root, out leafA, out cladeB, out cladeBA, out leafBAA, out leafBAB, out cladeBB, out cladeBBA, out leafBBAA, out leafBBAB, out leafBBB, out leafC);
+            tree.Style.ApplyValues(DummyData.CreateTreeStyle());
         }
 
         #region Ctors

@@ -251,12 +251,12 @@ namespace TreeViewer.Models
         /// <summary>
         /// undoを行います。
         /// </summary>
-        public async Task Undo() => await undoService.Undo();
+        public async Task<bool> Undo() => await undoService.Undo();
 
         /// <summary>
         /// redoを行います。
         /// </summary>
-        public async Task Redo() => await undoService.Redo();
+        public async Task<bool> Redo() => await undoService.Redo();
 
         /// <summary>
         /// undoのキューをクリアします。
@@ -380,7 +380,7 @@ namespace TreeViewer.Models
             if (tree is null) return;
 
             var subtree = new Tree(clade.Clone(true));
-            ApplyTreeStyle(tree);
+            ApplyTreeStyle(subtree);
 
             OperateAsUndoable((arg, tree) =>
             {

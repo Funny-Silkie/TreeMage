@@ -227,11 +227,15 @@ namespace TreeViewer.TestUtilities.Assertions
         /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
         public static void Equal(Tree expected, Tree actual)
         {
-            Assert.Multiple(() =>
+            Equal(expected.Root, actual.Root);
+            try
             {
-                Equal(expected.Root, actual.Root);
                 Equal(expected.Style, actual.Style);
-            });
+            }
+            catch (EqualException)
+            {
+                throw EqualException.ForMismatchedValuesWithError(expected.Style, actual.Style, banner: "Tree style differs");
+            }
         }
 
         /// <summary>
