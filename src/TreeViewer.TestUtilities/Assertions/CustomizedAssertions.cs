@@ -140,7 +140,7 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.LeafLabelsFontSize, actual.LeafLabelsFontSize);
                 Assert.Equal(expected.ShowCladeLabels, actual.ShowCladeLabels);
                 Assert.Equal(expected.CladeLabelsFontSize, actual.CladeLabelsFontSize);
-                Assert.Equal(expected.CladeLabelLineThickness, actual.CladeLabelLineThickness);
+                Assert.Equal(expected.CladeLabelsLineThickness, actual.CladeLabelsLineThickness);
                 Assert.Equal(expected.ShowNodeValues, actual.ShowNodeValues);
                 Assert.Equal(expected.NodeValueType, actual.NodeValueType);
                 Assert.Equal(expected.NodeValueFontSize, actual.NodeValueFontSize);

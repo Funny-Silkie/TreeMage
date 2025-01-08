@@ -32,7 +32,7 @@ namespace TreeViewer.Core.Drawing.Styles
                 Assert.Equal(20, options.LeafLabelsFontSize);
                 Assert.True(options.ShowCladeLabels);
                 Assert.Equal(20, options.CladeLabelsFontSize);
-                Assert.Equal(5, options.CladeLabelLineThickness);
+                Assert.Equal(5, options.CladeLabelsLineThickness);
                 Assert.True(options.ShowNodeValues);
                 Assert.Equal(CladeValueType.Supports, options.NodeValueType);
                 Assert.Equal(15, options.NodeValueFontSize);

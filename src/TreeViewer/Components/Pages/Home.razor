@@ -162,9 +162,9 @@
                                 {
                                     var (line, text) = positionManager.CalcCladeLabelPosition(current);
 
-                                    @if (tree.Style.CladeLabelLineThickness > 0)
+                                    @if (tree.Style.CladeLabelsLineThickness > 0)
                                     {
-                                        <line x1="@line.x" x2="@line.x" y1="@line.yTop" y2="@line.yBottom" stroke="black" stroke-width="@tree.Style.CladeLabelLineThickness" />
+                                        <line x1="@line.x" x2="@line.x" y1="@line.yTop" y2="@line.yBottom" stroke="black" stroke-width="@tree.Style.CladeLabelsLineThickness" />
                                     }
                                     var svgText = new MarkupString($"<text class=\"clade-label\" x=\"{text.x}\" y=\"{text.y}\">{current.Style.CladeLabel}</text>");
                                     @svgText

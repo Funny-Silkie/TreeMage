@@ -153,7 +153,7 @@ namespace TreeViewer.Core.Exporting
                         ID = current.Style.CladeLabel,
                     }.AddTo(cladeLabelsGroup);
 
-                    if (tree.Style.CladeLabelLineThickness > 0)
+                    if (tree.Style.CladeLabelsLineThickness > 0)
                     {
                         var svgLine = new SvgLine()
                         {
@@ -162,7 +162,7 @@ namespace TreeViewer.Core.Exporting
                             StartY = (SvgUnit)line.yTop,
                             EndY = (SvgUnit)line.yBottom,
                             Stroke = DrawHelpers.CreateSvgColor("black"),
-                            StrokeWidth = tree.Style.CladeLabelLineThickness,
+                            StrokeWidth = tree.Style.CladeLabelsLineThickness,
                         };
                         svgLine.AddTo(group);
                     }

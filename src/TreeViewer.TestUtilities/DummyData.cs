@@ -155,7 +155,7 @@ namespace TreeViewer.TestUtilities
                 ShowCladeLabels = false,
                 CladeLabelsFontSize = 1,
                 ShowNodeValues = false,
-                CladeLabelLineThickness = 1,
+                CladeLabelsLineThickness = 1,
                 NodeValueFontSize = 1,
                 NodeValueType = CladeValueType.BranchLength,
                 ShowBranchValues = false,

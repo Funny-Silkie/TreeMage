@@ -225,7 +225,7 @@ namespace TreeViewer.Core.Drawing
             {
                 Clade root = allExternalNodes[0].FindRoot();
                 double maxLength = root.GetDescendants().Prepend(root).Max(x => CalcTextSize(x.Style.CladeLabel, treeStyle.CladeLabelsFontSize).width);
-                if (maxLength > 0) width += maxLength + treeStyle.CladeLabelLineThickness + 20;
+                if (maxLength > 0) width += maxLength + treeStyle.CladeLabelsLineThickness + 20;
             }
 
             double height = allExternalNodes.Length * treeStyle.YScale + 100;
@@ -344,7 +344,7 @@ namespace TreeViewer.Core.Drawing
                 y = (yTop + yBottom) / 2 + height / 2;
             }
 
-            return ((x + treeStyle.CladeLabelLineThickness / 2d, yTop, yBottom), (x + treeStyle.CladeLabelLineThickness + 5, y));
+            return ((x + treeStyle.CladeLabelsLineThickness / 2d, yTop, yBottom), (x + treeStyle.CladeLabelsLineThickness + 5, y));
         }
 
         /// <summary>

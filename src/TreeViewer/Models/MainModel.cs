@@ -198,7 +198,7 @@ namespace TreeViewer.Models
             tree.Style.LeafLabelsFontSize = LeafLabelsFontSize.Value;
             tree.Style.ShowCladeLabels = ShowCladeLabels.Value;
             tree.Style.CladeLabelsFontSize = CladeLabelsFontSize.Value;
-            tree.Style.CladeLabelLineThickness = CladeLabelsLineThickness.Value;
+            tree.Style.CladeLabelsLineThickness = CladeLabelsLineThickness.Value;
             tree.Style.ShowNodeValues = ShowNodeValues.Value;
             tree.Style.NodeValueType = NodeValueType.Value;
             tree.Style.NodeValueFontSize = NodeValueFontSize.Value;
@@ -229,7 +229,7 @@ namespace TreeViewer.Models
             LeafLabelsFontSize.Value = tree.Style.LeafLabelsFontSize;
             ShowCladeLabels.Value = tree.Style.ShowCladeLabels;
             CladeLabelsFontSize.Value = tree.Style.CladeLabelsFontSize;
-            CladeLabelsLineThickness.Value = tree.Style.CladeLabelLineThickness;
+            CladeLabelsLineThickness.Value = tree.Style.CladeLabelsLineThickness;
             ShowNodeValues.Value = tree.Style.ShowNodeValues;
             NodeValueType.Value = tree.Style.NodeValueType;
             NodeValueFontSize.Value = tree.Style.NodeValueFontSize;

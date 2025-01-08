@@ -115,9 +115,9 @@ namespace TreeViewer.Core.Exporting
                     {
                         var (line, text) = positionManager.CalcCladeLabelPosition(current);
 
-                        if (tree.Style.CladeLabelLineThickness > 0)
+                        if (tree.Style.CladeLabelsLineThickness > 0)
                         {
-                            graphics.DrawLine(DrawHelpers.CreatePdfColor("black").ToPen(tree.Style.CladeLabelLineThickness),
+                            graphics.DrawLine(DrawHelpers.CreatePdfColor("black").ToPen(tree.Style.CladeLabelsLineThickness),
                                               new XPoint(line.x, line.yTop),
                                               new XPoint(line.x, line.yBottom));
                         }
