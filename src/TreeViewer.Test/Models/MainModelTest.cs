@@ -43,6 +43,44 @@ namespace TreeViewer.Models
 
             Assert.Multiple(() =>
             {
+                Assert.Equal(value, property.Value);
+                assertionOnValueSet?.Invoke(property, value);
+            });
+
+            updatedProperties.Clear();
+            bool undoSuccess = await model.Undo();
+
+            Assert.Multiple(() =>
+            {
+                Assert.True(undoSuccess);
+                Assert.Equal(before, property.Value);
+                assertionOnUndo?.Invoke(property, before);
+            });
+
+            updatedProperties.Clear();
+            bool redoSuccess = await model.Redo();
+
+            Assert.Multiple(() =>
+            {
+                Assert.True(redoSuccess);
+                Assert.Equal(value, property.Value);
+                assertionOnValueSet?.Invoke(property, value);
+            });
+        }
+
+        /// <summary>
+        /// プロパティの設定を検証します。
+        /// </summary>
+        /// <typeparam name="T">プロパティの値の型</typeparam>
+        /// <param name="property">プロパティ</param>
+        /// <param name="value">設定する値</param>
+        private async Task PropertySetTestAsOnlyTargetTreeUpdated<T>(ReactiveProperty<T> property, T value, Action<ReactiveProperty<T>, T>? assertionOnValueSet = null, Action<ReactiveProperty<T>, T>? assertionOnUndo = null)
+        {
+            T before = property.Value;
+            property.Value = value;
+
+            Assert.Multiple(() =>
+            {
                 Assert.Single(updatedProperties, "TargetTree");
                 Assert.Equal(value, property.Value);
                 assertionOnValueSet?.Invoke(property, value);
