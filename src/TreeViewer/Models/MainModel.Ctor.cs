@@ -189,17 +189,17 @@ namespace TreeViewer.Models
             }, (before: TargetTree.Value?.Style?.CladeLabelsFontSize ?? 0, after: v))).AddTo(Disposables);
             CladeLabelsLineThickness = new ReactiveProperty<int>(5).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
             {
-                tree.Style.CladeLabelLineThickness = arg.after;
+                tree.Style.CladeLabelsLineThickness = arg.after;
                 CladeLabelsLineThickness!.Value = arg.after;
 
                 NotifyTreeUpdated();
             }, (arg, tree) =>
             {
-                tree.Style.CladeLabelLineThickness = arg.before;
+                tree.Style.CladeLabelsLineThickness = arg.before;
                 CladeLabelsLineThickness!.Value = arg.before;
 
                 NotifyTreeUpdated();
-            }, (before: TargetTree.Value?.Style?.CladeLabelLineThickness ?? 0, after: v)));
+            }, (before: TargetTree.Value?.Style?.CladeLabelsLineThickness ?? 0, after: v)));
 
             #endregion CladeLabels
 

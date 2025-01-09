@@ -3,6 +3,7 @@ using TreeViewer.TestUtilities.Assertions;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.ProjectData.Json;
 using TreeViewer.Core.Trees;
+using TreeViewer.TestUtilities;
 
 namespace TreeViewer.Core.ProjectData
 {
@@ -14,7 +15,7 @@ namespace TreeViewer.Core.ProjectData
 
         public ProjectDataTest()
         {
-            Tree tree1 = TreeTest.CreateDummyTree();
+            Tree tree1 = DummyData.CreateTree();
             foreach ((int i, Clade clade) in tree1.GetAllClades().Index()) clade.Style.LeafColor = i.ToString();
             tree1.Style.DecorationStyles = [
                 new BranchDecorationStyle()

@@ -1,5 +1,6 @@
 ﻿using TreeViewer.TestUtilities.Assertions;
 using TreeViewer.Core.Drawing.Styles;
+using TreeViewer.TestUtilities;
 
 namespace TreeViewer.Core.Trees
 {
@@ -20,7 +21,7 @@ namespace TreeViewer.Core.Trees
 
         public CladeTest()
         {
-            TreeTest.CreateDummyTree(out root, out leafA, out cladeB, out cladeBA, out leafBAA, out leafBAB, out cladeBB, out cladeBBA, out leafBBAA, out leafBBAB, out leafBBB, out leafC);
+            DummyData.CreateTree(out root, out leafA, out cladeB, out cladeBA, out leafBAA, out leafBAB, out cladeBB, out cladeBBA, out leafBBAA, out leafBBAB, out leafBBB, out leafC);
             root.TreeInternal = null;
         }
 

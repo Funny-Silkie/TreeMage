@@ -140,7 +140,7 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.LeafLabelsFontSize, actual.LeafLabelsFontSize);
                 Assert.Equal(expected.ShowCladeLabels, actual.ShowCladeLabels);
                 Assert.Equal(expected.CladeLabelsFontSize, actual.CladeLabelsFontSize);
-                Assert.Equal(expected.CladeLabelLineThickness, actual.CladeLabelLineThickness);
+                Assert.Equal(expected.CladeLabelsLineThickness, actual.CladeLabelsLineThickness);
                 Assert.Equal(expected.ShowNodeValues, actual.ShowNodeValues);
                 Assert.Equal(expected.NodeValueType, actual.NodeValueType);
                 Assert.Equal(expected.NodeValueFontSize, actual.NodeValueFontSize);
@@ -227,11 +227,15 @@ namespace TreeViewer.TestUtilities.Assertions
         /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
         public static void Equal(Tree expected, Tree actual)
         {
-            Assert.Multiple(() =>
+            Equal(expected.Root, actual.Root);
+            try
             {
-                Equal(expected.Root, actual.Root);
                 Equal(expected.Style, actual.Style);
-            });
+            }
+            catch (EqualException)
+            {
+                throw EqualException.ForMismatchedValuesWithError(expected.Style, actual.Style, banner: "Tree style differs");
+            }
         }
 
         /// <summary>

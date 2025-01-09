@@ -1,4 +1,5 @@
 ﻿using TreeViewer.Core.Trees;
+using TreeViewer.TestUtilities;
 
 namespace TreeViewer.Core.Drawing
 {
@@ -20,7 +21,7 @@ namespace TreeViewer.Core.Drawing
 
         public DrawingExtensionsTest()
         {
-            tree = TreeTest.CreateDummyTree(out root, out leafA, out cladeB, out cladeBA, out leafBAA, out leafBAB, out cladeBB, out cladeBBA, out leafBBAA, out leafBBAB, out leafBBB, out leafC);
+            tree = DummyData.CreateTree(out root, out leafA, out cladeB, out cladeBA, out leafBAA, out leafBAB, out cladeBB, out cladeBBA, out leafBBAA, out leafBBAB, out leafBBB, out leafC);
         }
 
         /// <summary>

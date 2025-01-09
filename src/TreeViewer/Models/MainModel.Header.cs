@@ -12,11 +12,6 @@ namespace TreeViewer.Models
         public ReactiveProperty<int> TreeIndex { get; }
 
         /// <summary>
-        /// <see cref="TreeIndex"/>の最大値のプロパティを取得します。
-        /// </summary>
-        public ReactiveProperty<int> MaxTreeIndex { get; }
-
-        /// <summary>
         /// <see cref="TreeIndex"/>が変更されたときに実行されます。
         /// </summary>
         /// <param name="value">変更後の値</param>
@@ -63,6 +58,11 @@ namespace TreeViewer.Models
                 }, (prevTree, nextTree, prevIndex, nextIndex: value));
             }
         }
+
+        /// <summary>
+        /// <see cref="TreeIndex"/>の最大値のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<int> MaxTreeIndex { get; }
 
         /// <summary>
         /// 編集モードのプロパティを取得します。

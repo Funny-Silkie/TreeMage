@@ -61,7 +61,12 @@ namespace TreeViewer.Core.Trees
         /// インスタンスの複製を生成します。
         /// </summary>
         /// <returns>インスタンスの複製</returns>
-        public Tree Clone() => new Tree(Root.Clone(true));
+        public Tree Clone()
+        {
+            var result = new Tree(Root.Clone(true));
+            result.Style.ApplyValues(Style);
+            return result;
+        }
 
         object ICloneable.Clone() => Clone();
 

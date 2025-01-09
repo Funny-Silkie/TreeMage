@@ -198,7 +198,7 @@ namespace TreeViewer.Models
             tree.Style.LeafLabelsFontSize = LeafLabelsFontSize.Value;
             tree.Style.ShowCladeLabels = ShowCladeLabels.Value;
             tree.Style.CladeLabelsFontSize = CladeLabelsFontSize.Value;
-            tree.Style.CladeLabelLineThickness = CladeLabelsLineThickness.Value;
+            tree.Style.CladeLabelsLineThickness = CladeLabelsLineThickness.Value;
             tree.Style.ShowNodeValues = ShowNodeValues.Value;
             tree.Style.NodeValueType = NodeValueType.Value;
             tree.Style.NodeValueFontSize = NodeValueFontSize.Value;
@@ -229,7 +229,7 @@ namespace TreeViewer.Models
             LeafLabelsFontSize.Value = tree.Style.LeafLabelsFontSize;
             ShowCladeLabels.Value = tree.Style.ShowCladeLabels;
             CladeLabelsFontSize.Value = tree.Style.CladeLabelsFontSize;
-            CladeLabelsLineThickness.Value = tree.Style.CladeLabelLineThickness;
+            CladeLabelsLineThickness.Value = tree.Style.CladeLabelsLineThickness;
             ShowNodeValues.Value = tree.Style.ShowNodeValues;
             NodeValueType.Value = tree.Style.NodeValueType;
             NodeValueFontSize.Value = tree.Style.NodeValueFontSize;
@@ -251,12 +251,12 @@ namespace TreeViewer.Models
         /// <summary>
         /// undoを行います。
         /// </summary>
-        public async Task Undo() => await undoService.Undo();
+        public async Task<bool> Undo() => await undoService.Undo();
 
         /// <summary>
         /// redoを行います。
         /// </summary>
-        public async Task Redo() => await undoService.Redo();
+        public async Task<bool> Redo() => await undoService.Redo();
 
         /// <summary>
         /// undoのキューをクリアします。
@@ -271,6 +271,7 @@ namespace TreeViewer.Models
         {
             FocusedSvgElementIdList.Clear();
 
+            bool found = false;
             foreach (Clade current in targetClades)
             {
                 CladeIdSuffix idSuffix;
@@ -289,9 +290,10 @@ namespace TreeViewer.Models
                 }
 
                 FocusedSvgElementIdList.Add(current.GetId(idSuffix));
+                found = true;
             }
 
-            OnPropertyChanged(nameof(FocusedSvgElementIdList));
+            if (found) OnPropertyChanged(nameof(FocusedSvgElementIdList));
         }
 
         /// <summary>
@@ -380,7 +382,7 @@ namespace TreeViewer.Models
             if (tree is null) return;
 
             var subtree = new Tree(clade.Clone(true));
-            ApplyTreeStyle(tree);
+            ApplyTreeStyle(subtree);
 
             OperateAsUndoable((arg, tree) =>
             {
