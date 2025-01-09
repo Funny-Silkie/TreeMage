@@ -1,5 +1,6 @@
-using TreeViewer.Core.Drawing;
+﻿using TreeViewer.Core.Drawing;
 using TreeViewer.Core.Trees;
+using TreeViewer.Data;
 
 namespace TreeViewer.Models
 {
@@ -42,6 +43,181 @@ namespace TreeViewer.Models
         }
 
         #endregion Tree
+
+        #region Search
+
+        [Fact]
+        public void Search_OnTreeMissing()
+        {
+            model.TargetTree.Value = null;
+            model.SearchQuery.Value = "hoge";
+            model.Search();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Empty(updatedProperties);
+                Assert.Empty(model.FocusedSvgElementIdList);
+            });
+        }
+
+        [Fact]
+        public void Search_OnEmptyQuery()
+        {
+            model.SearchQuery.Value = string.Empty;
+            model.Search();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Empty(updatedProperties);
+                Assert.Empty(model.FocusedSvgElementIdList);
+            });
+        }
+
+        [Fact]
+        public void Search_OnCompatibleState_AsNotFound()
+        {
+            model.FocusAll();
+            model.SelectionTarget.Value = SelectionMode.Taxa;
+            updatedProperties.Clear();
+
+            model.SearchQuery.Value = "bbaa";
+            model.SearchOnIgnoreCase.Value = false;
+            model.SearchTarget.Value = TreeSearchTarget.Taxon;
+            model.Search();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Empty(model.FocusedSvgElementIdList);
+                Assert.Empty(updatedProperties);
+            });
+        }
+
+        [Fact]
+        public async Task Search_OnCompatibleState_AsFindTaxon()
+        {
+            model.FocusAll();
+            model.SelectionTarget.Value = SelectionMode.Node;
+            updatedProperties.Clear();
+
+            model.SearchQuery.Value = "BBAA";
+            model.SearchTarget.Value = TreeSearchTarget.Taxon;
+            model.Search();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(SelectionMode.Taxa, model.SelectionTarget.Value);
+                CladeId clade = Assert.Single(model.FocusedSvgElementIdList);
+                Assert.True(clade.Clade.IsLeaf);
+                Assert.Equal("BBAA", clade.Clade.Taxon);
+                Assert.Equal(["FocusedSvgElementIdList", "FocusedSvgElementIdList"], updatedProperties);
+            });
+
+            bool undoSuccess = await model.Undo();
+            Assert.False(undoSuccess);
+        }
+
+        [Fact]
+        public async Task Search_OnCompatibleState_AsFindSupport()
+        {
+            model.FocusAll();
+            model.SelectionTarget.Value = SelectionMode.Taxa;
+            updatedProperties.Clear();
+
+            model.SearchQuery.Value = "100/100";
+            model.SearchTarget.Value = TreeSearchTarget.Supports;
+            model.Search();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(SelectionMode.Node, model.SelectionTarget.Value);
+                CladeId clade = Assert.Single(model.FocusedSvgElementIdList);
+                Assert.False(clade.Clade.IsLeaf);
+                Assert.Equal("100/100", clade.Clade.Supports);
+                Assert.Equal(["FocusedSvgElementIdList", "FocusedSvgElementIdList"], updatedProperties);
+            });
+
+            bool undoSuccess = await model.Undo();
+            Assert.False(undoSuccess);
+        }
+
+        [Fact]
+        public async Task Search_OnCompatibleState_AsCaseInsensitive()
+        {
+            model.FocusAll();
+            model.SelectionTarget.Value = SelectionMode.Taxa;
+            updatedProperties.Clear();
+
+            model.SearchQuery.Value = "bbaa";
+            model.SearchTarget.Value = TreeSearchTarget.Taxon;
+            model.SearchOnIgnoreCase.Value = true;
+            model.Search();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(SelectionMode.Taxa, model.SelectionTarget.Value);
+                CladeId clade = Assert.Single(model.FocusedSvgElementIdList);
+                Assert.True(clade.Clade.IsLeaf);
+                Assert.Equal("BBAA", clade.Clade.Taxon);
+                Assert.Single(updatedProperties, "FocusedSvgElementIdList");
+            });
+
+            bool undoSuccess = await model.Undo();
+            Assert.False(undoSuccess);
+        }
+
+        [Fact]
+        public async Task Search_OnCompatibleState_AsUseRegexAndCaseSensitive()
+        {
+            model.FocusAll();
+            model.SelectionTarget.Value = SelectionMode.Taxa;
+            updatedProperties.Clear();
+
+            model.SearchQuery.Value = "^BAA$";
+            model.SearchTarget.Value = TreeSearchTarget.Taxon;
+            model.SearchWithRegex.Value = true;
+            model.SearchOnIgnoreCase.Value = false;
+            model.Search();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(SelectionMode.Taxa, model.SelectionTarget.Value);
+                CladeId clade = Assert.Single(model.FocusedSvgElementIdList);
+                Assert.True(clade.Clade.IsLeaf);
+                Assert.Equal("BAA", clade.Clade.Taxon);
+                Assert.Single(updatedProperties, "FocusedSvgElementIdList");
+            });
+
+            bool undoSuccess = await model.Undo();
+            Assert.False(undoSuccess);
+        }
+
+        [Fact]
+        public async Task Search_OnCompatibleState_AsUseRegexAndCaseInsensitive()
+        {
+            model.FocusAll();
+            model.SelectionTarget.Value = SelectionMode.Taxa;
+            updatedProperties.Clear();
+
+            model.SearchQuery.Value = "^baa$";
+            model.SearchTarget.Value = TreeSearchTarget.Taxon;
+            model.SearchWithRegex.Value = true;
+            model.SearchOnIgnoreCase.Value = true;
+            model.Search();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(SelectionMode.Taxa, model.SelectionTarget.Value);
+                CladeId clade = Assert.Single(model.FocusedSvgElementIdList);
+                Assert.True(clade.Clade.IsLeaf);
+                Assert.Equal("BAA", clade.Clade.Taxon);
+                Assert.Single(updatedProperties, "FocusedSvgElementIdList");
+            });
+
+            bool undoSuccess = await model.Undo();
+            Assert.False(undoSuccess);
+        }
+
+        #endregion Search
 
         #region LeafLabels
 
@@ -137,6 +313,48 @@ namespace TreeViewer.Models
         public async Task ShowBranchDecorations_Set()
         {
             await PropertySetTest(model.ShowBranchDecorations, false, (p, v) => Assert.Equal(v, tree.Style.ShowBranchDecorations), (p, v) => Assert.Equal(v, tree.Style.ShowBranchDecorations));
+        }
+
+        [Fact]
+        public async Task AddNewBranchDecoration()
+        {
+            BranchDecorationModel firstDecoration = model.BranchDecorations[0];
+            model.AddNewBranchDecoration();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(2, tree.Style.DecorationStyles.Length);
+                Assert.Equal(2, model.BranchDecorations.Count);
+                Assert.Same(firstDecoration.Style, tree.Style.DecorationStyles[0]);
+                Assert.NotSame(firstDecoration.Style, tree.Style.DecorationStyles[1]);
+                Assert.Same(firstDecoration, model.BranchDecorations[0]);
+                Assert.NotSame(firstDecoration, model.BranchDecorations[1]);
+                Assert.Single(updatedProperties, "TargetTree");
+            });
+
+            updatedProperties.Clear();
+            bool undoSuccess = await model.Undo();
+            Assert.Multiple(() =>
+            {
+                Assert.Single(model.BranchDecorations, firstDecoration);
+                Assert.Single(tree.Style.DecorationStyles, firstDecoration.Style);
+                Assert.True(undoSuccess);
+                Assert.Single(updatedProperties, "TargetTree");
+            });
+
+            updatedProperties.Clear();
+            bool redoSuccess = await model.Redo();
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(2, tree.Style.DecorationStyles.Length);
+                Assert.Equal(2, model.BranchDecorations.Count);
+                Assert.Same(firstDecoration.Style, tree.Style.DecorationStyles[0]);
+                Assert.NotSame(firstDecoration.Style, tree.Style.DecorationStyles[1]);
+                Assert.Same(firstDecoration, model.BranchDecorations[0]);
+                Assert.NotSame(firstDecoration, model.BranchDecorations[1]);
+                Assert.True(redoSuccess);
+                Assert.Single(updatedProperties, "TargetTree");
+            });
         }
 
         #endregion BranchDecorations

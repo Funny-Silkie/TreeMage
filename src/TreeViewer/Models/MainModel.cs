@@ -271,6 +271,7 @@ namespace TreeViewer.Models
         {
             FocusedSvgElementIdList.Clear();
 
+            bool found = false;
             foreach (Clade current in targetClades)
             {
                 CladeIdSuffix idSuffix;
@@ -289,9 +290,10 @@ namespace TreeViewer.Models
                 }
 
                 FocusedSvgElementIdList.Add(current.GetId(idSuffix));
+                found = true;
             }
 
-            OnPropertyChanged(nameof(FocusedSvgElementIdList));
+            if (found) OnPropertyChanged(nameof(FocusedSvgElementIdList));
         }
 
         /// <summary>

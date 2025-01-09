@@ -53,6 +53,7 @@ namespace TreeViewer.Models
 
             Assert.Multiple(() =>
             {
+                Assert.True(undoSuccess);
                 Assert.Single(updatedProperties, "TargetTree");
                 Assert.Equal(before, property.Value);
                 assertionOnUndo?.Invoke(property, before);
@@ -63,6 +64,7 @@ namespace TreeViewer.Models
 
             Assert.Multiple(() =>
             {
+                Assert.True(redoSuccess);
                 Assert.Single(updatedProperties, "TargetTree");
                 Assert.Equal(value, property.Value);
                 assertionOnValueSet?.Invoke(property, value);
