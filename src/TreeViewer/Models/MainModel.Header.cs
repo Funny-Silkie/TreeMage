@@ -62,7 +62,7 @@ namespace TreeViewer.Models
         /// <summary>
         /// <see cref="TreeIndex"/>の最大値のプロパティを取得します。
         /// </summary>
-        public ReactiveProperty<int> MaxTreeIndex { get; }
+        public ReadOnlyReactiveProperty<int> MaxTreeIndex { get; }
 
         /// <summary>
         /// 編集モードのプロパティを取得します。
