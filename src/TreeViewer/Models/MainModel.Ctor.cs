@@ -23,8 +23,10 @@ namespace TreeViewer.Models
 
             TreeIndex = new ReactiveProperty<int>(1).WithSubscribe(OnTreeIndexChanged)
                                                         .AddTo(Disposables);
-            MaxTreeIndex = new ReactiveProperty<int>().AddTo(Disposables);
-            Trees.ToCollectionChanged().Subscribe(x => MaxTreeIndex.Value = Trees.Count);
+            MaxTreeIndex = Trees.ToCollectionChanged()
+                                .Select(x => Trees.Count)
+                                .ToReadOnlyReactiveProperty()
+                                .AddTo(Disposables);
             EditMode = new ReactiveProperty<TreeEditMode>().AddTo(Disposables);
             EditMode.Zip(EditMode.Skip(1), (x, y) => (before: x, after: y)).Subscribe(v => OperateAsUndoable((arg, tree) =>
             {
