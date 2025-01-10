@@ -1,8 +1,12 @@
-﻿using Reactive.Bindings;
+using Reactive.Bindings;
+using System.Diagnostics;
 using TreeViewer.Core.Drawing;
 using TreeViewer.Core.Drawing.Styles;
+using TreeViewer.Core.Exporting;
 using TreeViewer.Core.Trees;
+using TreeViewer.Core.Trees.Parsers;
 using TreeViewer.Data;
+using TreeViewer.Settings;
 using TreeViewer.TestUtilities;
 using TreeViewer.TestUtilities.Assertions;
 
@@ -28,6 +32,10 @@ namespace TreeViewer.Models
 
             model.ClearUndoQueue();
             model.PropertyChanged += (_, e) => updatedProperties.Add(e.PropertyName);
+
+            Configurations config = Configurations.LoadOrCreate();
+            config.AutoOrderingMode = AutoOrderingMode.None;
+            config.Save();
         }
 
         /// <summary>
@@ -714,6 +722,191 @@ namespace TreeViewer.Models
                 Assert.Single(model.Trees, actualOrdered);
                 Assert.Single(updatedProperties, "TargetTree");
             });
+        }
+
+        [Fact]
+        public async Task CreateNew()
+        {
+            model.ProjectPath.Value = "hoge.treeprj";
+            model.Trees.Add(DummyData.CreateTree());
+            model.TreeIndex.Value = 2;
+            updatedProperties.Clear();
+
+            model.CreateNew();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Null(model.ProjectPath.Value);
+                Assert.Null(model.TargetTree.Value);
+                Assert.Empty(model.Trees);
+                Assert.Equal(1, model.TreeIndex.Value);
+                Assert.Equal(0, model.MaxTreeIndex.Value);
+                Assert.Equal(["FocusedSvgElementIdList", "TargetTree", "Trees"], updatedProperties);
+            });
+
+            Assert.False(await model.Undo());
+            Assert.False(await model.Redo());
+        }
+
+        [Fact]
+        public async Task ExportCurrentTreeAsTreeFile_OnTreeMissing()
+        {
+            const string destPath = "test.tree";
+
+            File.Delete(destPath);
+            model.TargetTree.Value = null;
+            await model.ExportCurrentTreeAsTreeFile(destPath, TreeFormat.Newick);
+
+            Assert.False(File.Exists(destPath));
+        }
+
+        [Fact]
+        public async Task ExportCurrentTreeAsTreeFile_OnTreeExisting()
+        {
+            const string destPath = "test.tree";
+
+            File.Delete(destPath);
+            await model.ExportCurrentTreeAsTreeFile(destPath, TreeFormat.Newick);
+            Debug.Assert(model.TargetTree.Value is not null);
+
+            Assert.Multiple(() =>
+            {
+                Assert.True(File.Exists(destPath));
+                Assert.Equal(model.TargetTree.Value.ToString(), File.ReadAllText(destPath));
+            });
+        }
+
+        [Fact]
+        public async Task OpenProject()
+        {
+            string path = CreateTestDataPath("View", "Models", "Main", "default.treeprj");
+            await model.OpenProject(path);
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(path, model.ProjectPath.Value);
+                Assert.Equal(1, model.TreeIndex.Value);
+                Assert.Equal(1, model.MaxTreeIndex.Value);
+                Assert.Equal(["FocusedSvgElementIdList", "TargetTree", "Trees"], updatedProperties);
+            });
+            Tree openedTree = Assert.Single(model.Trees);
+            Assert.Same(openedTree, model.TargetTree.Value);
+            CustomizedAssertions.Equal(tree, openedTree);
+
+            Assert.False(await model.Undo());
+        }
+
+        [Fact]
+        public async Task SaveProject()
+        {
+            const string destPath = "test.treeprj";
+
+            File.Delete(destPath);
+            model.ProjectPath.Value = destPath;
+
+            await model.SaveProject(destPath);
+
+            Assert.Multiple(() =>
+            {
+                Assert.True(File.Exists(destPath));
+                CustomizedAssertions.EqualProjectFiles(CreateTestDataPath("View", "Models", "Main", "default.treeprj"), destPath);
+            });
+        }
+
+        [Fact]
+        public async Task ImportTree_OnEmptyProject()
+        {
+            model.CreateNew();
+            updatedProperties.Clear();
+            model.ClearUndoQueue();
+
+            await model.ImportTree(CreateTestDataPath("View", "Models", "Main", "imported.tree"), TreeFormat.Newick);
+
+            Assert.Multiple(() =>
+            {
+                Assert.Null(model.ProjectPath.Value);
+                Assert.Equal(1, model.TreeIndex.Value);
+                Assert.Equal(1, model.MaxTreeIndex.Value);
+                Assert.Single(updatedProperties, "TargetTree");
+            });
+            Tree importedTree = Assert.Single(model.Trees);
+            Assert.Same(importedTree, model.TargetTree.Value);
+            CustomizedAssertions.Equal(tree.Style, importedTree.Style);
+            Assert.Equal("(A:0.1,(B:0.2,C:0.1)50:0.3,D:0.2);", importedTree.ToString());
+
+            Assert.False(await model.Undo());
+        }
+
+        [Fact]
+        public async Task ImportTree_OnExistingProject()
+        {
+            await model.ImportTree(CreateTestDataPath("View", "Models", "Main", "imported.tree"), TreeFormat.Newick);
+            Tree importedTree = model.Trees[1];
+            Assert.Multiple(() =>
+            {
+                Assert.Null(model.ProjectPath.Value);
+                Assert.Equal(2, model.TreeIndex.Value);
+                Assert.Equal(2, model.MaxTreeIndex.Value);
+                Assert.Equal([tree, importedTree], model.Trees);
+                CustomizedAssertions.Equal(tree.Style, importedTree.Style);
+                Assert.Same(importedTree, model.TargetTree.Value);
+                Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+            });
+
+            updatedProperties.Clear();
+            bool undoSucess = await model.Undo();
+            Assert.Multiple(() =>
+            {
+                Assert.True(undoSucess);
+                Assert.Null(model.ProjectPath.Value);
+                Assert.Equal(1, model.TreeIndex.Value);
+                Assert.Equal(1, model.MaxTreeIndex.Value);
+                Assert.Single(model.Trees, tree);
+                Assert.Same(tree, model.TargetTree.Value);
+                Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+            });
+
+            updatedProperties.Clear();
+            bool redoSuccess = await model.Redo();
+            Assert.Multiple(() =>
+            {
+                Assert.True(redoSuccess);
+                Assert.Null(model.ProjectPath.Value);
+                Assert.Equal(2, model.TreeIndex.Value);
+                Assert.Equal(2, model.MaxTreeIndex.Value);
+                Assert.Equal([tree, importedTree], model.Trees);
+                Assert.Same(importedTree, model.TargetTree.Value);
+                Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+            });
+        }
+
+        [Theory]
+        [InlineData(ExportType.Svg)]
+        [InlineData(ExportType.Png)]
+        [InlineData(ExportType.Pdf)]
+        public async Task ExportWithExporter_OnTreeMissing(ExportType type)
+        {
+            string destPath = $"test.{type.ToString().ToLowerInvariant()}";
+            File.Delete(destPath);
+
+            model.TargetTree.Value = null;
+            await model.ExportWithExporter(destPath, type);
+
+            Assert.False(File.Exists(destPath));
+        }
+
+        [Theory]
+        [InlineData(ExportType.Svg)]
+        [InlineData(ExportType.Png)]
+        [InlineData(ExportType.Pdf)]
+        public async Task ExportWithExporter_OnTreeExisting(ExportType type)
+        {
+            string destPath = $"test.{type.ToString().ToLowerInvariant()}";
+            File.Delete(destPath);
+
+            await model.ExportWithExporter(destPath, type);
+
+            Assert.True(File.Exists(destPath));
         }
 
         #endregion Instance Methods

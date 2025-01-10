@@ -31,23 +31,6 @@ namespace TreeViewer.Core.ProjectData
             };
         }
 
-        private static string Decompress(string path)
-        {
-            using var gzipStream = new GZipStream(new FileStream(path, FileMode.Open), CompressionMode.Decompress);
-
-            string result = path + "-decompressed.json";
-
-            using var destStream = new FileStream(result, FileMode.Create);
-            gzipStream.CopyTo(destStream);
-
-            return result;
-        }
-
-        private static void CompareProjectData(string expected, string actual)
-        {
-            CustomizedAssertions.EqualTextFiles(Decompress(expected), Decompress(actual));
-        }
-
         #region Ctors
 
         [Fact]
@@ -151,7 +134,7 @@ namespace TreeViewer.Core.ProjectData
         {
             data.Save(outputPath);
 
-            CompareProjectData(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
+            CustomizedAssertions.EqualProjectFiles(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
         }
 
         [Fact]
@@ -168,7 +151,7 @@ namespace TreeViewer.Core.ProjectData
                 data.Save(stream);
             }
 
-            CompareProjectData(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
+            CustomizedAssertions.EqualProjectFiles(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
         }
 
         [Fact]
@@ -176,7 +159,7 @@ namespace TreeViewer.Core.ProjectData
         {
             await data.SaveAsync(outputPath);
 
-            CompareProjectData(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
+            CustomizedAssertions.EqualProjectFiles(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
         }
 
         [Fact]
@@ -193,7 +176,7 @@ namespace TreeViewer.Core.ProjectData
                 await data.SaveAsync(stream);
             }
 
-            CompareProjectData(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
+            CustomizedAssertions.EqualProjectFiles(CreateTestDataPath("Core", "ProjectData", "data.treeprj"), outputPath);
         }
 
         #endregion Instance Methods

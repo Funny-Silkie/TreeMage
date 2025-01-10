@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.IO.Compression;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 using TreeViewer.Settings;
@@ -120,6 +121,29 @@ namespace TreeViewer.TestUtilities.Assertions
             finally
             {
                 ArrayPool<byte>.Shared.Return(expectedBuffer);
+            }
+        }
+
+        /// <summary>
+        /// 二つのプロジェクトファイルの等価性を検証します。
+        /// </summary>
+        /// <param name="expected">予期されるプロジェクトファイルのパス</param>
+        /// <param name="actual">実際のプロジェクトファイルのパス</param>
+        /// <exception cref="EqualException">ファイルに違いがみられる</exception>
+        public static void EqualProjectFiles(string expected, string actual)
+        {
+            EqualTextFiles(Decompress(expected), Decompress(actual));
+
+            static string Decompress(string path)
+            {
+                using var gzipStream = new GZipStream(new FileStream(path, FileMode.Open), CompressionMode.Decompress);
+
+                string result = path + "-decompressed.json";
+
+                using var destStream = new FileStream(result, FileMode.Create);
+                gzipStream.CopyTo(destStream);
+
+                return result;
             }
         }
 
