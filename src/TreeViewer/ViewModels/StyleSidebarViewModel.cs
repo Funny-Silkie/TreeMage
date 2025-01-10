@@ -34,6 +34,12 @@ namespace TreeViewer.ViewModels
         /// <inheritdoc cref="StyleSidebarModel.CladeLabel"/>
         public ReactivePropertySlim<string?> CladeLabel { get; }
 
+        /// <inheritdoc cref="StyleSidebarModel.LeafLabel"/>
+        public ReactivePropertySlim<string?> LeafLabel { get; }
+
+        /// <inheritdoc cref="StyleSidebarModel.Supports"/>
+        public ReactivePropertySlim<string?> Supports { get; }
+
         /// <summary>
         /// <see cref="StyleSidebarViewModel"/>の新しいインスタンスを初期化します。
         /// </summary>
@@ -57,6 +63,10 @@ namespace TreeViewer.ViewModels
                                                        .AddTo(Disposables);
             LeafColor = styleSidebarmodel.LeafColor.ToReactivePropertySlimAsSynchronized(x => x.Value)
                                                    .AddTo(Disposables);
+            LeafLabel = styleSidebarmodel.LeafLabel.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                   .AddTo(Disposables);
+            Supports = styleSidebarmodel.Supports.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                 .AddTo(Disposables);
         }
     }
 }

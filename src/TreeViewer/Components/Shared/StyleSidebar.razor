@@ -4,6 +4,7 @@
     <RadzenText TextStyle="TextStyle.DisplayH6">Properties</RadzenText>
     @if (ViewModel.IsEnable.Value && ViewModel.FocusedCount.Value > 0 && ViewModel.FirstSelectedElement.Value.Clade is not null)
     {
+        Clade clade = ViewModel.FirstSelectedElement.Value.Clade;
         <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
             <RadzenText>Branch color: </RadzenText>
             <RadzenColorPicker @bind-Value="ViewModel.BranchColor.Value" />
@@ -21,6 +22,20 @@
                 <RadzenText>Clade label:</RadzenText>
                 <RadzenTextBox @bind-Value="ViewModel.CladeLabel.Value" />
             </RadzenRow>
+            if (clade.IsLeaf)
+            {
+                <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                    <RadzenText>Leaf label:</RadzenText>
+                    <RadzenTextBox @bind-Value="ViewModel.LeafLabel.Value" />
+                </RadzenRow>
+            }
+            else
+            {
+                <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                    <RadzenText>Support value:</RadzenText>
+                    <RadzenTextBox @bind-Value="ViewModel.Supports.Value" />
+                </RadzenRow>
+            }
         }
     }
 </RadzenStack>

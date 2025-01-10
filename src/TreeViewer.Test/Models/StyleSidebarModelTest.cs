@@ -177,6 +177,7 @@ namespace TreeViewer.Models
                 Assert.Null(styleSidebarModel.CladeLabel.Value);
                 Assert.Equal("black", styleSidebarModel.BranchColor.Value);
                 Assert.Equal("black", styleSidebarModel.LeafColor.Value);
+                Assert.Null(styleSidebarModel.CladeLabel.Value);
             });
         }
 
@@ -225,7 +226,8 @@ namespace TreeViewer.Models
                 Assert.Equal(0, styleSidebarModel.FocusedCount.Value);
                 Assert.Null(styleSidebarModel.FirstSelectedElement.Value.Clade);
                 Assert.False(styleSidebarModel.LeafSelected.Value);
-                Assert.Equal("black", styleSidebarModel.BranchColor.Value);
+                Assert.Null(styleSidebarModel.LeafLabel.Value);
+                Assert.Null(styleSidebarModel.Supports.Value);
             });
         }
 
@@ -246,6 +248,8 @@ namespace TreeViewer.Models
                 Assert.Equal("red", styleSidebarModel.BranchColor.Value);
                 Assert.Equal("red", styleSidebarModel.LeafColor.Value);
                 Assert.Equal("Clade", styleSidebarModel.CladeLabel.Value);
+                Assert.Equal("A", styleSidebarModel.LeafLabel.Value);
+                Assert.Null(styleSidebarModel.Supports.Value);
             });
         }
 
@@ -263,6 +267,8 @@ namespace TreeViewer.Models
                 Assert.Same(cladeBA, styleSidebarModel.FirstSelectedElement.Value.Clade);
                 Assert.Equal("black", styleSidebarModel.BranchColor.Value);
                 Assert.Equal("CLADE", styleSidebarModel.CladeLabel.Value);
+                Assert.Null(styleSidebarModel.LeafLabel.Value);
+                Assert.Equal("20/30", styleSidebarModel.Supports.Value);
             });
         }
 
@@ -280,6 +286,8 @@ namespace TreeViewer.Models
                 Assert.True(styleSidebarModel.LeafSelected.Value);
                 Assert.Null(styleSidebarModel.BranchColor.Value);
                 Assert.Equal("red", styleSidebarModel.LeafColor.Value);
+                Assert.Null(styleSidebarModel.LeafLabel.Value);
+                Assert.Null(styleSidebarModel.Supports.Value);
             });
         }
 
@@ -295,6 +303,8 @@ namespace TreeViewer.Models
                 Assert.Equal(mainModel.FocusedSvgElementIdList.First(), styleSidebarModel.FirstSelectedElement.Value);
                 Assert.False(styleSidebarModel.LeafSelected.Value);
                 Assert.Null(styleSidebarModel.BranchColor.Value);
+                Assert.Null(styleSidebarModel.LeafLabel.Value);
+                Assert.Null(styleSidebarModel.Supports.Value);
             });
         }
 
@@ -348,7 +358,7 @@ namespace TreeViewer.Models
         }
 
         [Fact]
-        public async Task BranchCladeLabel_Set_OnSingleSelected()
+        public async Task CladeLabel_Set_OnSingleSelected()
         {
             SetupAsCladeBAFocused();
 
@@ -356,6 +366,28 @@ namespace TreeViewer.Models
                                                          "hoge",
                                                          (_, v) => Assert.Equal(v, cladeBA.Style.CladeLabel),
                                                          (_, v) => Assert.Equal(v, cladeBA.Style.CladeLabel));
+        }
+
+        [Fact]
+        public async Task LeafLabel_Set_OnSingleLeafSelected()
+        {
+            SetupAsLeafAFocused();
+
+            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.LeafLabel,
+                                                         "hoge",
+                                                         (_, v) => Assert.Equal(v, leafA.Taxon),
+                                                         (_, v) => Assert.Equal(v, leafA.Taxon));
+        }
+
+        [Fact]
+        public async Task Supports_Set_OnSingleLeafSelected()
+        {
+            SetupAsCladeBAFocused();
+
+            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.Supports,
+                                                         "hoge",
+                                                         (_, v) => Assert.Equal(v, cladeBA.Supports),
+                                                         (_, v) => Assert.Equal(v, cladeBA.Supports));
         }
 
         #endregion Properties

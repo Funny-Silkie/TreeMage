@@ -57,6 +57,16 @@ namespace TreeViewer.Models
         public ReactiveProperty<string?> CladeLabel { get; }
 
         /// <summary>
+        /// 葉ラベルのプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string?> LeafLabel { get; }
+
+        /// <summary>
+        /// サポート値のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string?> Supports { get; }
+
+        /// <summary>
         /// <see cref="StyleSidebarModel"/>の新しいインスタンスを初期化します。
         /// </summary>
         public StyleSidebarModel(MainModel mainModel)
@@ -143,6 +153,48 @@ namespace TreeViewer.Models
                     mainModel.NotifyTreeUpdated();
                 }, (targets, after: v, selectionTarget: SelectionTarget.Value));
             }).AddTo(Disposables);
+            LeafLabel = new ReactiveProperty<string?>().WithSubscribe(v =>
+            {
+                if (updating) return;
+
+                CladeId id = FirstSelectedElement.Value;
+                if (id.Clade is null) return;
+
+                this.mainModel.OperateAsUndoable((arg, tree) =>
+                {
+                    LeafLabel!.Value = arg.after;
+                    arg.clade.Taxon = arg.after;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (arg, tree) =>
+                {
+                    LeafLabel!.Value = arg.before;
+                    arg.clade.Taxon = arg.before;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (clade: id.Clade, before: id.Clade.Taxon, after: string.IsNullOrEmpty(v) ? null : v));
+            }).AddTo(Disposables);
+            Supports = new ReactiveProperty<string?>().WithSubscribe(v =>
+            {
+                if (updating) return;
+
+                CladeId id = FirstSelectedElement.Value;
+                if (id.Clade is null) return;
+
+                this.mainModel.OperateAsUndoable((arg, tree) =>
+                {
+                    Supports!.Value = arg.after;
+                    arg.clade.Supports = arg.after;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (arg, tree) =>
+                {
+                    Supports!.Value = arg.before;
+                    arg.clade.Supports = arg.before;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (clade: id.Clade, before: id.Clade.Supports, after: string.IsNullOrEmpty(v) ? null : v));
+            });
 
             updating = false;
             mainModel.ClearUndoQueue();
@@ -168,6 +220,8 @@ namespace TreeViewer.Models
                                                                            .ToList();
                 LeafColor.Value = leafColors.Count == 1 ? leafColors[0] : null;
                 CladeLabel.Value = null;
+                LeafLabel.Value = null;
+                Supports.Value = null;
 
                 if (mainModel.FocusedSvgElementIdList.Count == 1)
                 {
@@ -175,6 +229,9 @@ namespace TreeViewer.Models
                     if (clade is null) return;
 
                     CladeLabel.Value = clade.Style.CladeLabel;
+
+                    if (clade.IsLeaf) LeafLabel.Value = clade.Taxon;
+                    else Supports.Value = clade.Supports;
                 }
 
                 OnPropertyChanged(nameof(FirstSelectedElement));
