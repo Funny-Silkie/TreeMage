@@ -22,8 +22,14 @@ namespace TreeViewer.ViewModels
         /// <inheritdoc cref="StyleSidebarModel.FirstSelectedElement"/>
         public ReadOnlyReactivePropertySlim<CladeId> FirstSelectedElement { get; }
 
-        /// <inheritdoc cref="StyleSidebarModel.Color"/>
-        public ReactivePropertySlim<string?> Color { get; }
+        /// <inheritdoc cref="StyleSidebarModel.LeafSelected"/>
+        public ReadOnlyReactivePropertySlim<bool> LeafSelected { get; }
+
+        /// <inheritdoc cref="StyleSidebarModel.BranchColor"/>
+        public ReactivePropertySlim<string?> BranchColor { get; }
+
+        /// <inheritdoc cref="StyleSidebarModel.LeafColor"/>
+        public ReactivePropertySlim<string?> LeafColor { get; }
 
         /// <inheritdoc cref="StyleSidebarModel.CladeLabel"/>
         public ReactivePropertySlim<string?> CladeLabel { get; }
@@ -43,10 +49,14 @@ namespace TreeViewer.ViewModels
                                                          .AddTo(Disposables);
             FirstSelectedElement = styleSidebarmodel.FirstSelectedElement.ToReadOnlyReactivePropertySlim()
                                                                          .AddTo(Disposables);
+            LeafSelected = styleSidebarmodel.LeafSelected.ToReadOnlyReactivePropertySlim()
+                                                         .AddTo(Disposables);
             CladeLabel = styleSidebarmodel.CladeLabel.ToReactivePropertySlimAsSynchronized(x => x.Value)
                                                      .AddTo(Disposables);
-            Color = styleSidebarmodel.Color.ToReactivePropertySlimAsSynchronized(x => x.Value)
-                                           .AddTo(Disposables);
+            BranchColor = styleSidebarmodel.BranchColor.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                       .AddTo(Disposables);
+            LeafColor = styleSidebarmodel.LeafColor.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                   .AddTo(Disposables);
         }
     }
 }

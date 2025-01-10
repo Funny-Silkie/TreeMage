@@ -4,10 +4,17 @@
     <RadzenText TextStyle="TextStyle.DisplayH6">Properties</RadzenText>
     @if (ViewModel.IsEnable.Value && ViewModel.FocusedCount.Value > 0 && ViewModel.FirstSelectedElement.Value.Clade is not null)
     {
-        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
-            <RadzenText>Color: </RadzenText>
-            <RadzenColorPicker @bind-Value="ViewModel.Color.Value" />
-        </RadzenStack>
+        <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+            <RadzenText>Branch color: </RadzenText>
+            <RadzenColorPicker @bind-Value="ViewModel.BranchColor.Value" />
+        </RadzenRow>
+        @if (ViewModel.LeafSelected.Value)
+        {
+            <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                <RadzenText>Leaf color: </RadzenText>
+                <RadzenColorPicker @bind-Value="ViewModel.LeafColor.Value" />
+            </RadzenRow>
+        }
         @if (ViewModel.FocusedCount.Value == 1 && ViewModel.SelectionTarget.Value is SelectionMode.Node)
         {
             <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
@@ -23,7 +30,7 @@
     /// <inheritdoc/>
     protected override async Task OnInitializedAsync()
     {
-        ViewModel!.PropertyChanged += (_, _) => InvokeAsync(StateHasChanged);
+        ViewModel.PropertyChanged += (_, _) => InvokeAsync(StateHasChanged);
         await Task.CompletedTask;
     }
 }
