@@ -22,6 +22,10 @@
                 <RadzenText>Clade label:</RadzenText>
                 <RadzenTextBox @bind-Value="ViewModel.CladeLabel.Value" />
             </RadzenRow>
+            <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
+                <RadzenText>Shade color:</RadzenText>
+                <RadzenColorPicker @bind-Value="ViewModel.ShadeColor.Value" />
+            </RadzenRow>
             if (clade.IsLeaf)
             {
                 <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">

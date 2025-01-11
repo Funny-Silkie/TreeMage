@@ -108,6 +108,14 @@
                             {
                                 if (current.GetIsHidden()) continue;
 
+                                // シェード
+                                if (!string.IsNullOrEmpty(current.Style.ShadeColor))
+                                {
+                                    (double x, double y, double width, double height) = positionManager.CalcCladeShadePosition(current);
+
+                                    <rect x="@x" y="@y" width="@width" height="@height" fill="@current.Style.ShadeColor" />
+                                }
+
                                 // 折り畳み
                                 if (current.GetIsExternal() && !current.IsLeaf)
                                 {

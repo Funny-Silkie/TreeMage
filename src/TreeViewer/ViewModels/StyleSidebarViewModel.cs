@@ -34,6 +34,9 @@ namespace TreeViewer.ViewModels
         /// <inheritdoc cref="StyleSidebarModel.CladeLabel"/>
         public ReactivePropertySlim<string?> CladeLabel { get; }
 
+        /// <inheritdoc cref="StyleSidebarModel.ShadeColor"/>
+        public ReactivePropertySlim<string?> ShadeColor { get; }
+
         /// <inheritdoc cref="StyleSidebarModel.LeafLabel"/>
         public ReactivePropertySlim<string?> LeafLabel { get; }
 
@@ -58,6 +61,8 @@ namespace TreeViewer.ViewModels
             LeafSelected = styleSidebarmodel.LeafSelected.ToReadOnlyReactivePropertySlim()
                                                          .AddTo(Disposables);
             CladeLabel = styleSidebarmodel.CladeLabel.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                     .AddTo(Disposables);
+            ShadeColor = styleSidebarmodel.ShadeColor.ToReactivePropertySlimAsSynchronized(x => x.Value)
                                                      .AddTo(Disposables);
             BranchColor = styleSidebarmodel.BranchColor.ToReactivePropertySlimAsSynchronized(x => x.Value)
                                                        .AddTo(Disposables);

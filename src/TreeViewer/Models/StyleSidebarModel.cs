@@ -57,6 +57,11 @@ namespace TreeViewer.Models
         public ReactiveProperty<string?> CladeLabel { get; }
 
         /// <summary>
+        /// シェードの色のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string?> ShadeColor { get; }
+
+        /// <summary>
         /// 葉ラベルのプロパティを取得します。
         /// </summary>
         public ReactiveProperty<string?> LeafLabel { get; }
@@ -113,6 +118,27 @@ namespace TreeViewer.Models
 
                     this.mainModel.NotifyTreeUpdated();
                 }, (clade: id.Clade, before: id.Clade.Style.CladeLabel, after: string.IsNullOrEmpty(v) ? null : v));
+            }).AddTo(Disposables);
+            ShadeColor = new ReactiveProperty<string?>().WithSubscribe(v =>
+            {
+                if (updating || v is null) return;
+
+                CladeId id = FirstSelectedElement.Value;
+                if (id.Clade is null) return;
+
+                this.mainModel.OperateAsUndoable((arg, tree) =>
+                {
+                    ShadeColor!.Value = arg.after;
+                    arg.clade.Style.ShadeColor = arg.after;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (arg, tree) =>
+                {
+                    ShadeColor!.Value = arg.before;
+                    arg.clade.Style.ShadeColor = arg.before;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (clade: id.Clade, before: id.Clade.Style.ShadeColor, after: string.IsNullOrEmpty(v) ? null : v));
             }).AddTo(Disposables);
             BranchColor = new ReactiveProperty<string?>("black").WithSubscribe(v =>
             {
@@ -220,6 +246,7 @@ namespace TreeViewer.Models
                                                                            .ToList();
                 LeafColor.Value = leafColors.Count == 1 ? leafColors[0] : null;
                 CladeLabel.Value = null;
+                ShadeColor.Value = null;
                 LeafLabel.Value = null;
                 Supports.Value = null;
 
@@ -229,6 +256,7 @@ namespace TreeViewer.Models
                     if (clade is null) return;
 
                     CladeLabel.Value = clade.Style.CladeLabel;
+                    ShadeColor.Value = clade.Style.ShadeColor;
 
                     if (clade.IsLeaf) LeafLabel.Value = clade.Taxon;
                     else Supports.Value = clade.Supports;
