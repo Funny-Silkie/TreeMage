@@ -51,6 +51,10 @@ namespace TreeViewer.Core.Exporting
                 ID = "tree-area",
                 Transforms = new SvgTransformCollection().Translate(50, 50),
             }.AddTo(result);
+            SvgGroup shadesGroup = new SvgGroup()
+            {
+                ID = "shades",
+            }.AddTo(treeArea);
             var leafLabelsGroup = new SvgGroup()
             {
                 ID = "leaf-labels",
@@ -84,6 +88,21 @@ namespace TreeViewer.Core.Exporting
             foreach (Clade current in tree.GetAllClades())
             {
                 if (current.GetIsHidden()) continue;
+
+                if (!string.IsNullOrEmpty(current.Style.ShadeColor))
+                {
+                    (double x, double y, double width, double height) = positionManager.CalcCladeShadePosition(current);
+
+                    var rectangle = new SvgRectangle()
+                    {
+                        X = (SvgUnit)x,
+                        Y = (SvgUnit)y,
+                        Width = (SvgUnit)width,
+                        Height = (SvgUnit)height,
+                        Fill = DrawHelpers.CreateSvgColor(current.Style.ShadeColor),
+                    };
+                    rectangle.AddTo(shadesGroup);
+                }
 
                 if (current.GetIsExternal() && !current.IsLeaf)
                 {

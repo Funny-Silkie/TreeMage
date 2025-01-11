@@ -235,6 +235,46 @@ namespace TreeViewer.Core.Drawing
         }
 
         /// <summary>
+        ///シェードの座標を算出します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <returns><paramref name="clade"/>のシェードの座標</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        public (double x, double y, double width, double height) CalcCladeShadePosition(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            double CalcXRight(Clade external)
+            {
+                (double x, _, double width, _) = CalcLeafPosition(external);
+                return x + width;
+            }
+
+            double xLeft = (CalcX1(clade) + CalcX2(clade)) / 2;
+            double xRight, yTop, yBottom;
+            double halfLeafHeight = treeStyle.YScale / 2;
+
+            if (clade.GetIsExternal())
+            {
+                xRight = CalcXRight(clade);
+                double y1 = CalcY1(clade);
+                yTop = y1 - halfLeafHeight;
+                yBottom = y1 + halfLeafHeight;
+            }
+            else
+            {
+                Clade[] externals = clade.GetDescendants()
+                                         .Where(x => x.GetIsExternal())
+                                         .ToArray();
+                xRight = externals.Max(CalcXRight);
+                yTop = CalcY1(externals[0]) - halfLeafHeight;
+                yBottom = CalcY1(externals[^1]) + halfLeafHeight;
+            }
+
+            return (xLeft, yTop, xRight - xLeft + 5, yBottom - yTop);
+        }
+
+        /// <summary>
         /// 折り畳みの三角形の座標を算出します。
         /// </summary>
         /// <param name="clade">対象のクレード</param>

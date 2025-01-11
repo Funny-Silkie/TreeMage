@@ -199,6 +199,7 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.LeafColor, actual.LeafColor);
                 Assert.Equal(expected.Collapsed, actual.Collapsed);
                 Assert.Equal(expected.CladeLabel, actual.CladeLabel);
+                Assert.Equal(expected.ShadeColor, actual.ShadeColor);
             });
         }
 

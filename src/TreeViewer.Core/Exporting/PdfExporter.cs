@@ -66,6 +66,13 @@ namespace TreeViewer.Core.Exporting
                 {
                     if (current.GetIsHidden()) continue;
 
+                    if (!string.IsNullOrEmpty(current.Style.ShadeColor))
+                    {
+                        (double x, double y, double width, double height) = positionManager.CalcCladeShadePosition(current);
+
+                        graphics.DrawRectangle(DrawHelpers.CreatePdfColor(current.Style.ShadeColor).ToBrush(), x, y, width, height);
+                    }
+
                     if (current.GetIsExternal() && !current.IsLeaf)
                     {
                         var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);

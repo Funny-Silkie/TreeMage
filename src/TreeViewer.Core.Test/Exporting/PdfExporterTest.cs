@@ -17,6 +17,7 @@ namespace TreeViewer.Core.Exporting
             tree.Style.XScale = 30;
             tree.Style.ScaleBarValue = 1;
             tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.CladeLabel = "hoge";
+            tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.ShadeColor = "lightblue";
             exporter = new PdfExporter();
             exportOptions = new ExportOptions();
         }

@@ -26,6 +26,11 @@
         public string? CladeLabel { get; set; }
 
         /// <summary>
+        /// シェードの色を取得または設定します。
+        /// </summary>
+        public string? ShadeColor { get; set; }
+
+        /// <summary>
         /// <see cref="CladeStyle"/>の新しいインスタンスを初期化します。
         /// </summary>
         public CladeStyle()
@@ -47,6 +52,7 @@
             LeafColor = style.LeafColor;
             Collapsed = style.Collapsed;
             CladeLabel = style.CladeLabel;
+            ShadeColor = style.ShadeColor;
         }
 
         /// <summary>
@@ -59,6 +65,7 @@
             LeafColor = LeafColor,
             Collapsed = Collapsed,
             CladeLabel = CladeLabel,
+            ShadeColor = ShadeColor,
         };
 
         object ICloneable.Clone() => Clone();

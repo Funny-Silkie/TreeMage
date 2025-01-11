@@ -23,6 +23,7 @@ namespace TreeViewer.Core.Exporting
             tree.Style.XScale = 30;
             tree.Style.ScaleBarValue = 1;
             tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.CladeLabel = "hoge";
+            tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.ShadeColor = "lightblue";
             exporter = new SvgExporter();
             exportOptions = new ExportOptions();
         }
@@ -65,6 +66,12 @@ namespace TreeViewer.Core.Exporting
 
             Assert.Multiple(() =>
             {
+                SvgElement? shadesGroup = svg.GetElementById("shades");
+                Assert.NotNull(shadesGroup);
+                Assert.IsType<SvgGroup>(shadesGroup);
+                Assert.Single(shadesGroup.Children);
+                Assert.True(shadesGroup.Children.All(x => x is SvgRectangle));
+
                 SvgElement branchesGroup = svg.GetElementById("branches");
                 Assert.NotNull(branchesGroup);
                 Assert.IsType<SvgGroup>(branchesGroup);
@@ -250,6 +257,12 @@ namespace TreeViewer.Core.Exporting
             {
                 Assert.Equal(459.2, svg.Width, 0.1);
                 Assert.Equal(348, svg.Height, 0.1);
+
+                SvgElement? shadesGroup = svg.GetElementById("shades");
+                Assert.NotNull(shadesGroup);
+                Assert.IsType<SvgGroup>(shadesGroup);
+                Assert.Single(shadesGroup.Children);
+                Assert.True(shadesGroup.Children.All(x => x is SvgRectangle));
 
                 SvgElement branchesGroup = svg.GetElementById("branches");
                 Assert.NotNull(branchesGroup);
