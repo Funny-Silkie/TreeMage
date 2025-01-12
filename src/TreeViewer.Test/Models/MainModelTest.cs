@@ -32,10 +32,6 @@ namespace TreeViewer.Models
 
             model.ClearUndoQueue();
             model.PropertyChanged += (_, e) => updatedProperties.Add(e.PropertyName);
-
-            Configurations config = Configurations.LoadOrCreate();
-            config.AutoOrderingMode = AutoOrderingMode.None;
-            config.Save();
         }
 
         /// <summary>
@@ -140,6 +136,7 @@ namespace TreeViewer.Models
                 Assert.Equal(300, tree.Style.XScale);
                 Assert.Equal(30, tree.Style.YScale);
                 Assert.Equal(1, tree.Style.BranchThickness);
+                Assert.Equal(0.1, tree.Style.DefaultBranchLength);
                 Assert.True(tree.Style.ShowLeafLabels);
                 Assert.Equal(20, tree.Style.LeafLabelsFontSize);
                 Assert.True(tree.Style.ShowCladeLabels);
@@ -177,6 +174,7 @@ namespace TreeViewer.Models
                 Assert.Equal(10, model.XScale.Value);
                 Assert.Equal(10, model.YScale.Value);
                 Assert.Equal(10, model.BranchThickness.Value);
+                Assert.Equal(1, model.DefaultBranchLength.Value);
                 Assert.False(model.ShowLeafLabels.Value);
                 Assert.Equal(1, model.LeafLabelsFontSize.Value);
                 Assert.False(model.ShowCladeLabels.Value);
@@ -816,6 +814,10 @@ namespace TreeViewer.Models
         [Fact]
         public async Task ImportTree_OnEmptyProject()
         {
+            Configurations config = Configurations.LoadOrCreate();
+            config.AutoOrderingMode = AutoOrderingMode.None;
+            config.Save();
+
             model.CreateNew();
             updatedProperties.Clear();
             model.ClearUndoQueue();
@@ -840,6 +842,10 @@ namespace TreeViewer.Models
         [Fact]
         public async Task ImportTree_OnExistingProject()
         {
+            Configurations config = Configurations.LoadOrCreate();
+            config.AutoOrderingMode = AutoOrderingMode.None;
+            config.Save();
+
             await model.ImportTree(CreateTestDataPath("View", "Models", "Main", "imported.tree"), TreeFormat.Newick);
             Tree importedTree = model.Trees[1];
             Assert.Multiple(() =>

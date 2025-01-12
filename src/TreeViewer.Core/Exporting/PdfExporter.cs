@@ -134,7 +134,7 @@ namespace TreeViewer.Core.Exporting
                                             XBrushes.Black,
                                             new XPoint(text.x, text.y));
                     }
-                    if (current.BranchLength > 0)
+                    if (current.GetDrawnBranchLength() > 0)
                     {
                         // 横棒
                         {

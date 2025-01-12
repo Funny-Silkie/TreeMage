@@ -194,6 +194,7 @@ namespace TreeViewer.Models
             tree.Style.XScale = XScale.Value;
             tree.Style.YScale = YScale.Value;
             tree.Style.BranchThickness = BranchThickness.Value;
+            tree.Style.DefaultBranchLength = DefaultBranchLength.Value;
             tree.Style.ShowLeafLabels = ShowLeafLabels.Value;
             tree.Style.LeafLabelsFontSize = LeafLabelsFontSize.Value;
             tree.Style.ShowCladeLabels = ShowCladeLabels.Value;
@@ -225,6 +226,7 @@ namespace TreeViewer.Models
             XScale.Value = tree.Style.XScale;
             YScale.Value = tree.Style.YScale;
             BranchThickness.Value = tree.Style.BranchThickness;
+            DefaultBranchLength.Value = tree.Style.DefaultBranchLength;
             ShowLeafLabels.Value = tree.Style.ShowLeafLabels;
             LeafLabelsFontSize.Value = tree.Style.LeafLabelsFontSize;
             ShowCladeLabels.Value = tree.Style.ShowCladeLabels;

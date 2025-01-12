@@ -85,5 +85,21 @@ namespace TreeViewer.Core.Drawing
 
             return clade.IsLeaf || clade.Style.Collapsed;
         }
+
+        /// <summary>
+        /// 描画される枝長を取得します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <returns><paramref name="clade"/>の描画時の枝長</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        public static double GetDrawnBranchLength(this Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            if (clade.IsRoot) return 0;
+            if (!double.IsNaN(clade.BranchLength)) return clade.BranchLength;
+            if (clade.Tree is not null) return clade.Tree.Style.DefaultBranchLength;
+            return 0;
+        }
     }
 }

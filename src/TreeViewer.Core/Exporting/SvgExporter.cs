@@ -195,7 +195,7 @@ namespace TreeViewer.Core.Exporting
                     svgText.AddTo(group);
                 }
 
-                if (current.BranchLength > 0)
+                if (current.GetDrawnBranchLength() > 0)
                 {
                     // 横棒
                     {

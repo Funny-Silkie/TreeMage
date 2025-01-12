@@ -41,6 +41,11 @@ namespace TreeViewer.Models
         /// </summary>
         public ReactiveProperty<int> BranchThickness { get; }
 
+        /// <summary>
+        /// 枝長が存在しない場合の値のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<double> DefaultBranchLength { get; }
+
         #endregion Tree
 
         #region Search

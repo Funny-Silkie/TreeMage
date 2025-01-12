@@ -118,6 +118,19 @@ namespace TreeViewer.Models
 
                 NotifyTreeUpdated();
             }, (before: TargetTree.Value?.Style?.BranchThickness ?? 0, after: v))).AddTo(Disposables);
+            DefaultBranchLength = new ReactiveProperty<double>(0.1).WithSubscribe(v => OperateAsUndoable((arg, tree) =>
+            {
+                tree.Style.DefaultBranchLength = arg.after;
+                DefaultBranchLength!.Value = arg.after;
+
+                NotifyTreeUpdated();
+            }, (arg, tree) =>
+            {
+                tree.Style.DefaultBranchLength = arg.before;
+                DefaultBranchLength!.Value = arg.before;
+
+                NotifyTreeUpdated();
+            }, (before: TargetTree.Value?.Style?.DefaultBranchLength ?? 0, after: v))).AddTo(Disposables);
 
             #endregion Tree
 

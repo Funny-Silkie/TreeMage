@@ -74,6 +74,9 @@ namespace TreeViewer.ViewModels
         /// <inheritdoc cref="MainModel.BranchThickness"/>
         public ReactivePropertySlim<int> BranchThickness { get; }
 
+        /// <inheritdoc cref="MainModel.DefaultBranchLength"/>
+        public ReactivePropertySlim<double> DefaultBranchLength { get; }
+
         #endregion Tree
 
         #region Search
@@ -200,6 +203,8 @@ namespace TreeViewer.ViewModels
                           .AddTo(Disposables);
             BranchThickness = model.ToReactivePropertySlimAsSynchronized(x => x.BranchThickness.Value)
                                    .AddTo(Disposables);
+            DefaultBranchLength = model.ToReactivePropertySlimAsSynchronized(x => x.DefaultBranchLength.Value)
+                                       .AddTo(Disposables);
 
             SearchQuery = model.ToReactivePropertySlimAsSynchronized(x => x.SearchQuery.Value)
                                .AddTo(Disposables);

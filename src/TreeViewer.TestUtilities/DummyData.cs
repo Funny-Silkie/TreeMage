@@ -150,6 +150,7 @@ namespace TreeViewer.TestUtilities
                 XScale = 10,
                 YScale = 10,
                 BranchThickness = 10,
+                DefaultBranchLength = 1,
                 ShowLeafLabels = false,
                 LeafLabelsFontSize = 1,
                 ShowCladeLabels = false,

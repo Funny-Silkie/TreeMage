@@ -37,6 +37,7 @@ namespace TreeViewer.Models
                 Assert.Equal(300, model.XScale.Value);
                 Assert.Equal(30, model.YScale.Value);
                 Assert.Equal(1, model.BranchThickness.Value);
+                Assert.Equal(0.1, model.DefaultBranchLength.Value);
 
                 Assert.Empty(model.SearchQuery.Value);
                 Assert.Equal(TreeSearchTarget.Taxon, model.SearchTarget.Value);
