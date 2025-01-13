@@ -174,6 +174,13 @@ namespace TreeViewer.ViewModels
             this.model = model;
             model.PropertyChanged += (_, e) => OnPropertyChanged(e.PropertyName);
 
+            model.ProjectPath.Subscribe(v =>
+            {
+                string title;
+                if (string.IsNullOrEmpty(v)) title = "TreeViewer";
+                else title = $"{Path.GetFileName(v)} - TreeViewer";
+                this.electronService.Title = title;
+            });
             TreeIndex = model.ToReactivePropertySlimAsSynchronized(x => x.TreeIndex.Value)
                              .AddTo(Disposables);
             EditMode = model.ToReactivePropertySlimAsSynchronized(x => x.EditMode.Value)

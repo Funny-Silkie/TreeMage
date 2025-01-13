@@ -12,6 +12,12 @@ namespace TreeViewer.Services
     public interface IElectronService
     {
         /// <summary>
+        /// ウィンドウのタイトルを設定します。
+        /// </summary>
+        /// <param name="value">タイトル</param>
+        string Title { set; }
+
+        /// <summary>
         /// ウィンドウを閉じます。
         /// </summary>
         void Close();
@@ -60,6 +66,12 @@ namespace TreeViewer.Services
     public class ElectronService : IElectronService
     {
         private readonly IWindow window;
+
+        /// <inheritdoc/>
+        public string Title
+        {
+            set => window.Window.SetTitle(value);
+        }
 
         /// <summary>
         /// <see cref="ElectronService"/>の新しいインスタンスを初期化します。
