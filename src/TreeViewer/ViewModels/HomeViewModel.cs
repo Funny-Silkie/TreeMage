@@ -174,13 +174,18 @@ namespace TreeViewer.ViewModels
             this.model = model;
             model.PropertyChanged += (_, e) => OnPropertyChanged(e.PropertyName);
 
-            model.ProjectPath.Subscribe(v =>
-            {
-                string title;
-                if (string.IsNullOrEmpty(v)) title = "TreeViewer";
-                else title = $"{Path.GetFileName(v)} - TreeViewer";
-                this.electronService.Title = title;
-            });
+            model.ProjectPath.CombineLatest(model.Saved)
+                             .Subscribe(v =>
+                             {
+                                 string? projectPath = v.First;
+                                 bool saved = v.Second;
+
+                                 string title;
+                                 if (string.IsNullOrEmpty(projectPath)) title = "TreeViewer";
+                                 else title = $"{Path.GetFileName(projectPath)} - TreeViewer";
+                                 if (!saved) title += '*';
+                                 electronService.Title = title;
+                             });
             TreeIndex = model.ToReactivePropertySlimAsSynchronized(x => x.TreeIndex.Value)
                              .AddTo(Disposables);
             EditMode = model.ToReactivePropertySlimAsSynchronized(x => x.EditMode.Value)

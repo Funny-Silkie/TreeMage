@@ -46,18 +46,27 @@ namespace TreeViewer.Services
         }
 
         /// <summary>
+        /// 確認用ダイアログを表示します。
+        /// </summary>
+        /// <param name="message">表示するメッセージ</param>
+        /// <param name="title">タイトル</param>
+        /// <param name="buttons">ボタン一覧</param>
+        /// <returns>OKが選択されたら<see langword="true"/>，それ以外で<see langword="false"/></returns>
+        Task<bool> ShowVerifyDialogAsync(string message, string? title = null, string[]? buttons = null);
+
+        /// <summary>
         /// 単一のファイルを開くダイアログを開きます。
         /// </summary>
         /// <param name="filters">拡張子のフィルター</param>
         /// <returns>読み込むファイルパス，選択されなかった場合は<see langword="null"/></returns>
-        public Task<string?> ShowSingleFileOpenDialogAsync(params IEnumerable<(string[] extensions, string name)> filters);
+        Task<string?> ShowSingleFileOpenDialogAsync(params IEnumerable<(string[] extensions, string name)> filters);
 
         /// <summary>
         /// 単一のファイルを保存するダイアログを開きます。
         /// </summary>
         /// <param name="filters">拡張子のフィルター</param>
         /// <returns>出力するファイルパス，選択されなかった場合は<see langword="null"/></returns>
-        public Task<string?> ShowFileSaveDialogAsync(params IEnumerable<(string[] extensions, string name)> filters);
+        Task<string?> ShowFileSaveDialogAsync(params IEnumerable<(string[] extensions, string name)> filters);
     }
 
     /// <summary>
@@ -96,6 +105,19 @@ namespace TreeViewer.Services
                 Title = "Error",
                 Type = MessageBoxType.error,
             });
+        }
+
+        /// <inheritdoc/>
+        public async Task<bool> ShowVerifyDialogAsync(string message, string? title, string[]? buttons)
+        {
+            MessageBoxResult result = await Electron.Dialog.ShowMessageBoxAsync(window.Window, new MessageBoxOptions(message)
+            {
+                Message = message,
+                Buttons = buttons ?? ["Ok", "Cancel"],
+                Title = title ?? "Verifying",
+            });
+
+            return result.Response == 0;
         }
 
         /// <inheritdoc/>

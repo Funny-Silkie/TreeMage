@@ -18,6 +18,9 @@ namespace TreeViewer.Models
             TargetTree = new ReactiveProperty<Tree?>().AddTo(Disposables);
             FocusedSvgElementIdList = [];
             ProjectPath = new ReactiveProperty<string?>().AddTo(Disposables);
+            Saved = undoService.ObserveProperty(x => x.Saved)
+                               .ToReadOnlyReactiveProperty()
+                               .AddTo(Disposables);
 
             #region Header
 

@@ -19,6 +19,7 @@ namespace TreeViewer.Models
                 Assert.Null(model.TargetTree.Value);
                 Assert.Empty(model.FocusedSvgElementIdList);
                 Assert.Null(model.ProjectPath.Value);
+                Assert.True(model.Saved.Value);
 
                 #region Header
 

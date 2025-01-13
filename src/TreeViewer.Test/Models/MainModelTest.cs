@@ -48,6 +48,7 @@ namespace TreeViewer.Models
             Assert.Multiple(() =>
             {
                 Assert.Equal(value, property.Value);
+                Assert.False(model.Saved.Value);
                 assertionOnValueSet?.Invoke(property, value);
             });
 
@@ -58,6 +59,7 @@ namespace TreeViewer.Models
             {
                 Assert.True(undoSuccess);
                 Assert.Equal(before, property.Value);
+                Assert.True(model.Saved.Value);
                 assertionOnUndo?.Invoke(property, before);
             });
 
@@ -68,6 +70,7 @@ namespace TreeViewer.Models
             {
                 Assert.True(redoSuccess);
                 Assert.Equal(value, property.Value);
+                Assert.False(model.Saved.Value);
                 assertionOnValueSet?.Invoke(property, value);
             });
         }
@@ -87,6 +90,7 @@ namespace TreeViewer.Models
             {
                 Assert.Single(updatedProperties, "TargetTree");
                 Assert.Equal(value, property.Value);
+                Assert.False(model.Saved.Value);
                 assertionOnValueSet?.Invoke(property, value);
             });
 
@@ -98,6 +102,7 @@ namespace TreeViewer.Models
                 Assert.True(undoSuccess);
                 Assert.Single(updatedProperties, "TargetTree");
                 Assert.Equal(before, property.Value);
+                Assert.True(model.Saved.Value);
                 assertionOnUndo?.Invoke(property, before);
             });
 
@@ -109,6 +114,7 @@ namespace TreeViewer.Models
                 Assert.True(redoSuccess);
                 Assert.Single(updatedProperties, "TargetTree");
                 Assert.Equal(value, property.Value);
+                Assert.False(model.Saved.Value);
                 assertionOnValueSet?.Invoke(property, value);
             });
         }
@@ -740,6 +746,7 @@ namespace TreeViewer.Models
                 Assert.Equal(1, model.TreeIndex.Value);
                 Assert.Equal(0, model.MaxTreeIndex.Value);
                 Assert.Equal(["FocusedSvgElementIdList", "TargetTree", "Trees"], updatedProperties);
+                Assert.True(model.Saved.Value);
             });
 
             Assert.False(await model.Undo());
@@ -793,6 +800,7 @@ namespace TreeViewer.Models
                 CustomizedAssertions.Equal(tree.Style, importedTree.Style);
                 Assert.Same(importedTree, model.TargetTree.Value);
                 Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+                Assert.False(model.Saved.Value);
             });
 
             updatedProperties.Clear();
@@ -806,6 +814,7 @@ namespace TreeViewer.Models
                 Assert.Single(model.Trees, tree);
                 Assert.Same(tree, model.TargetTree.Value);
                 Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+                Assert.True(model.Saved.Value);
             });
 
             updatedProperties.Clear();
@@ -819,6 +828,7 @@ namespace TreeViewer.Models
                 Assert.Equal([tree, importedTree], model.Trees);
                 Assert.Same(importedTree, model.TargetTree.Value);
                 Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+                Assert.False(model.Saved.Value);
             });
         }
 
@@ -847,6 +857,7 @@ namespace TreeViewer.Models
                 CustomizedAssertions.Equal(tree, model.Trees[0]);
                 Assert.Equal("(A:0.1,(B:0.2,C:0.1)50:0.3,D:0.2);", model.Trees[1].ToString());
                 CustomizedAssertions.Equal(tree.Style, model.Trees[1].Style);
+                Assert.True(model.Saved.Value);
             });
 
             Assert.False(await model.Undo());
@@ -870,6 +881,7 @@ namespace TreeViewer.Models
                 Assert.Equal(1, model.TreeIndex.Value);
                 Assert.Equal(1, model.MaxTreeIndex.Value);
                 Assert.Equal(["FocusedSvgElementIdList", "TargetTree", "Trees"], updatedProperties);
+                Assert.True(model.Saved.Value);
             });
             Tree openedTree = Assert.Single(model.Trees);
             Assert.Same(openedTree, model.TargetTree.Value);
@@ -892,6 +904,7 @@ namespace TreeViewer.Models
             {
                 Assert.True(File.Exists(destPath));
                 CustomizedAssertions.EqualProjectFiles(CreateTestDataPath("View", "Models", "Main", "default.treeprj"), destPath);
+                Assert.True(model.Saved.Value);
             });
         }
 
@@ -914,6 +927,7 @@ namespace TreeViewer.Models
                 Assert.Equal(1, model.TreeIndex.Value);
                 Assert.Equal(1, model.MaxTreeIndex.Value);
                 Assert.Single(updatedProperties, "TargetTree");
+                Assert.True(model.Saved.Value);
             });
             Tree importedTree = Assert.Single(model.Trees);
             Assert.Same(importedTree, model.TargetTree.Value);
@@ -941,6 +955,7 @@ namespace TreeViewer.Models
                 CustomizedAssertions.Equal(tree.Style, importedTree.Style);
                 Assert.Same(importedTree, model.TargetTree.Value);
                 Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+                Assert.False(model.Saved.Value);
             });
 
             updatedProperties.Clear();
@@ -954,6 +969,7 @@ namespace TreeViewer.Models
                 Assert.Single(model.Trees, tree);
                 Assert.Same(tree, model.TargetTree.Value);
                 Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+                Assert.True(model.Saved.Value);
             });
 
             updatedProperties.Clear();
@@ -967,6 +983,7 @@ namespace TreeViewer.Models
                 Assert.Equal([tree, importedTree], model.Trees);
                 Assert.Same(importedTree, model.TargetTree.Value);
                 Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+                Assert.False(model.Saved.Value);
             });
         }
 

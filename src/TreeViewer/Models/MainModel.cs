@@ -40,6 +40,11 @@ namespace TreeViewer.Models
         public ReactiveProperty<string?> ProjectPath { get; }
 
         /// <summary>
+        /// 現在のバージョンが保存されているかどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> Saved { get; }
+
+        /// <summary>
         /// ツリーの更新を通知します。
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -575,6 +580,7 @@ namespace TreeViewer.Models
             };
 
             await projectData.SaveAsync(path);
+            undoService.MarkAsSaved();
         }
 
         /// <summary>
