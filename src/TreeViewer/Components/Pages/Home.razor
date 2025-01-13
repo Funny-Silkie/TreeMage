@@ -402,7 +402,7 @@
         if (firstRender)
         {
             jsModule = await JS.InvokeAsync<IJSObjectReference>("import", "./Components/Pages/Home.razor.js");
-            await jsModule.InvokeVoidAsync("bypassShortcuts", DotNetObjectReference.Create(this));
+            await jsModule.InvokeVoidAsync("registerEvents", DotNetObjectReference.Create(this));
         }
     }
 
@@ -419,38 +419,48 @@
     }
 
     /// <summary>
+    /// ファイルがドロップされた時に実行されます。
+    /// </summary>
+    /// <param name="pathes">ファイルパス</param>
+    [JSInvokable]
+    public async Task FileDropped(string[] pathes)
+    {
+        await ViewModel.FileDroppedCommand.ExecuteAsync(pathes);
+    }
+
+    /// <summary>
     /// プロジェクトを新規作成します。。
     /// </summary>
     [JSInvokable]
-    public void CreateNew()
+    public async Task CreateNew()
     {
-        ViewModel.CreateNewCommand.Execute();
+        await ViewModel.CreateNewCommand.ExecuteAsync();
     }
 
     /// <summary>
     /// undoを実行します。
     /// </summary>
     [JSInvokable]
-    public void Undo()
+    public async Task Undo()
     {
-        ViewModel.UndoCommand.Execute();
+        await ViewModel.UndoCommand.ExecuteAsync();
     }
 
     /// <summary>
     /// redoを実行します。
     /// </summary>
     [JSInvokable]
-    public void Redo()
+    public async Task Redo()
     {
-        ViewModel.RedoCommand.Execute();
+        await ViewModel.RedoCommand.ExecuteAsync();
     }
 
     /// <summary>
     /// 全てを選択します。
     /// </summary>
     [JSInvokable]
-    public void FocusAll()
+    public async Task FocusAll()
     {
-        ViewModel.FocusAllCommand.Execute();
+        await ViewModel.FocusAllCommand.ExecuteAsync();
     }
 }

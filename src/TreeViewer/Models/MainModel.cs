@@ -489,6 +489,39 @@ namespace TreeViewer.Models
         }
 
         /// <summary>
+        /// 任意のファイルを開きます。
+        /// </summary>
+        /// <param name="pathes">開くファイルパス一覧</param>
+        public async Task OpenFiles(params string[] pathes)
+        {
+            if (pathes.Length == 0) return;
+            if (pathes.Length == 1)
+            {
+                string path = pathes[0];
+                if (path.EndsWith(".treeprj", StringComparison.OrdinalIgnoreCase))
+                {
+                    await OpenProject(path);
+                    return;
+                }
+            }
+
+            string[] projectPathes = pathes.Where(x => x.EndsWith(".treeprj", StringComparison.OrdinalIgnoreCase))
+                                           .ToArray();
+            if (projectPathes.Length > 1) throw new ModelException("プロジェクトファイルが二つ以上指定されています");
+            if (projectPathes.Length == 1) await OpenProject(projectPathes[0]);
+            foreach (string importedTree in pathes.Where(x => !x.EndsWith(".treeprj", StringComparison.OrdinalIgnoreCase)))
+            {
+                await ImportTree(importedTree, TreeFormat.Newick);
+            }
+
+            if (projectPathes.Length == 1)
+            {
+                TreeIndex.Value = 1;
+                undoService.Clear();
+            }
+        }
+
+        /// <summary>
         /// プロジェクトファイルを開きます。
         /// </summary>
         /// <param name="path">開くプロジェクトファイルのパス</param>

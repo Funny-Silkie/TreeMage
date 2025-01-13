@@ -775,6 +775,90 @@ namespace TreeViewer.Models
         }
 
         [Fact]
+        public async Task OpenFiles_WithoutProjects()
+        {
+            Configurations config = Configurations.LoadOrCreate();
+            config.AutoOrderingMode = AutoOrderingMode.None;
+            config.Save();
+
+            await model.OpenFiles(CreateTestDataPath("View", "Models", "Main", "imported.tree"));
+
+            Tree importedTree = model.Trees[1];
+            Assert.Multiple(() =>
+            {
+                Assert.Null(model.ProjectPath.Value);
+                Assert.Equal(2, model.TreeIndex.Value);
+                Assert.Equal(2, model.MaxTreeIndex.Value);
+                Assert.Equal([tree, importedTree], model.Trees);
+                CustomizedAssertions.Equal(tree.Style, importedTree.Style);
+                Assert.Same(importedTree, model.TargetTree.Value);
+                Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+            });
+
+            updatedProperties.Clear();
+            bool undoSucess = await model.Undo();
+            Assert.Multiple(() =>
+            {
+                Assert.True(undoSucess);
+                Assert.Null(model.ProjectPath.Value);
+                Assert.Equal(1, model.TreeIndex.Value);
+                Assert.Equal(1, model.MaxTreeIndex.Value);
+                Assert.Single(model.Trees, tree);
+                Assert.Same(tree, model.TargetTree.Value);
+                Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+            });
+
+            updatedProperties.Clear();
+            bool redoSuccess = await model.Redo();
+            Assert.Multiple(() =>
+            {
+                Assert.True(redoSuccess);
+                Assert.Null(model.ProjectPath.Value);
+                Assert.Equal(2, model.TreeIndex.Value);
+                Assert.Equal(2, model.MaxTreeIndex.Value);
+                Assert.Equal([tree, importedTree], model.Trees);
+                Assert.Same(importedTree, model.TargetTree.Value);
+                Assert.Equal(["MaxTreeIndex", "TargetTree"], updatedProperties);
+            });
+        }
+
+        [Fact]
+        public async Task OpenFiles_WithSingleProject()
+        {
+            Configurations config = Configurations.LoadOrCreate();
+            config.AutoOrderingMode = AutoOrderingMode.None;
+            config.Save();
+
+            string projectPath = CreateTestDataPath("View", "Models", "Main", "default.treeprj");
+            await model.OpenFiles(projectPath, CreateTestDataPath("View", "Models", "Main", "imported.tree"));
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(projectPath, model.ProjectPath.Value);
+                Assert.Equal(1, model.TreeIndex.Value);
+                Assert.Equal(2, model.MaxTreeIndex.Value);
+                Assert.Contains("FocusedSvgElementIdList", updatedProperties);
+                Assert.Contains("TargetTree", updatedProperties);
+                Assert.Contains("Trees", updatedProperties);
+                Assert.Contains("MaxTreeIndex", updatedProperties);
+                Assert.Equal(2, model.Trees.Count);
+                Assert.NotNull(model.TargetTree.Value);
+                Assert.Same(model.Trees[0], model.TargetTree.Value);
+                CustomizedAssertions.Equal(tree, model.Trees[0]);
+                Assert.Equal("(A:0.1,(B:0.2,C:0.1)50:0.3,D:0.2);", model.Trees[1].ToString());
+                CustomizedAssertions.Equal(tree.Style, model.Trees[1].Style);
+            });
+
+            Assert.False(await model.Undo());
+        }
+
+        [Fact]
+        public async Task OpenFiles_WithMultipleProjects()
+        {
+            await Assert.ThrowsAsync<ModelException>(() => model.OpenFiles("hoge.treeprj", "fuga.treeprj"));
+        }
+
+        [Fact]
         public async Task OpenProject()
         {
             string path = CreateTestDataPath("View", "Models", "Main", "default.treeprj");

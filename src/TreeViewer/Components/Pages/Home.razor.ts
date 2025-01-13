@@ -1,8 +1,34 @@
 /**
- * Chromium内臓のショートカットを無効化し，アプリ独自のものに切り替えます。
+ * イベント類の登録を行います。
  * @param page 呼び出し元のページオブジェクト
  */
-export function bypassShortcuts(page: DotNetRazorComponent): void {
+export function registerEvents(page: DotNetRazorComponent): void {
+    bypassShortcuts(page);
+
+    document.addEventListener("dragover", (e: DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    document.addEventListener("drop", (e: DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const data: DataTransfer | null = e.dataTransfer;
+        if (data == null || data.files.length == 0) return;
+
+        const pathes: Array<string> = [];
+        for (const current of data.files) pathes.push((current as any).path);
+
+        page.invokeMethodAsync("FileDropped", pathes);
+    });
+}
+
+/**
+ * Chromium内蔵のショートカットを無効化し，アプリ独自のものに切り替えます。
+ * @param page 呼び出し元のページオブジェクト
+ */
+function bypassShortcuts(page: DotNetRazorComponent): void {
     document.addEventListener("keydown", e => onKeyDown(e, page));
 }
 

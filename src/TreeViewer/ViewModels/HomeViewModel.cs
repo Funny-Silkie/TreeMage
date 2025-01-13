@@ -34,6 +34,11 @@ namespace TreeViewer.ViewModels
         public AsyncReactiveCommand<CladeId> SvgElementClickedCommand { get; }
 
         /// <summary>
+        /// ファイルがドロップされた際に実行されるコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand<string[]> FileDroppedCommand { get; }
+
+        /// <summary>
         /// ツリーを強制的に再描画するコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand RerenderTreeCommand { get; }
@@ -179,6 +184,8 @@ namespace TreeViewer.ViewModels
                                          .AddTo(Disposables);
             SvgElementClickedCommand = new AsyncReactiveCommand<CladeId>().WithSubscribe(OnSvgElementClicked)
                                                                           .AddTo(Disposables);
+            FileDroppedCommand = new AsyncReactiveCommand<string[]>().WithSubscribe(OnFileDropped)
+                                                                     .AddTo(Disposables);
             RerenderTreeCommand = new AsyncReactiveCommand().WithSubscribe(model.NotifyTreeUpdated).AddTo(Disposables);
             RerootCommand = new AsyncReactiveCommand<(Clade target, bool asRooted)>().WithSubscribe(Reroot)
                                                                                      .AddTo(Disposables);
@@ -260,6 +267,23 @@ namespace TreeViewer.ViewModels
             {
                 Console.WriteLine(e);
                 electronService.ShowErrorMessageAsync(e).Wait();
+            }
+        }
+
+        /// <summary>
+        /// ファイルがドロップされたときに実行されます。
+        /// </summary>
+        /// <param name="pathes">読み込まれたファイルパス</param>
+        private async Task OnFileDropped(string[] pathes)
+        {
+            try
+            {
+                await model.OpenFiles(pathes);
+            }
+            catch (Exception e)
+            {
+                await electronService.ShowErrorMessageAsync(e);
+                await Console.Out.WriteLineAsync(e.ToString());
             }
         }
 
@@ -394,7 +418,15 @@ namespace TreeViewer.ViewModels
             string? path = await electronService.ShowFileSaveDialogAsync();
             if (path is null) return;
 
-            await model.ExportCurrentTreeAsTreeFile(path, format);
+            try
+            {
+                await model.ExportCurrentTreeAsTreeFile(path, format);
+            }
+            catch (Exception e)
+            {
+                await electronService.ShowErrorMessageAsync(e);
+                await Console.Out.WriteLineAsync(e.ToString());
+            }
         }
 
         /// <summary>
@@ -406,7 +438,15 @@ namespace TreeViewer.ViewModels
             string? path = await electronService.ShowFileSaveDialogAsync(([exportType.ToString().ToLower()], $"{exportType.ToString().ToUpper()} File"));
             if (path is null) return;
 
-            await model.ExportWithExporter(path, exportType);
+            try
+            {
+                await model.ExportWithExporter(path, exportType);
+            }
+            catch (Exception e)
+            {
+                await electronService.ShowErrorMessageAsync(e);
+                await Console.Out.WriteLineAsync(e.ToString());
+            }
         }
     }
 }

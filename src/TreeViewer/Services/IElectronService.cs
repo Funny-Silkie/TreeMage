@@ -1,5 +1,6 @@
 ﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
+using TreeViewer.Models;
 using TreeViewer.ViewModels;
 using TreeViewer.Window;
 
@@ -34,14 +35,8 @@ namespace TreeViewer.Services
         /// <param name="exception">例外</param>
         async Task ShowErrorMessageAsync(Exception exception)
         {
-            string message =
-#if DEBUG
-                exception.ToString();
-#else
-                exception.Message;
-#endif
-
-            await ShowErrorMessageAsync(message);
+            if (exception is ModelException) await ShowErrorMessageAsync(exception.Message);
+            else await ShowErrorMessageAsync(exception.ToString());
         }
 
         /// <summary>
