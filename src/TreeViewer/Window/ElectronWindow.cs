@@ -1,5 +1,4 @@
 ﻿using ElectronNET.API;
-using ElectronNET.API.Entities;
 using System.Diagnostics.CodeAnalysis;
 using TreeViewer.ViewModels;
 
@@ -9,7 +8,7 @@ namespace TreeViewer.Window
     /// Electronのウィンドウを扱う基底クラスです。
     /// </summary>
     /// <typeparam name="TViewModel">ViewModelのクラス</typeparam>
-    public abstract class ElectronWindow<TViewModel>
+    public abstract class ElectronWindow<TViewModel> : IWindow
         where TViewModel : ViewModelBase
     {
         private BrowserWindow? window;
@@ -31,6 +30,8 @@ namespace TreeViewer.Window
                 return window;
             }
         }
+
+        BrowserWindow IWindow.Window => Window;
 
         /// <summary>
         /// ウェブ画面のViewModelを取得します。
@@ -102,19 +103,14 @@ namespace TreeViewer.Window
             window.OnClosed += () => IsShown = false;
         }
 
-        /// <summary>
-        /// ViewModelを設定します。
-        /// </summary>
-        /// <param name="viewModel">設定するViewModelのインスタンス</param>
-        public void SetViewModel(TViewModel viewModel)
+        void IWindow.AttachViewModel(ViewModelBase viewModel)
         {
-            this.viewModel = viewModel;
+            if (viewModel is not TViewModel vm) throw new ArgumentException("無効な型が渡されました", nameof(viewModel));
+            this.viewModel = vm;
         }
 
-        /// <summary>
-        /// ウィンドウを閉じます。
-        /// </summary>
-        public void CloseWindow() => Window.Close();
+        /// <inheritdoc/>
+        public void Close() => Window.Close();
 
         /// <summary>
         /// モーダルウィンドウとして自身にフォーカスさせます。
@@ -123,67 +119,6 @@ namespace TreeViewer.Window
         {
             Window.Focus();
             Electron.Shell.Beep();
-        }
-
-        /// <summary>
-        /// エラーメッセージを表示します。
-        /// </summary>
-        /// <param name="message">エラーメッセージ</param>
-        public async Task ShowErrorMessageAsync(string? message)
-        {
-            await Electron.Dialog.ShowMessageBoxAsync(Window, new MessageBoxOptions(message)
-            {
-                Title = "Error",
-                Type = MessageBoxType.error,
-            });
-        }
-
-        /// <summary>
-        /// エラーメッセージを表示します。
-        /// </summary>
-        /// <param name="exception">例外</param>
-        public async Task ShowErrorMessageAsync(Exception exception)
-        {
-            string message =
-#if DEBUG
-                exception.ToString();
-#else
-                exception.Message;
-#endif
-
-            await ShowErrorMessageAsync(message);
-        }
-
-        /// <summary>
-        /// 単一のファイルを開くダイアログを開きます。
-        /// </summary>
-        /// <param name="filters">拡張子のフィルター</param>
-        /// <returns>読み込むファイルパス，選択されなかった場合は<see langword="null"/></returns>
-        public async Task<string?> ShowSingleFileOpenDialog(FileFilter[]? filters = null)
-        {
-            string[] pathes = await Electron.Dialog.ShowOpenDialogAsync(Window, new OpenDialogOptions()
-            {
-                Properties = [OpenDialogProperty.openFile, OpenDialogProperty.showHiddenFiles],
-                Filters = filters,
-            });
-            if (pathes.Length != 1) return null;
-            return pathes[0];
-        }
-
-        /// <summary>
-        /// 単一のファイルを保存するダイアログを開きます。
-        /// </summary>
-        /// <param name="filters">拡張子のフィルター</param>
-        /// <returns>出力するファイルパス，選択されなかった場合は<see langword="null"/></returns>
-        public async Task<string?> ShowFileSaveDialog(FileFilter[]? filters = null)
-        {
-            string path = await Electron.Dialog.ShowSaveDialogAsync(Window, new SaveDialogOptions()
-            {
-                Filters = filters,
-            });
-
-            if (path.Length == 0) return null;
-            return path;
         }
     }
 }

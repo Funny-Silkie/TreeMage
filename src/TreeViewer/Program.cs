@@ -1,6 +1,7 @@
 using ElectronNET.API;
 using Radzen;
 using TreeViewer.Models;
+using TreeViewer.Services;
 using TreeViewer.ViewModels;
 using TreeViewer.Window;
 
@@ -20,6 +21,8 @@ namespace TreeViewer
             builder.Services.AddRadzenComponents();
             builder.Services.AddScoped<MainModel>();
             builder.Services.AddScoped<StyleSidebarModel>();
+            builder.Services.AddScoped<IElectronService>(_ => new ElectronService(MainWindow.Instance));
+            builder.Services.AddKeyedScoped<IElectronService>("config", (_, _) => new ElectronService(EditConfigWindow.Instance));
             builder.Services.AddTransient<HomeViewModel>();
             builder.Services.AddTransient<TreeEditSidebarViewModel>();
             builder.Services.AddTransient<StyleSidebarViewModel>();

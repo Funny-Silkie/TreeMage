@@ -4,7 +4,6 @@ using System.Reactive.Linq;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 using TreeViewer.Data;
-using TreeViewer.Window;
 
 namespace TreeViewer.Models
 {
@@ -263,10 +262,6 @@ namespace TreeViewer.Models
                 }
 
                 OnPropertyChanged(nameof(FirstSelectedElement));
-            }
-            catch (Exception e)
-            {
-                MainWindow.Instance.ShowErrorMessageAsync(e).Wait();
             }
             finally
             {

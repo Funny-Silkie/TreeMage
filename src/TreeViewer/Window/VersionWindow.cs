@@ -42,7 +42,7 @@ namespace TreeViewer.Window
                 {
                     Type = MenuType.normal,
                     Label = "Exit(&X)",
-                    Click = CloseWindow,
+                    Click = Close,
                     Accelerator = "Esc",
                 },
             ]);

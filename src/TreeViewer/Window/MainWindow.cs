@@ -94,19 +94,19 @@ namespace TreeViewer.Window
                                 {
                                     Type = MenuType.normal,
                                     Label = "Newick(&W)",
-                                    Click = () => Import(TreeFormat.Newick).Wait(),
+                                    Click = () => ViewModel.ImportTreeCommand.Execute(TreeFormat.Newick),
                                 },
                                 //new MenuItem()
                                 //{
                                 //    Type = MenuType.normal,
                                 //    Label = "Nexus(&X)",
-                                //    Click = () => Import(TreeFormat.).Wait(),
+                                //    Click = () => ViewModel.ImportTreeCommand.Execute(TreeFormat.),
                                 //},
                                 //new MenuItem()
                                 //{
                                 //    Type = MenuType.normal,
                                 //    Label = "PhyloXML(&P)",
-                                //    Click = () => Import(TreeFormat.).Wait(),
+                                //    Click = () => ViewModel.ImportTreeCommand.Execute(TreeFormat.),
                                 //},
                             ],
                         },
@@ -124,19 +124,19 @@ namespace TreeViewer.Window
                                         {
                                             Type = MenuType.normal,
                                             Label = "Newick(&W)",
-                                            Click = () => ExportAsTreeFile(TreeFormat.Newick).Wait(),
+                                            Click = () => ViewModel.ExportTreeCommand.Execute(TreeFormat.Newick),
                                         },
                                         //new MenuItem()
                                         //{
                                         //    Type = MenuType.normal,
                                         //    Label = "Nexus(&X)",
-                                        //    Click = () => Export(TreeFormat.).Wait(),
+                                        //    Click = () => ViewModel.ExportTreeCommand.Execute(TreeFormat.),
                                         //},
                                         //new MenuItem()
                                         //{
                                         //    Type = MenuType.normal,
                                         //    Label = "PhyloXML(&P)",
-                                        //    Click = () => Export(TreeFormat.).Wait(),
+                                        //    Click = () => ViewModel.ExportTreeCommand.Execute(TreeFormat.),
                                         //},
                                     ],
                                 },
@@ -144,19 +144,19 @@ namespace TreeViewer.Window
                                 {
                                     Type = MenuType.normal,
                                     Label = "PNG(&B)",
-                                    Click = () => ExportWithExporter(ExportType.Png).Wait(),
+                                    Click = () => ViewModel.ExportWithExporterCommand.Execute(ExportType.Png),
                                 },
                                 new MenuItem()
                                 {
                                     Type = MenuType.normal,
                                     Label = "SVG(&S)",
-                                    Click = () => ExportWithExporter(ExportType.Svg).Wait(),
+                                    Click = () => ViewModel.ExportWithExporterCommand.Execute(ExportType.Svg),
                                 },
                                 new MenuItem()
                                 {
                                     Type = MenuType.normal,
                                     Label = "PDF(&P)",
-                                    Click = () => ExportWithExporter(ExportType.Pdf).Wait(),
+                                    Click = () => ViewModel.ExportWithExporterCommand.Execute(ExportType.Pdf),
                                 },
                             ],
                         },
@@ -168,7 +168,7 @@ namespace TreeViewer.Window
                         {
                             Type = MenuType.normal,
                             Label = "Exit(&X)",
-                            Click = CloseWindow,
+                            Click = Close,
                             Accelerator = "Ctrl+W",
                         },
                     ],
@@ -329,50 +329,6 @@ namespace TreeViewer.Window
         }
 
         #region Menu Operations
-
-        #region File
-
-        /// <summary>
-        /// インポート処理を行います。
-        /// </summary>
-        /// <param name="format">読み込む系統樹のフォーマット</param>
-        private async Task Import(TreeFormat format)
-        {
-            string? path = await ShowSingleFileOpenDialog();
-            if (path is null) return;
-
-            await ViewModel.ImportTree(path, format);
-        }
-
-        /// <summary>
-        /// エクスポート処理を行います。
-        /// </summary>
-        /// <param name="format">出力する系統樹のフォーマット</param>
-        private async Task ExportAsTreeFile(TreeFormat format)
-        {
-            string? path = await ShowFileSaveDialog();
-            if (path is null) return;
-
-            await ViewModel.ExportTreeCommand.ExecuteAsync((path, format));
-        }
-
-        /// <summary>
-        /// エクスポート処理を行います。
-        /// </summary>
-        /// <param name="exportType">出力するフォーマット</param>
-        private async Task ExportWithExporter(ExportType exportType)
-        {
-            string? path = await ShowFileSaveDialog([new FileFilter()
-            {
-                Name = $"{exportType.ToString().ToUpper()} File",
-                Extensions = [exportType.ToString().ToLower()],
-            }]);
-            if (path is null) return;
-
-            await ViewModel.ExportWithExporterCommand.ExecuteAsync((path, exportType));
-        }
-
-        #endregion File
 
         #region Window
 
