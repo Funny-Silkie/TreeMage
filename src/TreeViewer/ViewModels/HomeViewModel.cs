@@ -178,12 +178,18 @@ namespace TreeViewer.ViewModels
                              .Subscribe(v =>
                              {
                                  string? projectPath = v.First;
-                                 bool saved = v.Second;
 
                                  string title;
-                                 if (string.IsNullOrEmpty(projectPath)) title = "TreeViewer";
-                                 else title = $"{Path.GetFileName(projectPath)} - TreeViewer";
-                                 if (!saved) title += '*';
+                                 if (v.Second)
+                                 {
+                                     if (string.IsNullOrEmpty(projectPath)) title = "TreeViewer";
+                                     else title = $"{Path.GetFileName(projectPath)} - TreeViewer";
+                                 }
+                                 else
+                                 {
+                                     if (string.IsNullOrEmpty(projectPath)) title = "TreeViewer*";
+                                     else title = $"{Path.GetFileName(projectPath)}* - TreeViewer";
+                                 }
                                  electronService.Title = title;
                              });
             TreeIndex = model.ToReactivePropertySlimAsSynchronized(x => x.TreeIndex.Value)
@@ -289,7 +295,7 @@ namespace TreeViewer.ViewModels
         public async Task<bool> VerifyCanClose()
         {
             if (model.Saved.Value) return true;
-            return await electronService.ShowVerifyDialogAsync("Unsaved change is detected. Are you sure?", buttons: ["Close anyway", "Cancel"]);
+            return await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure?", buttons: ["Close anyway", "Cancel"]);
         }
 
         /// <summary>
