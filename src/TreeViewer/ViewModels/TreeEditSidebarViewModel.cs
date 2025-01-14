@@ -210,6 +210,7 @@ namespace TreeViewer.ViewModels
 
             SearchQuery = model.ToReactivePropertySlimAsSynchronized(x => x.SearchQuery.Value)
                                .AddTo(Disposables);
+            SearchQuery.Subscribe(v => this.model.Search());
             SearchTarget = model.ToReactivePropertySlimAsSynchronized(x => x.SearchTarget.Value)
                                 .AddTo(Disposables);
             SearchOnIgnoreCase = model.ToReactivePropertySlimAsSynchronized(x => x.SearchOnIgnoreCase.Value)
