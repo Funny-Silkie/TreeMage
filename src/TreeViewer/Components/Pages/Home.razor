@@ -419,6 +419,16 @@
     }
 
     /// <summary>
+    /// ウィンドウを閉じるかどうかを確認します。
+    /// </summary>
+    /// <returns>閉じても良い場合は<see langword="true"/>，それ以外で<see langword="false"/></returns>
+    [JSInvokable]
+    public async Task<bool> VerifyCanClose()
+    {
+        return await ViewModel.VerifyCanClose();
+    }
+
+    /// <summary>
     /// ファイルがドロップされた時に実行されます。
     /// </summary>
     /// <param name="pathes">ファイルパス</param>
@@ -429,7 +439,7 @@
     }
 
     /// <summary>
-    /// プロジェクトを新規作成します。。
+    /// プロジェクトを新規作成します。
     /// </summary>
     [JSInvokable]
     public async Task CreateNew()

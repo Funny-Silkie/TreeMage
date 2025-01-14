@@ -5,6 +5,18 @@
 export function registerEvents(page: DotNetRazorComponent): void {
     bypassShortcuts(page);
 
+    // 未保存時の確認
+    window.onbeforeunload = async (e: BeforeUnloadEvent) => {
+        const canClose: boolean = await page.invokeMethodAsync<boolean>("VerifyCanClose");
+        console.log(canClose);
+        if (!canClose) e.preventDefault();
+        else {
+            window.onbeforeunload = null;
+            window.close();
+        }
+    };
+
+    // Drag & Drop
     document.addEventListener("dragover", (e: DragEvent) => {
         e.preventDefault();
         e.stopPropagation();

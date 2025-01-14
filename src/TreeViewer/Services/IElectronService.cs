@@ -115,6 +115,7 @@ namespace TreeViewer.Services
                 Message = message,
                 Buttons = buttons ?? ["Ok", "Cancel"],
                 Title = title ?? "Verifying",
+                NoLink = true,
             });
 
             return result.Response == 0;

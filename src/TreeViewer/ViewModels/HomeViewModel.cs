@@ -210,7 +210,7 @@ namespace TreeViewer.ViewModels
             ExtractSubtreeCommand = new AsyncReactiveCommand<Clade>().WithSubscribe(ExtractSubtree)
                                                                      .AddTo(Disposables);
 
-            CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(model.CreateNew)
+            CreateNewCommand = new AsyncReactiveCommand().WithSubscribe(CreateNew)
                                                          .AddTo(Disposables);
             OpenProjectCommand = new AsyncReactiveCommand().WithSubscribe(OpenProject)
                                                            .AddTo(Disposables);
@@ -280,6 +280,16 @@ namespace TreeViewer.ViewModels
                 Console.WriteLine(e);
                 electronService.ShowErrorMessageAsync(e).Wait();
             }
+        }
+
+        /// <summary>
+        /// ウィンドウを閉じられるかどうかを確認します。
+        /// </summary>
+        /// <returns>閉じられる場合は<see langword="true"/>，それ以外で<see langword="false"/></returns>
+        public async Task<bool> VerifyCanClose()
+        {
+            if (model.Saved.Value) return true;
+            return await electronService.ShowVerifyDialogAsync("Unsaved change is detected. Are you sure?", buttons: ["Close anyway", "Cancel"]);
         }
 
         /// <summary>
@@ -355,11 +365,29 @@ namespace TreeViewer.ViewModels
             }
         }
 
+        /// <inheritdoc cref="MainModel.CreateNew"/>
+        private async Task CreateNew()
+        {
+            if (!model.Saved.Value)
+            {
+                bool allowDiscard = await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure to discard these changes?");
+                if (!allowDiscard) return;
+            }
+
+            model.CreateNew();
+        }
+
         /// <inheritdoc cref="MainModel.OpenProject(string)"/>
         private async Task OpenProject()
         {
             string? path = await electronService.ShowSingleFileOpenDialogAsync((["treeprj"], "Tree viewer project file"));
             if (path is null) return;
+
+            if (!model.Saved.Value)
+            {
+                bool allowDiscard = await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure to discard these changes?");
+                if (!allowDiscard) return;
+            }
 
             try
             {
