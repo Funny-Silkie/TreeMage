@@ -21,6 +21,16 @@ namespace TreeViewer.Settings
         internal static string Location { get; }
 
         /// <summary>
+        /// メインウィンドウの横幅を取得または設定します。
+        /// </summary>
+        public int MainWindowWidth { get; set; } = 960;
+
+        /// <summary>
+        /// メインウィンドウの高さを取得または設定します。
+        /// </summary>
+        public int MainWindowHeight { get; set; } = 720;
+
+        /// <summary>
         /// 枝の色付けの方式を取得または設定します。
         /// </summary>
         public BranchColoringType BranchColoring { get; set; } = BranchColoringType.Both;

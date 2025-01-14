@@ -275,6 +275,8 @@ namespace TreeViewer.TestUtilities.Assertions
         {
             Assert.Multiple(() =>
             {
+                Assert.Equal(expected.MainWindowWidth, actual.MainWindowWidth);
+                Assert.Equal(expected.MainWindowHeight, actual.MainWindowHeight);
                 Assert.Equal(expected.BranchColoring, actual.BranchColoring);
                 Assert.Equal(expected.AutoOrderingMode, actual.AutoOrderingMode);
             });

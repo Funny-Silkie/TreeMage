@@ -3,6 +3,7 @@ using ElectronNET.API.Entities;
 using System.Diagnostics;
 using TreeViewer.Core.Exporting;
 using TreeViewer.Core.Trees.Parsers;
+using TreeViewer.Settings;
 using TreeViewer.ViewModels;
 
 namespace TreeViewer.Window
@@ -27,15 +28,28 @@ namespace TreeViewer.Window
         /// <inheritdoc/>
         protected override async Task<BrowserWindow> CreateWindowInternal()
         {
+            Configurations config = await Configurations.LoadOrCreateAsync();
+
             BrowserWindow result = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions()
             {
-                Width = 960,
-                Height = 720,
+                Width = config.MainWindowWidth,
+                Height = config.MainWindowHeight,
                 Show = false,
                 Title = "TreeViewer",
             });
             await result.WebContents.Session.ClearCacheAsync();
             result.OnReadyToShow += result.Show;
+            result.OnClose += async () =>
+            {
+                if (!await result.IsMaximizedAsync() && !await result.IsMinimizedAsync())
+                {
+                    Configurations config = await Configurations.LoadOrCreateAsync();
+                    int[] size = await result.GetSizeAsync();
+                    config.MainWindowWidth = size[0];
+                    config.MainWindowHeight = size[1];
+                    await config.SaveAsync();
+                }
+            };
             result.OnClosed += Electron.App.Quit;
             return result;
         }
