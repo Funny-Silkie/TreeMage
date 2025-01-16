@@ -1,0 +1,42 @@
+{
+  "executable": "TreeMage",
+  "splashscreen": {
+    "imageFile": ""
+  },
+  "name": "TreeMage",
+  "author": "Funny_Silkie",
+  "singleInstance": false,
+  "environment": "Production",
+  "build": {
+    "appId": "com.TreeMage.app",
+    "productName": "TreeMage",
+    "copyright": "Copyright © 2024",
+    "buildVersion": "1.0.0-alpha",
+    "compression": "maximum",
+    "win": {
+      "icon": "../../../Assets/icon.png"
+    },
+    "directories": {
+      "output": "../../../bin/Desktop"
+    },
+    "extraResources": [
+      {
+        "from": "./bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "files": [
+      {
+        "from": "./ElectronHostHook/node_modules",
+        "to": "ElectronHostHook/node_modules",
+        "filter": [
+          "**/*"
+        ]
+      },
+      "**/*"
+    ]
+  }
+}
