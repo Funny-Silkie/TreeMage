@@ -1,11 +1,12 @@
 ﻿using Svg;
 using Svg.Pathing;
 using Svg.Transforms;
-using System.Drawing;
 using TreeMage.Core.Drawing;
 using TreeMage.Core.Drawing.Styles;
 using TreeMage.Core.Internal;
 using TreeMage.Core.Trees;
+
+using Color = System.Drawing.Color;
 
 namespace TreeMage.Core.Exporting
 {
