@@ -25,6 +25,11 @@ namespace TreeViewer.Core.Drawing.Styles
         public int BranchThickness { get; set; } = 1;
 
         /// <summary>
+        /// 枝長が存在しない場合に適用される値を取得または設定します。
+        /// </summary>
+        public double DefaultBranchLength { get; set; } = 0.1;
+
+        /// <summary>
         /// 系統名を出力するかどうかを表す値を取得または設定します。
         /// </summary>
         public bool ShowLeafLabels { get; set; } = true;
@@ -171,6 +176,7 @@ namespace TreeViewer.Core.Drawing.Styles
             XScale = style.XScale;
             YScale = style.YScale;
             BranchThickness = style.BranchThickness;
+            DefaultBranchLength = style.DefaultBranchLength;
             ShowLeafLabels = style.ShowLeafLabels;
             LeafLabelsFontSize = style.LeafLabelsFontSize;
             ShowCladeLabels = style.ShowCladeLabels;
@@ -203,6 +209,7 @@ namespace TreeViewer.Core.Drawing.Styles
             XScale = XScale,
             YScale = YScale,
             BranchThickness = BranchThickness,
+            DefaultBranchLength = DefaultBranchLength,
             ShowLeafLabels = ShowLeafLabels,
             LeafLabelsFontSize = LeafLabelsFontSize,
             ShowCladeLabels = ShowCladeLabels,

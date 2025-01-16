@@ -2,16 +2,17 @@
 using Reactive.Bindings.Extensions;
 using TreeViewer.Core.Drawing;
 using TreeViewer.Data;
+using TreeViewer.Services;
 using TreeViewer.Settings;
-using TreeViewer.Window;
 
 namespace TreeViewer.ViewModels
 {
     /// <summary>
     /// コンフィグ編集画面のViewModelのクラスです。
     /// </summary>
-    public class EditConfigViewModel : WindowViewModel<EditConfigWindow, EditConfigViewModel>
+    public class EditConfigViewModel : ViewModelBase
     {
+        private readonly IElectronService electronService;
         private readonly Configurations config;
 
         /// <summary>
@@ -32,8 +33,10 @@ namespace TreeViewer.ViewModels
         /// <summary>
         /// <see cref="EditConfigViewModel"/>の新しいインスタンスを初期化します。
         /// </summary>
-        public EditConfigViewModel() : base(EditConfigWindow.Instance)
+        public EditConfigViewModel([FromKeyedServices("config")] IElectronService electronService)
         {
+            this.electronService = electronService;
+            electronService.AttachViewModel(this);
             config = Configurations.LoadOrCreate();
 
             BranchColoring = new ReactivePropertySlim<BranchColoringType>(config.BranchColoring).WithSubscribe(x => config.BranchColoring = x)
@@ -53,7 +56,7 @@ namespace TreeViewer.ViewModels
         {
             if (save) await config.SaveAsync();
 
-            Window.CloseWindow();
+            electronService.Close();
         }
     }
 }

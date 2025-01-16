@@ -78,7 +78,9 @@ namespace TreeViewer.Core.Drawing
             }
             if (!double.IsNaN(info.TotalLength)) return info.TotalLength;
 
-            double result = clade.GetTotalBranchLength();
+            double result = 0;
+            for (Clade current = clade; current.Parent is not null; current = current.Parent) result += current.GetDrawnBranchLength();
+
             info.TotalLength = result;
             return result;
         }
@@ -97,7 +99,7 @@ namespace TreeViewer.Core.Drawing
             }
             if (!double.IsNaN(info.X1)) return info.X1;
 
-            double result = (CalcTotalBranchLength(clade) - clade.BranchLength) * treeStyle.XScale;
+            double result = (CalcTotalBranchLength(clade) - clade.GetDrawnBranchLength()) * treeStyle.XScale;
             info.X1 = result;
             return result;
         }
@@ -128,7 +130,7 @@ namespace TreeViewer.Core.Drawing
         /// <returns><paramref name="clade"/>のX座標2</returns>
         private double CalcX2Core(Clade clade)
         {
-            if (clade.BranchLength > 0) return CalcTotalBranchLength(clade) * treeStyle.XScale;
+            if (clade.GetDrawnBranchLength() > 0) return CalcTotalBranchLength(clade) * treeStyle.XScale;
             return CalcX1(clade);
         }
 
@@ -219,7 +221,7 @@ namespace TreeViewer.Core.Drawing
         /// <returns>ドキュメントのサイズ</returns>
         public (double width, double height) CalcDocumentSize()
         {
-            double width = allExternalNodes.Select(x => x.GetTotalBranchLength()).Max() * treeStyle.XScale + 100;
+            double width = allExternalNodes.Select(CalcTotalBranchLength).Max() * treeStyle.XScale + 100;
             if (treeStyle.ShowLeafLabels) width += allExternalNodes.Select(x => CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize).width).Max();
             if (treeStyle.ShowCladeLabels && allExternalNodes.Length > 0)
             {
@@ -232,6 +234,46 @@ namespace TreeViewer.Core.Drawing
             if (treeStyle.ShowScaleBar) height += CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize).height + 20;
 
             return (width, height);
+        }
+
+        /// <summary>
+        ///シェードの座標を算出します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <returns><paramref name="clade"/>のシェードの座標</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        public (double x, double y, double width, double height) CalcCladeShadePosition(Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            double CalcXRight(Clade external)
+            {
+                (double x, _, double width, _) = CalcLeafPosition(external);
+                return x + width;
+            }
+
+            double xLeft = (CalcX1(clade) + CalcX2(clade)) / 2;
+            double xRight, yTop, yBottom;
+            double halfLeafHeight = treeStyle.YScale / 2;
+
+            if (clade.GetIsExternal())
+            {
+                xRight = CalcXRight(clade);
+                double y1 = CalcY1(clade);
+                yTop = y1 - halfLeafHeight;
+                yBottom = y1 + halfLeafHeight;
+            }
+            else
+            {
+                Clade[] externals = clade.GetDescendants()
+                                         .Where(x => x.GetIsExternal())
+                                         .ToArray();
+                xRight = externals.Max(CalcXRight);
+                yTop = CalcY1(externals[0]) - halfLeafHeight;
+                yBottom = CalcY1(externals[^1]) + halfLeafHeight;
+            }
+
+            return (xLeft, yTop, xRight - xLeft + 5, yBottom - yTop);
         }
 
         /// <summary>

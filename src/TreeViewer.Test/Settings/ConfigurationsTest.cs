@@ -22,6 +22,8 @@ namespace TreeViewer.Settings
 
             Assert.Multiple(() =>
             {
+                Assert.Equal(960, config.MainWindowWidth);
+                Assert.Equal(720, config.MainWindowHeight);
                 Assert.Equal(BranchColoringType.Both, config.BranchColoring);
                 Assert.Equal(Data.AutoOrderingMode.Descending, config.AutoOrderingMode);
             });

@@ -40,6 +40,11 @@ namespace TreeViewer.Models
         public ReactiveProperty<string?> ProjectPath { get; }
 
         /// <summary>
+        /// 現在のバージョンが保存されているかどうかを表す値のプロパティを取得します。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> Saved { get; }
+
+        /// <summary>
         /// ツリーの更新を通知します。
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -194,6 +199,7 @@ namespace TreeViewer.Models
             tree.Style.XScale = XScale.Value;
             tree.Style.YScale = YScale.Value;
             tree.Style.BranchThickness = BranchThickness.Value;
+            tree.Style.DefaultBranchLength = DefaultBranchLength.Value;
             tree.Style.ShowLeafLabels = ShowLeafLabels.Value;
             tree.Style.LeafLabelsFontSize = LeafLabelsFontSize.Value;
             tree.Style.ShowCladeLabels = ShowCladeLabels.Value;
@@ -225,6 +231,7 @@ namespace TreeViewer.Models
             XScale.Value = tree.Style.XScale;
             YScale.Value = tree.Style.YScale;
             BranchThickness.Value = tree.Style.BranchThickness;
+            DefaultBranchLength.Value = tree.Style.DefaultBranchLength;
             ShowLeafLabels.Value = tree.Style.ShowLeafLabels;
             LeafLabelsFontSize.Value = tree.Style.LeafLabelsFontSize;
             ShowCladeLabels.Value = tree.Style.ShowCladeLabels;
@@ -487,6 +494,39 @@ namespace TreeViewer.Models
         }
 
         /// <summary>
+        /// 任意のファイルを開きます。
+        /// </summary>
+        /// <param name="pathes">開くファイルパス一覧</param>
+        public async Task OpenFiles(params string[] pathes)
+        {
+            if (pathes.Length == 0) return;
+            if (pathes.Length == 1)
+            {
+                string path = pathes[0];
+                if (path.EndsWith(".treeprj", StringComparison.OrdinalIgnoreCase))
+                {
+                    await OpenProject(path);
+                    return;
+                }
+            }
+
+            string[] projectPathes = pathes.Where(x => x.EndsWith(".treeprj", StringComparison.OrdinalIgnoreCase))
+                                           .ToArray();
+            if (projectPathes.Length > 1) throw new ModelException("プロジェクトファイルが二つ以上指定されています");
+            if (projectPathes.Length == 1) await OpenProject(projectPathes[0]);
+            foreach (string importedTree in pathes.Where(x => !x.EndsWith(".treeprj", StringComparison.OrdinalIgnoreCase)))
+            {
+                await ImportTree(importedTree, TreeFormat.Newick);
+            }
+
+            if (projectPathes.Length == 1)
+            {
+                TreeIndex.Value = 1;
+                undoService.Clear();
+            }
+        }
+
+        /// <summary>
         /// プロジェクトファイルを開きます。
         /// </summary>
         /// <param name="path">開くプロジェクトファイルのパス</param>
@@ -540,6 +580,7 @@ namespace TreeViewer.Models
             };
 
             await projectData.SaveAsync(path);
+            undoService.MarkAsSaved();
         }
 
         /// <summary>

@@ -288,16 +288,16 @@ namespace TreeViewer.Core.Trees
         /// <param name="descending">降順で並び替えるかどうかを表す値</param>
         public void OrderByLength(bool descending = true)
         {
-            OrderByLengthOfClade(Root, descending);
+            OrderByLengthOfClade(Root, descending, Style.DefaultBranchLength);
 
-            static void OrderByLengthOfClade(Clade clade, bool descending)
+            static void OrderByLengthOfClade(Clade clade, bool descending, double defaultLength)
             {
                 if (clade.IsLeaf) return;
 
                 clade.ChildrenInternal.Sort((x, y) =>
                 {
-                    double[] xArray = GetLengthList(x, descending);
-                    double[] yArray = GetLengthList(y, descending);
+                    double[] xArray = GetLengthList(x, descending, defaultLength);
+                    double[] yArray = GetLengthList(y, descending, defaultLength);
 
                     for (int i = 0; i < Math.Min(xArray.Length, yArray.Length); i++)
                     {
@@ -311,15 +311,15 @@ namespace TreeViewer.Core.Trees
                     return descending ? -result : result;
                 });
 
-                foreach (Clade child in clade.ChildrenInternal) OrderByLengthOfClade(child, descending);
+                foreach (Clade child in clade.ChildrenInternal) OrderByLengthOfClade(child, descending, defaultLength);
             }
 
-            static double[] GetLengthList(Clade clade, bool descending)
+            static double[] GetLengthList(Clade clade, bool descending, double defaultLength)
             {
                 IEnumerable<double> lengthCollection = clade.GetDescendants()
                                                             .Prepend(clade)
                                                             .Where(x => x.IsLeaf)
-                                                            .Select(x => x.GetTotalBranchLength(0));
+                                                            .Select(x => x.GetTotalBranchLength(defaultLength));
                 lengthCollection = descending ? lengthCollection.OrderDescending() : lengthCollection.Order();
                 return lengthCollection.ToArray();
             }

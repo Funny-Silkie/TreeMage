@@ -22,11 +22,26 @@ namespace TreeViewer.ViewModels
         /// <inheritdoc cref="StyleSidebarModel.FirstSelectedElement"/>
         public ReadOnlyReactivePropertySlim<CladeId> FirstSelectedElement { get; }
 
-        /// <inheritdoc cref="StyleSidebarModel.Color"/>
-        public ReactivePropertySlim<string?> Color { get; }
+        /// <inheritdoc cref="StyleSidebarModel.LeafSelected"/>
+        public ReadOnlyReactivePropertySlim<bool> LeafSelected { get; }
+
+        /// <inheritdoc cref="StyleSidebarModel.BranchColor"/>
+        public ReactivePropertySlim<string?> BranchColor { get; }
+
+        /// <inheritdoc cref="StyleSidebarModel.LeafColor"/>
+        public ReactivePropertySlim<string?> LeafColor { get; }
 
         /// <inheritdoc cref="StyleSidebarModel.CladeLabel"/>
         public ReactivePropertySlim<string?> CladeLabel { get; }
+
+        /// <inheritdoc cref="StyleSidebarModel.ShadeColor"/>
+        public ReactivePropertySlim<string?> ShadeColor { get; }
+
+        /// <inheritdoc cref="StyleSidebarModel.LeafLabel"/>
+        public ReactivePropertySlim<string?> LeafLabel { get; }
+
+        /// <inheritdoc cref="StyleSidebarModel.Supports"/>
+        public ReactivePropertySlim<string?> Supports { get; }
 
         /// <summary>
         /// <see cref="StyleSidebarViewModel"/>の新しいインスタンスを初期化します。
@@ -43,10 +58,20 @@ namespace TreeViewer.ViewModels
                                                          .AddTo(Disposables);
             FirstSelectedElement = styleSidebarmodel.FirstSelectedElement.ToReadOnlyReactivePropertySlim()
                                                                          .AddTo(Disposables);
+            LeafSelected = styleSidebarmodel.LeafSelected.ToReadOnlyReactivePropertySlim()
+                                                         .AddTo(Disposables);
             CladeLabel = styleSidebarmodel.CladeLabel.ToReactivePropertySlimAsSynchronized(x => x.Value)
                                                      .AddTo(Disposables);
-            Color = styleSidebarmodel.Color.ToReactivePropertySlimAsSynchronized(x => x.Value)
-                                           .AddTo(Disposables);
+            ShadeColor = styleSidebarmodel.ShadeColor.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                     .AddTo(Disposables);
+            BranchColor = styleSidebarmodel.BranchColor.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                       .AddTo(Disposables);
+            LeafColor = styleSidebarmodel.LeafColor.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                   .AddTo(Disposables);
+            LeafLabel = styleSidebarmodel.LeafLabel.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                   .AddTo(Disposables);
+            Supports = styleSidebarmodel.Supports.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                                 .AddTo(Disposables);
         }
     }
 }

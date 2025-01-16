@@ -4,7 +4,6 @@ using System.Reactive.Linq;
 using TreeViewer.Core.Drawing.Styles;
 using TreeViewer.Core.Trees;
 using TreeViewer.Data;
-using TreeViewer.Window;
 
 namespace TreeViewer.Models
 {
@@ -37,14 +36,39 @@ namespace TreeViewer.Models
         public ReadOnlyReactiveProperty<CladeId> FirstSelectedElement { get; }
 
         /// <summary>
-        /// 色のプロパティを取得します。
+        /// 葉が選択されているかどうかかを表す値のプロパティを取得します。
         /// </summary>
-        public ReactiveProperty<string?> Color { get; }
+        public ReadOnlyReactiveProperty<bool> LeafSelected { get; }
+
+        /// <summary>
+        /// 枝色のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string?> BranchColor { get; }
+
+        /// <summary>
+        /// 葉ラベル色のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string?> LeafColor { get; }
 
         /// <summary>
         /// クレード名のプロパティを取得します。
         /// </summary>
         public ReactiveProperty<string?> CladeLabel { get; }
+
+        /// <summary>
+        /// シェードの色のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string?> ShadeColor { get; }
+
+        /// <summary>
+        /// 葉ラベルのプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string?> LeafLabel { get; }
+
+        /// <summary>
+        /// サポート値のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<string?> Supports { get; }
 
         /// <summary>
         /// <see cref="StyleSidebarModel"/>の新しいインスタンスを初期化します。
@@ -69,6 +93,10 @@ namespace TreeViewer.Models
                                             .ToReadOnlyReactiveProperty()
                                             .WithSubscribe(x => Update())
                                             .AddTo(Disposables);
+            LeafSelected = mainModel.ObserveProperty(x => x.FocusedSvgElementIdList)
+                                    .Select(x => x.Any(x => x.Clade.IsLeaf))
+                                    .ToReadOnlyReactiveProperty()
+                                    .AddTo(Disposables);
             CladeLabel = new ReactiveProperty<string?>().WithSubscribe(v =>
             {
                 if (updating) return;
@@ -90,68 +118,111 @@ namespace TreeViewer.Models
                     this.mainModel.NotifyTreeUpdated();
                 }, (clade: id.Clade, before: id.Clade.Style.CladeLabel, after: string.IsNullOrEmpty(v) ? null : v));
             }).AddTo(Disposables);
-            Color = new ReactiveProperty<string?>("black").WithSubscribe(OnColorChanged)
-                                                              .AddTo(Disposables);
+            ShadeColor = new ReactiveProperty<string?>().WithSubscribe(v =>
+            {
+                if (updating || v is null) return;
+
+                CladeId id = FirstSelectedElement.Value;
+                if (id.Clade is null) return;
+
+                this.mainModel.OperateAsUndoable((arg, tree) =>
+                {
+                    ShadeColor!.Value = arg.after;
+                    arg.clade.Style.ShadeColor = arg.after;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (arg, tree) =>
+                {
+                    ShadeColor!.Value = arg.before;
+                    arg.clade.Style.ShadeColor = arg.before;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (clade: id.Clade, before: id.Clade.Style.ShadeColor, after: string.IsNullOrEmpty(v) ? null : v));
+            }).AddTo(Disposables);
+            BranchColor = new ReactiveProperty<string?>("black").WithSubscribe(v =>
+            {
+                if (updating || v is null) return;
+
+                (CladeStyle style, string before)[] targets = mainModel.FocusedSvgElementIdList.Select(x => (style: x.Clade.Style, before: x.Clade.Style.BranchColor))
+                                                                                               .ToArray();
+
+                mainModel.OperateAsUndoable(arg =>
+                {
+                    foreach ((CladeStyle style, string before) in arg.targets) style.BranchColor = arg.after;
+                    Update();
+                    mainModel.NotifyTreeUpdated();
+                }, arg =>
+                {
+                    foreach ((CladeStyle style, string before) in arg.targets) style.BranchColor = before;
+                    Update();
+                    mainModel.NotifyTreeUpdated();
+                }, (targets, after: v));
+            }).AddTo(Disposables);
+            LeafColor = new ReactiveProperty<string?>("black").WithSubscribe(v =>
+            {
+                if (updating || v is null) return;
+
+                (CladeStyle style, string before)[] targets = mainModel.FocusedSvgElementIdList.Where(x => x.Clade.IsLeaf)
+                                                                                               .Select(x => (style: x.Clade.Style, before: x.Clade.Style.LeafColor))
+                                                                                               .ToArray();
+
+                mainModel.OperateAsUndoable(arg =>
+                {
+                    foreach ((CladeStyle style, string before) in arg.targets) style.LeafColor = arg.after;
+                    Update();
+                    mainModel.NotifyTreeUpdated();
+                }, arg =>
+                {
+                    foreach ((CladeStyle style, string before) in arg.targets) style.LeafColor = before;
+                    Update();
+                    mainModel.NotifyTreeUpdated();
+                }, (targets, after: v, selectionTarget: SelectionTarget.Value));
+            }).AddTo(Disposables);
+            LeafLabel = new ReactiveProperty<string?>().WithSubscribe(v =>
+            {
+                if (updating) return;
+
+                CladeId id = FirstSelectedElement.Value;
+                if (id.Clade is null) return;
+
+                this.mainModel.OperateAsUndoable((arg, tree) =>
+                {
+                    LeafLabel!.Value = arg.after;
+                    arg.clade.Taxon = arg.after;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (arg, tree) =>
+                {
+                    LeafLabel!.Value = arg.before;
+                    arg.clade.Taxon = arg.before;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (clade: id.Clade, before: id.Clade.Taxon, after: string.IsNullOrEmpty(v) ? null : v));
+            }).AddTo(Disposables);
+            Supports = new ReactiveProperty<string?>().WithSubscribe(v =>
+            {
+                if (updating) return;
+
+                CladeId id = FirstSelectedElement.Value;
+                if (id.Clade is null) return;
+
+                this.mainModel.OperateAsUndoable((arg, tree) =>
+                {
+                    Supports!.Value = arg.after;
+                    arg.clade.Supports = arg.after;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (arg, tree) =>
+                {
+                    Supports!.Value = arg.before;
+                    arg.clade.Supports = arg.before;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (clade: id.Clade, before: id.Clade.Supports, after: string.IsNullOrEmpty(v) ? null : v));
+            });
 
             updating = false;
             mainModel.ClearUndoQueue();
-        }
-
-        /// <summary>
-        /// <see cref="Color"/>が変更されたときに実行されます。
-        /// </summary>
-        /// <param name="value">変更後の値</param>
-        private void OnColorChanged(string? value)
-        {
-            if (updating || value is null) return;
-
-            (CladeStyle style, string before)[] targets = mainModel.FocusedSvgElementIdList.Select(x =>
-            {
-                CladeStyle style = x.Clade.Style;
-                string before = SelectionTarget.Value switch
-                {
-                    SelectionMode.Node or SelectionMode.Clade => style.BranchColor,
-                    SelectionMode.Taxa => style.LeafColor,
-                    _ => "black",
-                };
-                return (style, before);
-            }).ToArray();
-
-            mainModel.OperateAsUndoable(arg =>
-            {
-                foreach ((CladeStyle style, string before) in arg.targets)
-                    switch (arg.selectionTarget)
-                    {
-                        case SelectionMode.Node:
-                        case SelectionMode.Clade:
-                            style.BranchColor = arg.after;
-                            break;
-
-                        case SelectionMode.Taxa:
-                            style.LeafColor = arg.after;
-                            break;
-                    }
-
-                mainModel.NotifyTreeUpdated();
-                Update();
-            }, arg =>
-            {
-                foreach ((CladeStyle style, string before) in arg.targets)
-                    switch (arg.selectionTarget)
-                    {
-                        case SelectionMode.Node:
-                        case SelectionMode.Clade:
-                            style.BranchColor = before;
-                            break;
-
-                        case SelectionMode.Taxa:
-                            style.LeafColor = before;
-                            break;
-                    }
-
-                Update();
-                mainModel.NotifyTreeUpdated();
-            }, (targets, after: value, selectionTarget: SelectionTarget.Value));
         }
 
         /// <summary>
@@ -164,18 +235,19 @@ namespace TreeViewer.Models
 
             try
             {
-                List<string> colors = mainModel.SelectionTarget.Value switch
-                {
-                    SelectionMode.Node or SelectionMode.Clade => mainModel.FocusedSvgElementIdList.Select(x => x.Clade.Style.BranchColor)
-                                                                                              .Distinct()
-                                                                                              .ToList(),
-                    SelectionMode.Taxa => mainModel.FocusedSvgElementIdList.Select(x => x.Clade.Style.LeafColor)
-                                                                       .Distinct()
-                                                                       .ToList(),
-                    _ => ["black"],
-                };
-                Color.Value = colors.Count == 1 ? colors[0] : null;
+                List<string> branchColors = mainModel.FocusedSvgElementIdList.Select(x => x.Clade.Style.BranchColor)
+                                                                             .Distinct()
+                                                                             .ToList();
+                BranchColor.Value = branchColors.Count == 1 ? branchColors[0] : null;
+                List<string> leafColors = mainModel.FocusedSvgElementIdList.Where(x => x.Clade.IsLeaf)
+                                                                           .Select(x => x.Clade.Style.LeafColor)
+                                                                           .Distinct()
+                                                                           .ToList();
+                LeafColor.Value = leafColors.Count == 1 ? leafColors[0] : null;
                 CladeLabel.Value = null;
+                ShadeColor.Value = null;
+                LeafLabel.Value = null;
+                Supports.Value = null;
 
                 if (mainModel.FocusedSvgElementIdList.Count == 1)
                 {
@@ -183,13 +255,13 @@ namespace TreeViewer.Models
                     if (clade is null) return;
 
                     CladeLabel.Value = clade.Style.CladeLabel;
+                    ShadeColor.Value = clade.Style.ShadeColor;
+
+                    if (clade.IsLeaf) LeafLabel.Value = clade.Taxon;
+                    else Supports.Value = clade.Supports;
                 }
 
                 OnPropertyChanged(nameof(FirstSelectedElement));
-            }
-            catch (Exception e)
-            {
-                MainWindow.Instance.ShowErrorMessageAsync(e).Wait();
             }
             finally
             {

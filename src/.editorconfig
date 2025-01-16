@@ -35,3 +35,6 @@ dotnet_diagnostic.IDE0045.severity = none
 
 # CS8601: Null 参照代入の可能性があります。
 dotnet_diagnostic.CS8601.severity = error
+
+# CS8619: 値における参照型の Null 許容性が、対象の型と一致しません。
+dotnet_diagnostic.CS8619.severity = error

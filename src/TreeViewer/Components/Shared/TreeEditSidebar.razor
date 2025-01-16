@@ -39,11 +39,13 @@
                         <RadzenText Style="@sidebarFormLabelStyle">Scale X:</RadzenText>
                         <RadzenText Style="@sidebarFormLabelStyle">Scale Y:</RadzenText>
                         <RadzenText Style="@sidebarFormLabelStyle">Branch thickness:</RadzenText>
+                        <RadzenText Style="@sidebarFormLabelStyle">Default branch length:</RadzenText>
                     </RadzenStack>
                     <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
                         <RadzenSlider TValue="int" Min="10" Max="3000" Step="10" @bind-Value="ViewModel.XScale.Value" Style="@sidebarFormValueStyle" />
                         <RadzenSlider TValue="int" Min="1" Max="300" @bind-Value="ViewModel.YScale.Value" Style="@sidebarFormValueStyle" />
                         <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.BranchThickness.Value" Style="@sidebarFormValueStyle" />
+                        <RadzenNumeric TValue="double" Min="0" Step="0.1" @bind-Value="ViewModel.DefaultBranchLength.Value" Style="@sidebarFormValueStyle" />
                     </RadzenStack>
                 </RadzenStack>
             </ChildContent>

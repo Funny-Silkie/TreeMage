@@ -111,6 +111,43 @@ namespace TreeViewer.Core.Drawing
             });
         }
 
+        [Fact]
+        public void GetDrawnBranchLength_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => DrawingExtensions.GetDrawnBranchLength(null!));
+        }
+
+        [Fact]
+        public void GetDrawnBranchLength_AsPositive_WithRootClade()
+        {
+            root.BranchLength = double.NaN;
+            Assert.Equal(0, root.GetDrawnBranchLength());
+        }
+
+        [Fact]
+        public void GetDrawnBranchLength_AsPositive_WithNaNLengthAndTreeClade()
+        {
+            cladeBA.BranchLength = double.NaN;
+            Assert.Equal(tree.Style.DefaultBranchLength, cladeBA.GetDrawnBranchLength());
+        }
+
+        [Fact]
+        public void GetDrawnBranchLength_AsPositive_WithNaNLengthAndNoTreeClade()
+        {
+            var clade = new Clade()
+            {
+                BranchLength = double.NaN,
+            };
+            Assert.Equal(0, clade.GetDrawnBranchLength());
+        }
+
+        [Fact]
+        public void GetDrawnBranchLength_AsPositive_WithNoNaNLengthClade()
+        {
+            cladeBA.BranchLength = 1;
+            Assert.Equal(1, cladeBA.GetDrawnBranchLength());
+        }
+
         #endregion Static Methods
     }
 }

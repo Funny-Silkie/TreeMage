@@ -4,7 +4,7 @@ using TreeViewer.Core.Drawing;
 using TreeViewer.Core.Trees;
 using TreeViewer.Data;
 using TreeViewer.Models;
-using TreeViewer.Window;
+using TreeViewer.Services;
 
 namespace TreeViewer.ViewModels
 {
@@ -13,6 +13,7 @@ namespace TreeViewer.ViewModels
     /// </summary>
     public class TreeEditSidebarViewModel : ViewModelBase
     {
+        private IElectronService electronService;
         private readonly MainModel model;
 
         #region Layout
@@ -38,7 +39,7 @@ namespace TreeViewer.ViewModels
             catch (Exception e)
             {
                 await Console.Out.WriteLineAsync(e.ToString());
-                await MainWindow.Instance.ShowErrorMessageAsync(e);
+                await electronService.ShowErrorMessageAsync(e);
             }
         }
 
@@ -57,7 +58,7 @@ namespace TreeViewer.ViewModels
             catch (Exception e)
             {
                 await Console.Out.WriteLineAsync(e.ToString());
-                await MainWindow.Instance.ShowErrorMessageAsync(e);
+                await electronService.ShowErrorMessageAsync(e);
             }
         }
 
@@ -73,6 +74,9 @@ namespace TreeViewer.ViewModels
 
         /// <inheritdoc cref="MainModel.BranchThickness"/>
         public ReactivePropertySlim<int> BranchThickness { get; }
+
+        /// <inheritdoc cref="MainModel.DefaultBranchLength"/>
+        public ReactivePropertySlim<double> DefaultBranchLength { get; }
 
         #endregion Tree
 
@@ -180,8 +184,9 @@ namespace TreeViewer.ViewModels
 
         #endregion Scalebar
 
-        public TreeEditSidebarViewModel(MainModel model)
+        public TreeEditSidebarViewModel(MainModel model, IElectronService electronService)
         {
+            this.electronService = electronService;
             this.model = model;
             model.PropertyChanged += (_, e) => OnPropertyChanged(e.PropertyName);
 
@@ -200,9 +205,12 @@ namespace TreeViewer.ViewModels
                           .AddTo(Disposables);
             BranchThickness = model.ToReactivePropertySlimAsSynchronized(x => x.BranchThickness.Value)
                                    .AddTo(Disposables);
+            DefaultBranchLength = model.ToReactivePropertySlimAsSynchronized(x => x.DefaultBranchLength.Value)
+                                       .AddTo(Disposables);
 
             SearchQuery = model.ToReactivePropertySlimAsSynchronized(x => x.SearchQuery.Value)
                                .AddTo(Disposables);
+            SearchQuery.Subscribe(v => this.model.Search());
             SearchTarget = model.ToReactivePropertySlimAsSynchronized(x => x.SearchTarget.Value)
                                 .AddTo(Disposables);
             SearchOnIgnoreCase = model.ToReactivePropertySlimAsSynchronized(x => x.SearchOnIgnoreCase.Value)

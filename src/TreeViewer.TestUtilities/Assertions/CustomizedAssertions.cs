@@ -160,6 +160,7 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.XScale, actual.XScale);
                 Assert.Equal(expected.YScale, actual.YScale);
                 Assert.Equal(expected.BranchThickness, actual.BranchThickness);
+                Assert.Equal(expected.DefaultBranchLength, actual.DefaultBranchLength);
                 Assert.Equal(expected.ShowLeafLabels, actual.ShowLeafLabels);
                 Assert.Equal(expected.LeafLabelsFontSize, actual.LeafLabelsFontSize);
                 Assert.Equal(expected.ShowCladeLabels, actual.ShowCladeLabels);
@@ -199,6 +200,7 @@ namespace TreeViewer.TestUtilities.Assertions
                 Assert.Equal(expected.LeafColor, actual.LeafColor);
                 Assert.Equal(expected.Collapsed, actual.Collapsed);
                 Assert.Equal(expected.CladeLabel, actual.CladeLabel);
+                Assert.Equal(expected.ShadeColor, actual.ShadeColor);
             });
         }
 
@@ -273,6 +275,8 @@ namespace TreeViewer.TestUtilities.Assertions
         {
             Assert.Multiple(() =>
             {
+                Assert.Equal(expected.MainWindowWidth, actual.MainWindowWidth);
+                Assert.Equal(expected.MainWindowHeight, actual.MainWindowHeight);
                 Assert.Equal(expected.BranchColoring, actual.BranchColoring);
                 Assert.Equal(expected.AutoOrderingMode, actual.AutoOrderingMode);
             });

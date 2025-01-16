@@ -144,6 +144,15 @@ namespace TreeViewer.Models
         }
 
         /// <summary>
+        /// 一つの葉と内部枝が選択されている状態にします。
+        /// </summary>
+        private void SetupAsLeafAAndCladeBAFocused()
+        {
+            mainModel.Focus(leafA, cladeBA);
+            updatedProperties.Clear();
+        }
+
+        /// <summary>
         /// 複数の内部枝が選択されている状態にします。
         /// </summary>
         private void SetupAsMultipleBipartitionsFocused()
@@ -166,7 +175,10 @@ namespace TreeViewer.Models
                 Assert.Equal(0, styleSidebarModel.FocusedCount.Value);
                 Assert.Null(styleSidebarModel.FirstSelectedElement.Value.Clade);
                 Assert.Null(styleSidebarModel.CladeLabel.Value);
-                Assert.Equal("black", styleSidebarModel.Color.Value);
+                Assert.Null(styleSidebarModel.ShadeColor.Value);
+                Assert.Equal("black", styleSidebarModel.BranchColor.Value);
+                Assert.Equal("black", styleSidebarModel.LeafColor.Value);
+                Assert.Null(styleSidebarModel.CladeLabel.Value);
             });
         }
 
@@ -210,7 +222,16 @@ namespace TreeViewer.Models
         {
             SetupAsNothingFocused();
 
-            Assert.Equal("black", styleSidebarModel.Color.Value);
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(0, styleSidebarModel.FocusedCount.Value);
+                Assert.Null(styleSidebarModel.FirstSelectedElement.Value.Clade);
+                Assert.False(styleSidebarModel.LeafSelected.Value);
+                Assert.Null(styleSidebarModel.CladeLabel.Value);
+                Assert.Null(styleSidebarModel.ShadeColor.Value);
+                Assert.Null(styleSidebarModel.LeafLabel.Value);
+                Assert.Null(styleSidebarModel.Supports.Value);
+            });
         }
 
         [Fact]
@@ -218,15 +239,22 @@ namespace TreeViewer.Models
         {
             leafA.Style.CladeLabel = "Clade";
             leafA.Style.BranchColor = "red";
+            leafA.Style.LeafColor = "red";
+            leafA.Style.ShadeColor = "red";
             SetupAsLeafAFocused();
 
             Assert.Multiple(() =>
             {
                 Assert.Equal(1, styleSidebarModel.FocusedCount.Value);
                 Assert.Equal(mainModel.FocusedSvgElementIdList.First(), styleSidebarModel.FirstSelectedElement.Value);
+                Assert.True(styleSidebarModel.LeafSelected.Value);
                 Assert.Same(leafA, styleSidebarModel.FirstSelectedElement.Value.Clade);
-                Assert.Equal("red", styleSidebarModel.Color.Value);
+                Assert.Equal("red", styleSidebarModel.BranchColor.Value);
+                Assert.Equal("red", styleSidebarModel.LeafColor.Value);
                 Assert.Equal("Clade", styleSidebarModel.CladeLabel.Value);
+                Assert.Equal("red", styleSidebarModel.ShadeColor.Value);
+                Assert.Equal("A", styleSidebarModel.LeafLabel.Value);
+                Assert.Null(styleSidebarModel.Supports.Value);
             });
         }
 
@@ -234,20 +262,46 @@ namespace TreeViewer.Models
         public void Prpoerties_Get_OnSingleBipartitionSelected()
         {
             cladeBA.Style.CladeLabel = "CLADE";
+            cladeBA.Style.ShadeColor = "red";
             SetupAsCladeBAFocused();
 
             Assert.Multiple(() =>
             {
                 Assert.Equal(1, styleSidebarModel.FocusedCount.Value);
                 Assert.Equal(mainModel.FocusedSvgElementIdList.First(), styleSidebarModel.FirstSelectedElement.Value);
+                Assert.False(styleSidebarModel.LeafSelected.Value);
                 Assert.Same(cladeBA, styleSidebarModel.FirstSelectedElement.Value.Clade);
-                Assert.Equal("black", styleSidebarModel.Color.Value);
+                Assert.Equal("black", styleSidebarModel.BranchColor.Value);
                 Assert.Equal("CLADE", styleSidebarModel.CladeLabel.Value);
+                Assert.Equal("red", styleSidebarModel.ShadeColor.Value);
+                Assert.Null(styleSidebarModel.LeafLabel.Value);
+                Assert.Equal("20/30", styleSidebarModel.Supports.Value);
             });
         }
 
         [Fact]
-        public void Properties_Get_OnMultipleFocused()
+        public void Properties_Get_OnLeafAndBipartitionsFocused()
+        {
+            cladeBA.Style.BranchColor = "red";
+            leafA.Style.LeafColor = "red";
+            SetupAsLeafAAndCladeBAFocused();
+
+            Assert.Multiple(() =>
+            {
+                Assert.Equal(2, styleSidebarModel.FocusedCount.Value);
+                Assert.Equal(mainModel.FocusedSvgElementIdList.First(), styleSidebarModel.FirstSelectedElement.Value);
+                Assert.True(styleSidebarModel.LeafSelected.Value);
+                Assert.Null(styleSidebarModel.BranchColor.Value);
+                Assert.Equal("red", styleSidebarModel.LeafColor.Value);
+                Assert.Null(styleSidebarModel.CladeLabel.Value);
+                Assert.Null(styleSidebarModel.ShadeColor.Value);
+                Assert.Null(styleSidebarModel.LeafLabel.Value);
+                Assert.Null(styleSidebarModel.Supports.Value);
+            });
+        }
+
+        [Fact]
+        public void Properties_Get_OnMultipleBipartitionsFocused()
         {
             cladeBA.Style.BranchColor = "red";
             SetupAsMultipleBipartitionsFocused();
@@ -256,27 +310,32 @@ namespace TreeViewer.Models
             {
                 Assert.Equal(2, styleSidebarModel.FocusedCount.Value);
                 Assert.Equal(mainModel.FocusedSvgElementIdList.First(), styleSidebarModel.FirstSelectedElement.Value);
-                Assert.Null(styleSidebarModel.Color.Value);
+                Assert.False(styleSidebarModel.LeafSelected.Value);
+                Assert.Null(styleSidebarModel.BranchColor.Value);
+                Assert.Null(styleSidebarModel.CladeLabel.Value);
+                Assert.Null(styleSidebarModel.ShadeColor.Value);
+                Assert.Null(styleSidebarModel.LeafLabel.Value);
+                Assert.Null(styleSidebarModel.Supports.Value);
             });
         }
 
         [Fact]
-        public async Task Color_Set_OnSingleSelected()
+        public async Task BranchColor_Set_OnSingleSelected()
         {
             SetupAsLeafAFocused();
 
-            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.Color,
+            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.BranchColor,
                                                          "red",
                                                          (_, v) => Assert.Equal(v, leafA.Style.BranchColor),
                                                          (_, v) => Assert.Equal(v, leafA.Style.BranchColor));
         }
 
         [Fact]
-        public async Task Color_Set_OnMultipleSelected()
+        public async Task BranchColor_Set_OnMultipleSelected()
         {
             SetupAsMultipleBipartitionsFocused();
 
-            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.Color,
+            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.BranchColor,
                                                          "red",
                                                          (_, v) => Assert.Multiple(() =>
                                                          {
@@ -291,6 +350,25 @@ namespace TreeViewer.Models
         }
 
         [Fact]
+        public async Task BranchColor_Set_OnSingleLeafAndBipartitionSelected()
+        {
+            SetupAsLeafAAndCladeBAFocused();
+
+            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.LeafColor,
+                                                         "red",
+                                                         (_, v) => Assert.Multiple(() =>
+                                                         {
+                                                             Assert.Equal(v, leafA.Style.LeafColor);
+                                                             Assert.Equal("black", cladeBA.Style.LeafColor);
+                                                         }),
+                                                         (_, v) => Assert.Multiple(() =>
+                                                         {
+                                                             Assert.Equal(v, leafA.Style.LeafColor);
+                                                             Assert.Equal("black", cladeBA.Style.LeafColor);
+                                                         }));
+        }
+
+        [Fact]
         public async Task CladeLabel_Set_OnSingleSelected()
         {
             SetupAsCladeBAFocused();
@@ -299,6 +377,40 @@ namespace TreeViewer.Models
                                                          "hoge",
                                                          (_, v) => Assert.Equal(v, cladeBA.Style.CladeLabel),
                                                          (_, v) => Assert.Equal(v, cladeBA.Style.CladeLabel));
+        }
+
+        [Fact]
+        public async Task ShadeColor_Set_OnSingleSelected()
+        {
+            cladeBA.Style.ShadeColor = "blue";
+            SetupAsCladeBAFocused();
+
+            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.ShadeColor,
+                                                         "red",
+                                                         (_, v) => Assert.Equal(v, cladeBA.Style.ShadeColor),
+                                                         (_, v) => Assert.Equal(v, cladeBA.Style.ShadeColor));
+        }
+
+        [Fact]
+        public async Task LeafLabel_Set_OnSingleLeafSelected()
+        {
+            SetupAsLeafAFocused();
+
+            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.LeafLabel,
+                                                         "hoge",
+                                                         (_, v) => Assert.Equal(v, leafA.Taxon),
+                                                         (_, v) => Assert.Equal(v, leafA.Taxon));
+        }
+
+        [Fact]
+        public async Task Supports_Set_OnSingleLeafSelected()
+        {
+            SetupAsCladeBAFocused();
+
+            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.Supports,
+                                                         "hoge",
+                                                         (_, v) => Assert.Equal(v, cladeBA.Supports),
+                                                         (_, v) => Assert.Equal(v, cladeBA.Supports));
         }
 
         #endregion Properties

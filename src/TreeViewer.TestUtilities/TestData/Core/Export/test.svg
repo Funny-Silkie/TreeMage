@@ -2,6 +2,9 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xml="http://www.w3.org/XML/1998/namespace" width="459.2676" height="347.9688">
   <g transform="translate(50, 50)" id="tree-area">
+    <g id="shades">
+      <rect x="90" y="75" width="181.9238" height="90" style="fill:lightblue;" />
+    </g>
     <g id="leaf-labels">
       <text x="65" y="7.158203" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">A</text>
       <text x="245" y="37.1582" font-family="Arial, Helvetica, sans-serif" font-size="20" style="fill:black;">BAA</text>

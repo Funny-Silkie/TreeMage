@@ -7,5 +7,5 @@ interface DotNetRazorComponent {
      * @param name メソッド名
      * @param args 引数
      */
-    invokeMethodAsync(name: string, ...args: any[]): Promise<void>;
+    invokeMethodAsync<T = void>(name: string, ...args: any[]): Promise<T>;
 }
