@@ -1,8 +1,7 @@
 ﻿using Svg;
 using Svg.Pathing;
 using Svg.Transforms;
-
-using PointF = System.Drawing.PointF;
+using System.Drawing;
 
 namespace TreeMage.Core.Internal
 {
