@@ -1,4 +1,5 @@
-﻿using TreeMage.Core.Drawing.Styles;
+﻿using SixLabors.Fonts;
+using TreeMage.Core.Drawing.Styles;
 using TreeMage.Core.Exporting;
 using TreeMage.Core.Trees;
 
@@ -55,13 +56,10 @@ namespace TreeMage.Core.Drawing
         /// <returns>テキストエリアのサイズ</returns>
         public static (double width, double height) CalcTextSize(string? text, int fontSize)
         {
-            var svg = new Svg.SvgText(text)
-            {
-                FontSize = fontSize,
-                FontFamily = SvgExporter.FontFamily,
-            };
-            System.Drawing.SizeF size = svg.Bounds.Size;
-            return (size.Width, size.Height);
+            if (string.IsNullOrEmpty(text)) return (0, 0);
+#warning Make as constant
+            FontRectangle rectangle = TextMeasurer.MeasureSize(text, new TextOptions(SystemFonts.CreateFont("Arial", fontSize)));
+            return (rectangle.Width, rectangle.Height);
         }
 
         /// <summary>

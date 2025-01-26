@@ -5,6 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using TreeMage.Core.Trees;
 
+using Color = System.Drawing.Color;
+
 namespace TreeMage.Core.Drawing
 {
     /// <summary>
