@@ -5,39 +5,63 @@
     @if (ViewModel.IsEnable.Value && ViewModel.FocusedCount.Value > 0 && ViewModel.FirstSelectedElement.Value.Clade is not null)
     {
         Clade clade = ViewModel.FirstSelectedElement.Value.Clade;
-        <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-            <RadzenText>Branch color: </RadzenText>
-            <RadzenColorPicker @bind-Value="ViewModel.BranchColor.Value" />
+        <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+            <RadzenColumn>
+                <RadzenText class="style-sidebar-label">Branch color: </RadzenText>
+            </RadzenColumn>
+            <RadzenColumn>
+                <RadzenColorPicker @bind-Value="ViewModel.BranchColor.Value" />
+            </RadzenColumn>
         </RadzenRow>
         @if (ViewModel.LeafSelected.Value)
         {
-            <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-                <RadzenText>Leaf color: </RadzenText>
-                <RadzenColorPicker @bind-Value="ViewModel.LeafColor.Value" />
+            <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                <RadzenColumn>
+                    <RadzenText class="style-sidebar-label">Leaf color: </RadzenText>
+                </RadzenColumn>
+                <RadzenColumn>
+                    <RadzenColorPicker @bind-Value="ViewModel.LeafColor.Value" />
+                </RadzenColumn>
             </RadzenRow>
         }
         @if (ViewModel.FocusedCount.Value == 1 && ViewModel.SelectionTarget.Value is SelectionMode.Node)
         {
-            <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-                <RadzenText>Clade label:</RadzenText>
-                <RadzenTextBox @bind-Value="ViewModel.CladeLabel.Value" />
+            <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                <RadzenColumn>
+                    <RadzenText class="style-sidebar-label">Clade label:</RadzenText>
+                </RadzenColumn>
+                <RadzenColumn>
+                    <RadzenTextBox class="app-form-textbox" @bind-Value="ViewModel.CladeLabel.Value" />
+                </RadzenColumn>
             </RadzenRow>
-            <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-                <RadzenText>Shade color:</RadzenText>
-                <RadzenColorPicker @bind-Value="ViewModel.ShadeColor.Value" />
+            <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                <RadzenColumn>
+                    <RadzenText class="style-sidebar-label">Shade color:</RadzenText>
+                </RadzenColumn>
+                <RadzenColumn>
+                    <RadzenColorPicker @bind-Value="ViewModel.ShadeColor.Value" />
+                </RadzenColumn>
             </RadzenRow>
             if (clade.IsLeaf)
             {
-                <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-                    <RadzenText>Leaf label:</RadzenText>
-                    <RadzenTextBox @bind-Value="ViewModel.LeafLabel.Value" />
+                <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                    <RadzenColumn>
+                        <RadzenText class="style-sidebar-label">Leaf label:</RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn>
+                        <RadzenTextBox class="app-form-textbox" @bind-Value="ViewModel.LeafLabel.Value" />
+                    </RadzenColumn>
                 </RadzenRow>
             }
             else
             {
-                <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-                    <RadzenText>Support value:</RadzenText>
-                    <RadzenTextBox @bind-Value="ViewModel.Supports.Value" />
+                <RadzenRow AlignItems="AlignItems.Center">
+                    <RadzenColumn>
+                        <RadzenText>Support value:</RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn>
+                        <RadzenTextBox class="app-form-textbox" @bind-Value="ViewModel.Supports.Value" />
+                    </RadzenColumn>
                 </RadzenRow>
             }
         }
