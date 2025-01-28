@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+    <style>
+        text {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .branch {
+            fill: none;
+            stroke: black;
+            stroke-width: 4px;
+        }
+    </style>
+    <rect width="100%" height="100%" fill="white" />
+    <g transform="scale(1, -1) translate(0, -75)">
+        <path class="branch" d="M 80 10 h -50 v 21 h 10" />
+        <path class="branch" d="M 40 31 v -7 h 25 m -25 7 v 7 h 20" />
+        <path class="branch" d="M 30 20.5 h -15 v 10.5 v 17.5 v 10.5 h 10" />
+        <path class="branch" d="M 25 59 v -7 h 20 m -20 7 v 7 h 15" />
+    </g>
+    <text x="35" y="90" font-size="24" text-anchor="middle">Order</text>
+    <text x="80" y="90" font-size="28" font-weight="bold" fill="red" text-anchor="middle">A</text>
+</svg>

@@ -238,6 +238,12 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
+                            Label = "Collapse",
+                            Click = () => ViewModel.CollapseCommand.Execute(),
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
                             Label = "Order by branch length",
                             Submenu = [
                                 new MenuItem(){

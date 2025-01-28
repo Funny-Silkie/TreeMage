@@ -1,4 +1,4 @@
-﻿@rendermode InteractiveServer
+@rendermode InteractiveServer
 @inject TreeEditSidebarViewModel ViewModel
 
 @if (ViewModel is not null)
@@ -13,7 +13,15 @@
                 <RadzenStack Orientation="Orientation.Vertical">
                     <RadzenRow AlignItems="AlignItems.Center">
                         <RadzenColumn>
-                            <RadzenButton Text="Collapse" Click="ViewModel.CollapseCommand.ToDelegate()" />
+                            <RadzenButton Variant="Variant.Text" Size="ButtonSize.ExtraSmall" Click="ViewModel.CollapseCommand.ToDelegate()">
+                                <RadzenImage Path="images/collapse.svg" Style="width: 50px; height: 50px" />
+                            </RadzenButton>
+                            <RadzenButton Variant="Variant.Text" Size="ButtonSize.ExtraSmall" Click="ViewModel.OrderByBranchLengthCommand.ToDelegate(false)">
+                                <RadzenImage Path="images/order-a.svg" Style="width: 50px; height: 50px" />
+                            </RadzenButton>
+                            <RadzenButton Variant="Variant.Text" Size="ButtonSize.ExtraSmall" Click="ViewModel.OrderByBranchLengthCommand.ToDelegate(true)">
+                                <RadzenImage Path="images/order-d.svg" Style="width: 50px; height: 50px" />
+                            </RadzenButton>
                         </RadzenColumn>
                     </RadzenRow>
                     <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
@@ -351,8 +359,6 @@
 #else
     true;
 #endif
-    private const string sidebarFormLabelStyle = "width: 150px; height: 23px";
-    private const string sidebarFormValueStyle = "width: 100px; height: 30px";
 
     /// <inheritdoc/>
     protected override async Task OnInitializedAsync()
