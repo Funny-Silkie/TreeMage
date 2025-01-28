@@ -3,7 +3,7 @@
 
 @if (ViewModel is not null)
 {
-    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch" Gap="1">
+    <RadzenStack Orientation="Orientation.Vertical" Gap="1">
         @* Layout *@
         <RadzenPanel AllowCollapse="true">
             <HeaderTemplate>
@@ -11,16 +11,28 @@
             </HeaderTemplate>
             <ChildContent>
                 <RadzenStack Orientation="Orientation.Vertical">
-                    <RadzenButton Text="Collapse" Click="ViewModel.CollapseCommand.ToDelegate()" />
-                    <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-                        <RadzenText>Collapse type:</RadzenText>
-                        <RadzenDropDown TValue="CladeCollapseType" Data="Enum.GetValues<CladeCollapseType>()" @bind-Value="ViewModel.CollapseType.Value" Style="@sidebarFormValueStyle" />
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn>
+                            <RadzenButton Text="Collapse" Click="ViewModel.CollapseCommand.ToDelegate()" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Collapse type:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenDropDown class="tree-edit-sidebar-value" TValue="CladeCollapseType" Data="Enum.GetValues<CladeCollapseType>()" @bind-Value="ViewModel.CollapseType.Value" />
+                        </RadzenColumn>
                     </RadzenRow>
                     @if (ViewModel.CollapseType.Value is CladeCollapseType.Constant)
                     {
-                        <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-                            <RadzenText>Width:</RadzenText>
-                            <RadzenNumeric TValue="double" Min="0" @bind-Value="ViewModel.CollapsedConstantWidth.Value" Step="0.1" Style="@sidebarFormValueStyle" />
+                        <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                            <RadzenColumn>
+                                <RadzenText class="tree-edit-sidebar-label">Width:</RadzenText>
+                            </RadzenColumn>
+                            <RadzenColumn>
+                                <RadzenNumeric class="tree-edit-sidebar-value" TValue="double" Min="0" @bind-Value="ViewModel.CollapsedConstantWidth.Value" Step="0.1" />
+                            </RadzenColumn>
                         </RadzenRow>
                     }
                 </RadzenStack>
@@ -34,19 +46,39 @@
                 </RadzenStack>
             </HeaderTemplate>
             <ChildContent>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
-                        <RadzenText Style="@sidebarFormLabelStyle">Scale X:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Scale Y:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Branch thickness:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Default branch length:</RadzenText>
-                    </RadzenStack>
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenSlider TValue="int" Min="10" Max="3000" Step="10" @bind-Value="ViewModel.XScale.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenSlider TValue="int" Min="1" Max="300" @bind-Value="ViewModel.YScale.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.BranchThickness.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenNumeric TValue="double" Min="0" Step="0.1" @bind-Value="ViewModel.DefaultBranchLength.Value" Style="@sidebarFormValueStyle" />
-                    </RadzenStack>
+                <RadzenStack Orientation="Orientation.Vertical">
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-scale-label">Scale X (@(ViewModel.XScale.Value / 10)):</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenSlider TValue="int" Min="10" Max="3000" Step="10" @bind-Value="ViewModel.XScale.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-scale-label">Scale Y (@(ViewModel.YScale.Value)):</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenSlider TValue="int" Min="1" Max="300" @bind-Value="ViewModel.YScale.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Branch thickness:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="int" Min="1" @bind-Value="ViewModel.BranchThickness.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Default branch length:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="double" Min="0" Step="0.1" @bind-Value="ViewModel.DefaultBranchLength.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
                 </RadzenStack>
             </ChildContent>
         </RadzenPanel>
@@ -58,21 +90,39 @@
                 </RadzenStack>
             </HeaderTemplate>
             <ChildContent>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
-                    <RadzenTextBox @bind-Value="ViewModel.SearchQuery.Value" Style="width: 220px; height: 30px" />
-                    <RadzenButton Icon="search" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="ViewModel.SearchCommand.ToDelegate()" />
-                </RadzenStack>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch" Style="padding-top: 3px">
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenText Style="@sidebarFormLabelStyle">Target:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Ignore case:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Use regex:</RadzenText>
-                    </RadzenStack>
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenDropDown Data="Enum.GetValues<TreeSearchTarget>()" @bind-Value="ViewModel.SearchTarget.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.SearchOnIgnoreCase.Value" Style="margin-top: 2px; margin-bottom: 2px" />
-                        <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.SearchWithRegex.Value" Style="margin-top: 2px; margin-bottom: 2px" />
-                    </RadzenStack>
+                <RadzenStack Orientation="Orientation.Vertical">
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenTextBox @bind-Value="ViewModel.SearchQuery.Value" Style="width: 220px; height: 30px" />
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenButton Icon="search" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="ViewModel.SearchCommand.ToDelegate()" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Target:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenDropDown class="tree-edit-sidebar-value" Data="Enum.GetValues<TreeSearchTarget>()" @bind-Value="ViewModel.SearchTarget.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Ignore case:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.SearchOnIgnoreCase.Value" Style="margin-top: 2px; margin-bottom: 2px" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Use regex:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenCheckBox TValue="bool" @bind-Value="ViewModel.SearchWithRegex.Value" Style="margin-top: 2px; margin-bottom: 2px" />
+                        </RadzenColumn>
+                    </RadzenRow>
                 </RadzenStack>
             </ChildContent>
         </RadzenPanel>
@@ -85,13 +135,15 @@
                 </RadzenStack>
             </HeaderTemplate>
             <ChildContent>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch" Style="padding-top: 3px">
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
-                    </RadzenStack>
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.LeafLabelsFontSize.Value" Style="@sidebarFormValueStyle" />
-                    </RadzenStack>
+                <RadzenStack Orientation="Orientation.Vertical">
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Font size:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="int" Min="1" @bind-Value="ViewModel.LeafLabelsFontSize.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
                 </RadzenStack>
             </ChildContent>
         </RadzenPanel>
@@ -104,15 +156,23 @@
                 </RadzenStack>
             </HeaderTemplate>
             <ChildContent>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch" Style="padding-top: 3px">
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Line thickness:</RadzenText>
-                    </RadzenStack>
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.CladeLabelsFontSize.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenNumeric TValue="int" Min="0" @bind-Value="ViewModel.CladeLabelsLineThickness.Value" Style="@sidebarFormValueStyle" />
-                    </RadzenStack>
+                <RadzenStack Orientation="Orientation.Vertical">
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Font size:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="int" Min="1" @bind-Value="ViewModel.CladeLabelsFontSize.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Line thickness:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="int" Min="0" @bind-Value="ViewModel.CladeLabelsLineThickness.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
                 </RadzenStack>
             </ChildContent>
         </RadzenPanel>
@@ -125,15 +185,23 @@
                 </RadzenStack>
             </HeaderTemplate>
             <ChildContent>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
-                        <RadzenText Style="@sidebarFormLabelStyle">Value:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
-                    </RadzenStack>
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenDropDown TValue="CladeValueType" Data="Enum.GetValues<CladeValueType>()" @bind-Value="ViewModel.NodeValueType.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.NodeValueFontSize.Value" Style="@sidebarFormValueStyle" />
-                    </RadzenStack>
+                <RadzenStack Orientation="Orientation.Vertical">
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Value:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenDropDown class="tree-edit-sidebar-value" TValue="CladeValueType" Data="Enum.GetValues<CladeValueType>()" @bind-Value="ViewModel.NodeValueType.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Font size:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="int" Min="1" @bind-Value="ViewModel.NodeValueFontSize.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
                 </RadzenStack>
             </ChildContent>
         </RadzenPanel>
@@ -146,17 +214,31 @@
                 </RadzenStack>
             </HeaderTemplate>
             <ChildContent>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
-                        <RadzenText Style="@sidebarFormLabelStyle">Value:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Hide pattern:</RadzenText>
-                    </RadzenStack>
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenDropDown TValue="CladeValueType" Data="Enum.GetValues<CladeValueType>()" @bind-Value="ViewModel.BranchValueType.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.BranchValueFontSize.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenTextBox @bind-Value="ViewModel.BranchValueHideRegexPattern.Value" Style="@sidebarFormValueStyle" />
-                    </RadzenStack>
+                <RadzenStack Orientation="Orientation.Vertical">
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Value:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenDropDown class="tree-edit-sidebar-value" TValue="CladeValueType" Data="Enum.GetValues<CladeValueType>()" @bind-Value="ViewModel.BranchValueType.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Font size:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="int" Min="1" @bind-Value="ViewModel.BranchValueFontSize.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Hide pattern:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenTextBox class="tree-edit-sidebar-value" @bind-Value="ViewModel.BranchValueHideRegexPattern.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
                 </RadzenStack>
             </ChildContent>
         </RadzenPanel>
@@ -170,7 +252,7 @@
             </HeaderTemplate>
             <ChildContent>
                 <RadzenButton Icon="add" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="ViewModel.AddBranchDecorationCommand.ToDelegate()" />
-                <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Stretch">
+                <RadzenStack Orientation="Orientation.Vertical">
                     @foreach (BranchDecorationViewModel currentViewModel in ViewModel.BranchDecorations.Select(x => new BranchDecorationViewModel(x)))
                     {
                         <RadzenPanel class="rz-border-radius" AllowCollapse="true" Style="background-color: whitesmoke">
@@ -178,25 +260,43 @@
                                 <RadzenText Style="font-size: 1.1rem">@currentViewModel.TargetRegexPattern.Value</RadzenText>
                             </HeaderTemplate>
                             <ChildContent>
-                                <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
-                                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
-                                            <RadzenText Style="@sidebarFormLabelStyle">Pattern:</RadzenText>
-                                            <RadzenText Style="@sidebarFormLabelStyle">Shape:</RadzenText>
-                                            <RadzenText Style="@sidebarFormLabelStyle">Size:</RadzenText>
-                                            <RadzenText Style="@sidebarFormLabelStyle">Color:</RadzenText>
-                                        </RadzenStack>
-                                        <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                                            <RadzenTextBox @bind-Value="currentViewModel.TargetRegexPattern.Value" Style="@sidebarFormValueStyle" />
-                                            <RadzenDropDown TValue="BranchDecorationType" Data="Enum.GetValues<BranchDecorationType>()" @bind-Value="currentViewModel.DecorationType.Value" Style="@sidebarFormValueStyle" />
-                                            <RadzenNumeric TValue="int" Min="1" @bind-Value="currentViewModel.ShapeSize.Value" Style="@sidebarFormValueStyle" />
-                                            <RadzenColorPicker @bind-Value="currentViewModel.ShapeColor.Value" Style="@sidebarFormValueStyle" />
-                                        </RadzenStack>
-                                    </RadzenStack>
-                                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center">
+                                <RadzenStack Orientation="Orientation.Vertical">
+                                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                                        <RadzenColumn>
+                                            <RadzenText class="tree-edit-sidebar-child-label">Pattern:</RadzenText>
+                                        </RadzenColumn>
+                                        <RadzenColumn>
+                                            <RadzenTextBox class="tree-edit-sidebar-value" @bind-Value="currentViewModel.TargetRegexPattern.Value" />
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                                        <RadzenColumn>
+                                            <RadzenText class="tree-edit-sidebar-child-label">Shape:</RadzenText>
+                                        </RadzenColumn>
+                                        <RadzenColumn>
+                                            <RadzenDropDown class="tree-edit-sidebar-value" TValue="BranchDecorationType" Data="Enum.GetValues<BranchDecorationType>()" @bind-Value="currentViewModel.DecorationType.Value" />
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                                        <RadzenColumn>
+                                            <RadzenText class="tree-edit-sidebar-child-label">Size:</RadzenText>
+                                        </RadzenColumn>
+                                        <RadzenColumn>
+                                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="int" Min="1" @bind-Value="currentViewModel.ShapeSize.Value" />
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                                        <RadzenColumn>
+                                            <RadzenText class="tree-edit-sidebar-child-label">Color:</RadzenText>
+                                        </RadzenColumn>
+                                        <RadzenColumn>
+                                            <RadzenColorPicker @bind-Value="currentViewModel.ShapeColor.Value" />
+                                        </RadzenColumn>
+                                    </RadzenRow>
+                                    <RadzenRow AlignItems="AlignItems.Center">
                                         <RadzenButton Icon="@(currentViewModel.Visible.Value ? "visibility" : "visibility_off")" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Dark" Variant="Variant.Text" Click="x => currentViewModel.Visible.Value = !currentViewModel.Visible.Value" />
                                         <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Text" Click="currentViewModel.DeleteSelfCommand.ToDelegate()" />
-                                    </RadzenStack>
+                                    </RadzenRow>
                                 </RadzenStack>
                             </ChildContent>
                         </RadzenPanel>
@@ -213,17 +313,31 @@
                 </RadzenStack>
             </HeaderTemplate>
             <ChildContent>
-                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Stretch">
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start" Style="padding-top: 3px">
-                        <RadzenText Style="@sidebarFormLabelStyle">Value:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Font size:</RadzenText>
-                        <RadzenText Style="@sidebarFormLabelStyle">Bar thickness:</RadzenText>
-                    </RadzenStack>
-                    <RadzenStack Orientation="Orientation.Vertical" AlignItems="AlignItems.Start">
-                        <RadzenNumeric TValue="double" Min="0" Step="0.1" @bind-Value="ViewModel.ScaleBarValue.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.ScaleBarFontSize.Value" Style="@sidebarFormValueStyle" />
-                        <RadzenNumeric TValue="int" Min="1" @bind-Value="ViewModel.ScaleBarThickness.Value" Style="@sidebarFormValueStyle" />
-                    </RadzenStack>
+                <RadzenStack Orientation="Orientation.Vertical">
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Value:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="double" Min="0" Step="0.1" @bind-Value="ViewModel.ScaleBarValue.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Font size:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="int" Min="1" @bind-Value="ViewModel.ScaleBarFontSize.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
+                    <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                        <RadzenColumn>
+                            <RadzenText class="tree-edit-sidebar-label">Bar thickness:</RadzenText>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            <RadzenNumeric class="tree-edit-sidebar-value" TValue="int" Min="1" @bind-Value="ViewModel.ScaleBarThickness.Value" />
+                        </RadzenColumn>
+                    </RadzenRow>
                 </RadzenStack>
             </ChildContent>
         </RadzenPanel>
