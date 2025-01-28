@@ -118,14 +118,14 @@ namespace TreeMage.Models
             mainModel.OperateAsUndoable((arg, tree) =>
             {
                 TreeStyle treeStyle = tree.Style;
-                mainModel.BranchDecorations.RemoveAtOnScheduler(index);
+                mainModel.BranchDecorations.RemoveAt(index);
                 treeStyle.DecorationStyles = Array.FindAll(treeStyle.DecorationStyles, x => x != Style);
 
                 mainModel.NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 TreeStyle treeStyle = tree.Style;
-                mainModel.BranchDecorations.InsertOnScheduler(arg, this);
+                mainModel.BranchDecorations.Insert(arg, this);
                 treeStyle.DecorationStyles = ArrayHelpers.Inserted(treeStyle.DecorationStyles, arg, Style);
 
                 mainModel.NotifyTreeUpdated();

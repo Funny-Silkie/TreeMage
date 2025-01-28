@@ -39,7 +39,7 @@ namespace TreeMage.Window
             });
             await result.WebContents.Session.ClearCacheAsync();
             result.OnReadyToShow += result.Show;
-            result.OnClose += async () =>
+            result.OnClose += () => Task.Run(async () =>
             {
                 if (!await result.IsMaximizedAsync() && !await result.IsMinimizedAsync())
                 {
@@ -49,7 +49,7 @@ namespace TreeMage.Window
                     config.MainWindowHeight = size[1];
                     await config.SaveAsync();
                 }
-            };
+            }).Wait();
             result.OnClosed += Electron.App.Quit;
             return result;
         }
@@ -234,6 +234,12 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.separator,
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Collapse",
+                            Click = () => ViewModel.CollapseCommand.Execute(),
                         },
                         new MenuItem()
                         {

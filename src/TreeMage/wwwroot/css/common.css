@@ -1,0 +1,27 @@
+﻿.tree-edit-sidebar-label {
+    width: 150px;
+    text-align: end;
+}
+
+.tree-edit-sidebar-scale-label {
+    width: 90px;
+    text-align: end;
+}
+
+.tree-edit-sidebar-child-label {
+    width: 130px;
+    text-align: end;
+}
+
+.tree-edit-sidebar-value {
+    width: 100px;
+}
+
+.style-sidebar-label {
+    width: 100px;
+    text-align: end;
+}
+
+.style-sidebar-value {
+    width: 100%;
+}
