@@ -729,6 +729,98 @@ namespace TreeMage.Models
         }
 
         [Fact]
+        public async Task ClearBranchLenghes_OnTreeMissing()
+        {
+            model.TargetTree.Value = null;
+            model.ClearBranchLenghes();
+
+            Assert.Empty(updatedProperties);
+            Assert.False(await model.Undo());
+        }
+
+        [Fact]
+        public async Task ClearBranchLenghes_OnTreeExisting()
+        {
+            model.ClearBranchLenghes();
+
+            Debug.Assert(model.TargetTree.Value is not null);
+            Tree cleared = model.TargetTree.Value;
+            Assert.Multiple(() =>
+            {
+                Assert.Single(updatedProperties, "TargetTree");
+                Assert.NotSame(tree, cleared);
+                Assert.Same(cleared, model.Trees[0]);
+                Assert.True(cleared.GetAllClades().All(x => double.IsNaN(x.BranchLength)));
+            });
+
+            updatedProperties.Clear();
+            bool undoSuccess = await model.Undo();
+            Assert.Multiple(() =>
+            {
+                Assert.True(undoSuccess);
+                Assert.Single(updatedProperties, "TargetTree");
+                Assert.Same(tree, model.TargetTree.Value);
+                Assert.Same(tree, model.Trees[0]);
+            });
+
+            updatedProperties.Clear();
+            bool redoSuccess = await model.Redo();
+            Assert.Multiple(() =>
+            {
+                Assert.Single(updatedProperties, "TargetTree");
+                Assert.NotSame(tree, cleared);
+                Assert.Same(cleared, model.Trees[0]);
+                Assert.True(cleared.GetAllClades().All(x => double.IsNaN(x.BranchLength)));
+            });
+        }
+
+        [Fact]
+        public async Task ClearSupports_OnTreeMissing()
+        {
+            model.TargetTree.Value = null;
+            model.ClearSupports();
+
+            Assert.Empty(updatedProperties);
+            Assert.False(await model.Undo());
+        }
+
+        [Fact]
+        public async Task ClearSupports_OnTreeExisting()
+        {
+            model.ClearSupports();
+
+            Debug.Assert(model.TargetTree.Value is not null);
+            Tree cleared = model.TargetTree.Value;
+            Assert.Multiple(() =>
+            {
+                Assert.Single(updatedProperties, "TargetTree");
+                Assert.NotSame(tree, cleared);
+                Assert.Same(cleared, model.Trees[0]);
+                Assert.True(cleared.GetAllClades().All(x => string.IsNullOrEmpty(x.Supports)));
+            });
+
+            updatedProperties.Clear();
+            bool undoSuccess = await model.Undo();
+            Assert.Multiple(() =>
+            {
+                Assert.True(undoSuccess);
+                Assert.Single(updatedProperties, "TargetTree");
+                Assert.Same(tree, model.TargetTree.Value);
+                Assert.Same(tree, model.Trees[0]);
+            });
+
+            updatedProperties.Clear();
+            bool redoSuccess = await model.Redo();
+            Assert.Multiple(() =>
+            {
+                Assert.Single(updatedProperties, "TargetTree");
+                Assert.NotSame(tree, cleared);
+                Assert.Same(cleared, model.Trees[0]);
+                Assert.True(cleared.GetAllClades().All(x => string.IsNullOrEmpty(x.Supports)));
+            });
+        }
+
+        [Fact]
         public async Task CreateNew()
         {
             model.ProjectPath.Value = "hoge.treeprj";

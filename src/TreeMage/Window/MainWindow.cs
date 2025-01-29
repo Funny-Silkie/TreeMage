@@ -278,6 +278,18 @@ namespace TreeMage.Window
                                 },
                             ],
                         },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Clear branch lenghes",
+                            Click = () => ViewModel.ClearBranchLenghesCommand.Execute(),
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Clear support values",
+                            Click = () => ViewModel.ClearSupportsCommand.Execute(),
+                        },
                     ],
                 },
 

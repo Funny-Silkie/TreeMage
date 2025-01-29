@@ -477,6 +477,64 @@ namespace TreeMage.Models
         }
 
         /// <summary>
+        /// 枝長を全て削除します。
+        /// </summary>
+        public void ClearBranchLenghes()
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            Tree cleared = tree.Clone();
+            cleared.ClearAllBranchLengthes();
+            int targetIndex = TreeIndex.Value - 1;
+
+            OperateAsUndoable(arg =>
+            {
+                TargetTree.Value = arg.next;
+                Trees[arg.targetIndex] = arg.next;
+
+                UnfocusAll();
+                NotifyTreeUpdated();
+            }, (arg) =>
+            {
+                TargetTree.Value = arg.prev;
+                Trees[arg.targetIndex] = arg.prev;
+
+                UnfocusAll();
+                NotifyTreeUpdated();
+            }, (prev: tree, next: cleared, targetIndex));
+        }
+
+        /// <summary>
+        /// サポート値を全て削除します。
+        /// </summary>
+        public void ClearSupports()
+        {
+            Tree? tree = TargetTree.Value;
+            if (tree is null) return;
+
+            Tree cleared = tree.Clone();
+            cleared.ClearAllSupports();
+            int targetIndex = TreeIndex.Value - 1;
+
+            OperateAsUndoable(arg =>
+            {
+                TargetTree.Value = arg.next;
+                Trees[arg.targetIndex] = arg.next;
+
+                UnfocusAll();
+                NotifyTreeUpdated();
+            }, (arg) =>
+            {
+                TargetTree.Value = arg.prev;
+                Trees[arg.targetIndex] = arg.prev;
+
+                UnfocusAll();
+                NotifyTreeUpdated();
+            }, (prev: tree, next: cleared, targetIndex));
+        }
+
+        /// <summary>
         /// プロジェクトファイルを新規作成します。
         /// </summary>
         public void CreateNew()
