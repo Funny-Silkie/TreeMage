@@ -1,4 +1,4 @@
-using ElectronNET.API;
+﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
 using System.Diagnostics;
 using TreeMage.Core.Exporting;
@@ -24,6 +24,11 @@ namespace TreeMage.Window
         public (int width, int height) Size { get; private set; }
 
         /// <summary>
+        /// 最大化されているかどうかを表す値を取得します。
+        /// </summary>
+        public bool IsMaximized { get; private set; }
+
+        /// <summary>
         /// <see cref="MainWindow"/>の新しいインスタンスを初期化します。
         /// </summary>
         private MainWindow()
@@ -44,17 +49,25 @@ namespace TreeMage.Window
                 Title = "TreeMage",
             });
             await result.WebContents.Session.ClearCacheAsync();
-            result.OnReadyToShow += result.Show;
+            result.OnReadyToShow += () =>
+            {
+                result.Show();
+                if (config.IsMaximized) result.Maximize();
+            };
             result.OnResize += () => Task.Run(async () =>
             {
+                if (await Window.IsMaximizedAsync()) return;
                 int[] size = await Window.GetSizeAsync();
                 Size = (size[0], size[1]);
             }).Wait();
+            result.OnMaximize += () => IsMaximized = true;
+            result.OnUnmaximize += () => IsMaximized = false;
             result.OnClose += () =>
             {
                 Configurations config = Configurations.LoadOrCreate();
                 config.MainWindowWidth = Size.width;
                 config.MainWindowHeight = Size.height;
+                config.IsMaximized = IsMaximized;
                 config.Save();
             };
             result.OnClosed += Electron.App.Quit;

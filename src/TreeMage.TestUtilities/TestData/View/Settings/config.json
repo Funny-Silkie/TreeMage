@@ -1,6 +1,7 @@
 {
   "MainWindowWidth": 960,
   "MainWindowHeight": 720,
+  "IsMaximized": false,
   "BranchColoring": 0,
   "AutoOrderingMode": 2
 }
