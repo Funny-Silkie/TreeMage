@@ -1,4 +1,4 @@
-﻿using ElectronNET.API;
+using ElectronNET.API;
 using ElectronNET.API.Entities;
 using System.Diagnostics;
 using TreeMage.Core.Exporting;
@@ -19,6 +19,11 @@ namespace TreeMage.Window
         public static MainWindow Instance { get; } = new MainWindow();
 
         /// <summary>
+        /// ウィンドウサイズを取得します。
+        /// </summary>
+        public (int width, int height) Size { get; private set; }
+
+        /// <summary>
         /// <see cref="MainWindow"/>の新しいインスタンスを初期化します。
         /// </summary>
         private MainWindow()
@@ -29,6 +34,7 @@ namespace TreeMage.Window
         protected override async Task<BrowserWindow> CreateWindowInternal()
         {
             Configurations config = await Configurations.LoadOrCreateAsync();
+            Size = (config.MainWindowWidth, config.MainWindowHeight);
 
             BrowserWindow result = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions()
             {
@@ -39,17 +45,18 @@ namespace TreeMage.Window
             });
             await result.WebContents.Session.ClearCacheAsync();
             result.OnReadyToShow += result.Show;
-            result.OnClose += () => Task.Run(async () =>
+            result.OnResize += () => Task.Run(async () =>
             {
-                if (!await result.IsMaximizedAsync() && !await result.IsMinimizedAsync())
-                {
-                    Configurations config = await Configurations.LoadOrCreateAsync();
-                    int[] size = await result.GetSizeAsync();
-                    config.MainWindowWidth = size[0];
-                    config.MainWindowHeight = size[1];
-                    await config.SaveAsync();
-                }
+                int[] size = await Window.GetSizeAsync();
+                Size = (size[0], size[1]);
             }).Wait();
+            result.OnClose += () =>
+            {
+                Configurations config = Configurations.LoadOrCreate();
+                config.MainWindowWidth = Size.width;
+                config.MainWindowHeight = Size.height;
+                config.Save();
+            };
             result.OnClosed += Electron.App.Quit;
             return result;
         }
