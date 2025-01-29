@@ -44,7 +44,18 @@ namespace TreeMage.Settings
         #region Static Methods
 
         [Fact]
-        public void LoadOrCreate_OnFileExisting()
+        public void LoadOrCreate_OnEmptyFileExisting()
+        {
+            config.BranchColoring = BranchColoringType.Horizontal;
+            File.Create(Configurations.Location).Dispose();
+
+            Configurations loaded = Configurations.LoadOrCreate();
+
+            CustomizedAssertions.Equal(new Configurations(), loaded);
+        }
+
+        [Fact]
+        public void LoadOrCreate_OnCompatibleFileExisting()
         {
             config.BranchColoring = BranchColoringType.Horizontal;
             config.Save();
@@ -66,7 +77,18 @@ namespace TreeMage.Settings
         }
 
         [Fact]
-        public async Task LoadOrCreateAsync_OnFileExisting()
+        public async Task LoadOrCreateAsync_OnEmptyFileExisting()
+        {
+            config.BranchColoring = BranchColoringType.Horizontal;
+            await File.Create(Configurations.Location).DisposeAsync();
+
+            Configurations loaded = await Configurations.LoadOrCreateAsync();
+
+            CustomizedAssertions.Equal(new Configurations(), loaded);
+        }
+
+        [Fact]
+        public async Task LoadOrCreateAsync_OnCompatibleFileExisting()
         {
             config.BranchColoring = BranchColoringType.Horizontal;
             await config.SaveAsync();

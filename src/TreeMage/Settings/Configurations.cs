@@ -65,7 +65,15 @@ namespace TreeMage.Settings
             if (File.Exists(Location))
             {
                 using var stream = new FileStream(Location, FileMode.Open);
-                return JsonSerializer.Deserialize<Configurations>(stream, options) ?? throw new InvalidOperationException("設定の読み込みに失敗しました");
+                try
+                {
+                    Configurations? loaded = JsonSerializer.Deserialize<Configurations>(stream, options);
+                    if (loaded is not null) return loaded;
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine(e);
+                }
             }
 
             return new Configurations();
@@ -81,7 +89,15 @@ namespace TreeMage.Settings
             if (File.Exists(Location))
             {
                 using var stream = new FileStream(Location, FileMode.Open);
-                return await JsonSerializer.DeserializeAsync<Configurations>(stream, options) ?? throw new InvalidOperationException("設定の読み込みに失敗しました");
+                try
+                {
+                    Configurations? loaded = await JsonSerializer.DeserializeAsync<Configurations>(stream, options);
+                    if (loaded is not null) return loaded;
+                }
+                catch (Exception e)
+                {
+                    await Console.Error.WriteLineAsync(e.ToString());
+                }
             }
 
             return new Configurations();
