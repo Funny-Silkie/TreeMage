@@ -97,21 +97,21 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Open(&O)",
+                            Label = "Open Project(&O)",
                             Click = () => ViewModel.OpenProjectCommand.Execute(),
                             Accelerator = "Ctrl+O",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Save(&S)",
+                            Label = "Save Project(&S)",
                             Click = () => ViewModel.SaveProjectCommand.Execute(false),
                             Accelerator = "Ctrl+S",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Save As(&A)",
+                            Label = "Save as New Project(&A)",
                             Click = () => ViewModel.SaveProjectCommand.Execute(true),
                             Accelerator = "Ctrl+Shift+S",
                         },
@@ -122,7 +122,7 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Import(&I)",
+                            Label = "Import Tree(&I)",
                             Submenu = [
                                 new MenuItem()
                                 {
