@@ -26,7 +26,7 @@ namespace TreeMage.Core.Exporting
             ArgumentNullException.ThrowIfNull(options);
 
             var drawer = new SvgDrawer();
-            ((ITreeDrawer)drawer).Draw(tree, options);
+            ((ITreeDrawer)drawer).Draw(tree, options.DrawingOptions);
             drawer.Document.Write(destination);
         }
 

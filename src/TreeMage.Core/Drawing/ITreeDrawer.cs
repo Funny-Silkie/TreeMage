@@ -1,5 +1,4 @@
 ﻿using TreeMage.Core.Drawing.Styles;
-using TreeMage.Core.Exporting;
 using TreeMage.Core.Trees;
 
 namespace TreeMage.Core.Drawing
@@ -20,7 +19,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="tree">対象のツリー</param>
         /// <param name="options">描画用オプション</param>
         /// <exception cref="ArgumentNullException"><paramref name="tree"/>または<paramref name="options"/>が<see langword="null"/></exception>
-        void Draw(Tree tree, ExportOptions options)
+        void Draw(Tree tree, DrawingOptions options)
         {
             ArgumentNullException.ThrowIfNull(tree);
             ArgumentNullException.ThrowIfNull(options);

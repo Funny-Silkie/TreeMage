@@ -132,10 +132,10 @@ namespace TreeMage.Settings
         /// <returns>変換後のオブジェクト</returns>
         public ExportOptions ToExportOptions()
         {
-            return new ExportOptions()
-            {
-                BranchColoring = BranchColoring,
-            };
+            var result = new ExportOptions();
+            result.DrawingOptions.BranchColoring = BranchColoring;
+
+            return result;
         }
     }
 }

@@ -8,15 +8,16 @@ namespace TreeMage.Core.Exporting
     public class ExportOptions
     {
         /// <summary>
-        /// 枝の色付けの方式を取得または設定します。
+        /// 描画用オプションを取得または設定します。
         /// </summary>
-        public BranchColoringType BranchColoring { get; set; } = BranchColoringType.Both;
+        public DrawingOptions DrawingOptions { get; set; }
 
         /// <summary>
         /// <see cref="ExportOptions"/>の新しいインスタンスを初期化します。
         /// </summary>
         public ExportOptions()
         {
+            DrawingOptions = new DrawingOptions();
         }
     }
 }

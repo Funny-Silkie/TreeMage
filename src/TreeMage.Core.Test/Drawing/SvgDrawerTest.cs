@@ -1,6 +1,5 @@
 ﻿using Svg;
 using TreeMage.Core.Drawing.Styles;
-using TreeMage.Core.Exporting;
 using TreeMage.Core.Trees;
 using TreeMage.TestUtilities;
 
@@ -13,7 +12,7 @@ namespace TreeMage.Core.Drawing
 
         private readonly Tree tree;
         private readonly SvgDrawer drawer;
-        private readonly ExportOptions exportOptions;
+        private readonly DrawingOptions drawingOptions;
 
         public SvgDrawerTest()
         {
@@ -23,7 +22,7 @@ namespace TreeMage.Core.Drawing
             tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.CladeLabel = "hoge";
             tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.ShadeColor = "lightblue";
             drawer = new SvgDrawer();
-            exportOptions = new ExportOptions();
+            drawingOptions = new DrawingOptions();
         }
 
         #region Ctors
@@ -53,7 +52,7 @@ namespace TreeMage.Core.Drawing
         [Fact]
         public void Draw_WithNullTree()
         {
-            Assert.Throws<ArgumentNullException>(() => ((ITreeDrawer)drawer).Draw(null!, exportOptions));
+            Assert.Throws<ArgumentNullException>(() => ((ITreeDrawer)drawer).Draw(null!, drawingOptions));
         }
 
         [Fact]
@@ -72,7 +71,7 @@ namespace TreeMage.Core.Drawing
             tree.Style.ShowBranchDecorations = false;
             tree.Style.ShowScaleBar = false;
 
-            ((ITreeDrawer)drawer).Draw(tree, exportOptions);
+            ((ITreeDrawer)drawer).Draw(tree, drawingOptions);
             SvgDocument svg = drawer.Document;
 
             Assert.Multiple(() =>
@@ -103,7 +102,7 @@ namespace TreeMage.Core.Drawing
         {
             tree.Style.ShowLeafLabels = true;
 
-            ((ITreeDrawer)drawer).Draw(tree, exportOptions);
+            ((ITreeDrawer)drawer).Draw(tree, drawingOptions);
             SvgDocument svg = drawer.Document;
 
             Assert.Multiple(() =>
@@ -127,7 +126,7 @@ namespace TreeMage.Core.Drawing
         {
             tree.Style.ShowNodeValues = true;
 
-            ((ITreeDrawer)drawer).Draw(tree, exportOptions);
+            ((ITreeDrawer)drawer).Draw(tree, drawingOptions);
             SvgDocument svg = drawer.Document;
 
             Assert.Multiple(() =>
@@ -151,7 +150,7 @@ namespace TreeMage.Core.Drawing
         {
             tree.Style.ShowBranchValues = true;
 
-            ((ITreeDrawer)drawer).Draw(tree, exportOptions);
+            ((ITreeDrawer)drawer).Draw(tree, drawingOptions);
             SvgDocument svg = drawer.Document;
 
             Assert.Multiple(() =>
@@ -176,7 +175,7 @@ namespace TreeMage.Core.Drawing
             tree.Style.ShowBranchDecorations = true;
             tree.Style.DecorationStyles = [];
 
-            ((ITreeDrawer)drawer).Draw(tree, exportOptions);
+            ((ITreeDrawer)drawer).Draw(tree, drawingOptions);
             SvgDocument svg = drawer.Document;
 
             Assert.Multiple(() =>
@@ -206,7 +205,7 @@ namespace TreeMage.Core.Drawing
                 },
             ];
 
-            ((ITreeDrawer)drawer).Draw(tree, exportOptions);
+            ((ITreeDrawer)drawer).Draw(tree, drawingOptions);
             SvgDocument svg = drawer.Document;
 
             Assert.Multiple(() =>
@@ -230,7 +229,7 @@ namespace TreeMage.Core.Drawing
         {
             tree.Style.ShowScaleBar = true;
 
-            ((ITreeDrawer)drawer).Draw(tree, exportOptions);
+            ((ITreeDrawer)drawer).Draw(tree, drawingOptions);
             SvgDocument svg = drawer.Document;
 
             Assert.Multiple(() =>
@@ -268,7 +267,7 @@ namespace TreeMage.Core.Drawing
             ];
             tree.Style.ShowScaleBar = true;
 
-            ((ITreeDrawer)drawer).Draw(tree, exportOptions);
+            ((ITreeDrawer)drawer).Draw(tree, drawingOptions);
             SvgDocument svg = drawer.Document;
 
             Assert.Multiple(() =>

@@ -27,7 +27,7 @@ namespace TreeMage.Core.Exporting
             ArgumentNullException.ThrowIfNull(options);
 
             var drawer = new PdfDrawer();
-            ((ITreeDrawer)drawer).Draw(tree, options);
+            ((ITreeDrawer)drawer).Draw(tree, options.DrawingOptions);
             using PdfDocument document = drawer.Document;
             document.Save(destination);
         }

@@ -1,5 +1,4 @@
-﻿using TreeMage.Core.Exporting;
-using TreeMage.Core.Trees;
+﻿using TreeMage.Core.Trees;
 using TreeMage.TestUtilities;
 
 namespace TreeMage.Core.Drawing
@@ -8,7 +7,7 @@ namespace TreeMage.Core.Drawing
     {
         private readonly Tree tree;
         private readonly PdfDrawer drawer;
-        private readonly ExportOptions exportOptions;
+        private readonly DrawingOptions drawingOptions;
 
         public PdfDrawerTest()
         {
@@ -18,7 +17,7 @@ namespace TreeMage.Core.Drawing
             tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.CladeLabel = "hoge";
             tree.Root.ChildrenInternal[1].ChildrenInternal[1].Style.ShadeColor = "lightblue";
             drawer = new PdfDrawer();
-            exportOptions = new ExportOptions();
+            drawingOptions = new DrawingOptions();
         }
 
         #region Ctors
@@ -48,7 +47,7 @@ namespace TreeMage.Core.Drawing
         [Fact]
         public void Draw_WithNullTree()
         {
-            Assert.Throws<ArgumentNullException>(() => ((ITreeDrawer)drawer).Draw(null!, exportOptions));
+            Assert.Throws<ArgumentNullException>(() => ((ITreeDrawer)drawer).Draw(null!, drawingOptions));
         }
 
         [Fact]
@@ -60,7 +59,7 @@ namespace TreeMage.Core.Drawing
         [Fact]
         public void Draw_AsPositive()
         {
-            Exception? exception = Record.Exception(() => ((ITreeDrawer)drawer).Draw(tree, exportOptions));
+            Exception? exception = Record.Exception(() => ((ITreeDrawer)drawer).Draw(tree, drawingOptions));
 
             Assert.Multiple(() =>
             {

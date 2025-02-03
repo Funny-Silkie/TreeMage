@@ -29,7 +29,7 @@ namespace TreeMage.Core.Exporting
             ArgumentNullException.ThrowIfNull(options);
 
             var drawer = new SvgDrawer();
-            ((ITreeDrawer)drawer).Draw(tree, options);
+            ((ITreeDrawer)drawer).Draw(tree, options.DrawingOptions);
             SvgDocument svg = drawer.Document;
 
             using Bitmap bitmap = svg.Draw();

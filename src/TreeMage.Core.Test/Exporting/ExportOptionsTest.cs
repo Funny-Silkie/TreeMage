@@ -1,4 +1,5 @@
 ﻿using TreeMage.Core.Drawing;
+using TreeMage.TestUtilities.Assertions;
 
 namespace TreeMage.Core.Exporting
 {
@@ -11,7 +12,7 @@ namespace TreeMage.Core.Exporting
         {
             var options = new ExportOptions();
 
-            Assert.Equal(BranchColoringType.Both, options.BranchColoring);
+            CustomizedAssertions.Equal(new DrawingOptions(), options.DrawingOptions);
         }
 
         #endregion Ctors
