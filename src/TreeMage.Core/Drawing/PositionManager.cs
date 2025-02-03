@@ -1,6 +1,5 @@
 ﻿using SixLabors.Fonts;
 using TreeMage.Core.Drawing.Styles;
-using TreeMage.Core.Exporting;
 using TreeMage.Core.Trees;
 
 namespace TreeMage.Core.Drawing

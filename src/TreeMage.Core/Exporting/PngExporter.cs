@@ -1,6 +1,7 @@
 ﻿using Svg;
 using System.Drawing;
 using System.Drawing.Imaging;
+using TreeMage.Core.Drawing;
 using TreeMage.Core.Trees;
 
 namespace TreeMage.Core.Exporting
@@ -27,7 +28,9 @@ namespace TreeMage.Core.Exporting
             ArgumentNullException.ThrowIfNull(destination);
             ArgumentNullException.ThrowIfNull(options);
 
-            SvgDocument svg = SvgExporter.CreateSvg(tree, options);
+            var drawer = new SvgDrawer();
+            ((ITreeDrawer)drawer).Draw(tree, options);
+            SvgDocument svg = drawer.Document;
 
             using Bitmap bitmap = svg.Draw();
             bitmap.Save(destination, ImageFormat.Png);
