@@ -1,4 +1,4 @@
-using ElectronNET.API;
+﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
 using System.Diagnostics;
 using TreeMage.Core.Exporting;
@@ -24,6 +24,11 @@ namespace TreeMage.Window
         public (int width, int height) Size { get; private set; }
 
         /// <summary>
+        /// 最大化されているかどうかを表す値を取得します。
+        /// </summary>
+        public bool IsMaximized { get; private set; }
+
+        /// <summary>
         /// <see cref="MainWindow"/>の新しいインスタンスを初期化します。
         /// </summary>
         private MainWindow()
@@ -44,17 +49,25 @@ namespace TreeMage.Window
                 Title = "TreeMage",
             });
             await result.WebContents.Session.ClearCacheAsync();
-            result.OnReadyToShow += result.Show;
+            result.OnReadyToShow += () =>
+            {
+                result.Show();
+                if (config.IsMaximized) result.Maximize();
+            };
             result.OnResize += () => Task.Run(async () =>
             {
+                if (await Window.IsMaximizedAsync()) return;
                 int[] size = await Window.GetSizeAsync();
                 Size = (size[0], size[1]);
             }).Wait();
+            result.OnMaximize += () => IsMaximized = true;
+            result.OnUnmaximize += () => IsMaximized = false;
             result.OnClose += () =>
             {
                 Configurations config = Configurations.LoadOrCreate();
                 config.MainWindowWidth = Size.width;
                 config.MainWindowHeight = Size.height;
+                config.IsMaximized = IsMaximized;
                 config.Save();
             };
             result.OnClosed += Electron.App.Quit;
@@ -84,21 +97,21 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Open(&O)",
+                            Label = "Open Project(&O)",
                             Click = () => ViewModel.OpenProjectCommand.Execute(),
                             Accelerator = "Ctrl+O",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Save(&S)",
+                            Label = "Save Project(&S)",
                             Click = () => ViewModel.SaveProjectCommand.Execute(false),
                             Accelerator = "Ctrl+S",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Save As(&A)",
+                            Label = "Save as New Project(&A)",
                             Click = () => ViewModel.SaveProjectCommand.Execute(true),
                             Accelerator = "Ctrl+Shift+S",
                         },
@@ -109,7 +122,7 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Import(&I)",
+                            Label = "Import Tree(&I)",
                             Submenu = [
                                 new MenuItem()
                                 {
@@ -264,6 +277,18 @@ namespace TreeMage.Window
                                     Click = () => ViewModel.OrderByBranchLengthCommand.Execute(true),
                                 },
                             ],
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Clear branch lenghes",
+                            Click = () => ViewModel.ClearBranchLenghesCommand.Execute(),
+                        },
+                        new MenuItem()
+                        {
+                            Type = MenuType.normal,
+                            Label = "Clear support values",
+                            Click = () => ViewModel.ClearSupportsCommand.Execute(),
                         },
                     ],
                 },

@@ -31,6 +31,11 @@ namespace TreeMage.Settings
         public int MainWindowHeight { get; set; } = 720;
 
         /// <summary>
+        /// 最大化されているかどうかを表す値を取得または設定します。
+        /// </summary>
+        public bool IsMaximized { get; set; }
+
+        /// <summary>
         /// 枝の色付けの方式を取得または設定します。
         /// </summary>
         public BranchColoringType BranchColoring { get; set; } = BranchColoringType.Both;

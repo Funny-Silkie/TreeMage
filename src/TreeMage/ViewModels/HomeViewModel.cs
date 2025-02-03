@@ -89,15 +89,73 @@ namespace TreeMage.ViewModels
         /// </summary>
         public AsyncReactiveCommand CreateNewCommand { get; }
 
+        /// <inheritdoc cref="MainModel.CreateNew"/>
+        private async Task CreateNew()
+        {
+            if (!model.Saved.Value)
+            {
+                bool allowDiscard = await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure to discard these changes?");
+                if (!allowDiscard) return;
+            }
+
+            model.CreateNew();
+        }
+
         /// <summary>
         /// プロジェクトファイルを開くコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand OpenProjectCommand { get; }
 
+        /// <inheritdoc cref="MainModel.OpenProject(string)"/>
+        private async Task OpenProject()
+        {
+            string? path = await electronService.ShowSingleFileOpenDialogAsync((["treeprj"], "Tree viewer project file"));
+            if (path is null) return;
+
+            if (!model.Saved.Value)
+            {
+                bool allowDiscard = await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure to discard these changes?");
+                if (!allowDiscard) return;
+            }
+
+            try
+            {
+                await model.OpenProject(path);
+            }
+            catch (Exception e)
+            {
+                await Console.Out.WriteLineAsync(e.ToString());
+                await electronService.ShowErrorMessageAsync(e);
+            }
+        }
+
         /// <summary>
         /// プロジェクトファイルを保存するコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<bool> SaveProjectCommand { get; }
+
+        /// <inheritdoc cref="MainModel.SaveProject(string)"/>
+        private async Task SaveProject(bool asNew)
+        {
+            string path;
+            if (asNew || model.ProjectPath.Value is null)
+            {
+                string? selectedPath = await electronService.ShowFileSaveDialogAsync((["treeprj"], "Tree viewer project file"));
+
+                if (selectedPath is null) return;
+                path = selectedPath;
+            }
+            else path = model.ProjectPath.Value;
+
+            try
+            {
+                await model.SaveProject(path);
+            }
+            catch (Exception e)
+            {
+                await electronService.ShowErrorMessageAsync(e);
+            }
+        }
 
         /// <summary>
         /// ツリーのインポートを行うコマンドを取得します。
@@ -105,14 +163,80 @@ namespace TreeMage.ViewModels
         public AsyncReactiveCommand<TreeFormat> ImportTreeCommand { get; }
 
         /// <summary>
+        /// 系統樹を読み込みます。
+        /// </summary>
+        /// <param name="format">系統樹のフォーマット</param>
+        private async Task ImportTree(TreeFormat format)
+        {
+            try
+            {
+                string? path = await electronService.ShowSingleFileOpenDialogAsync();
+                if (path is null) return;
+
+                await model.ImportTree(path, format);
+            }
+            catch (TreeFormatException e)
+            {
+                await electronService.ShowErrorMessageAsync("ツリーのフォーマットが無効です");
+                await Console.Out.WriteLineAsync(e.ToString());
+                return;
+            }
+            catch (Exception e)
+            {
+                await electronService.ShowErrorMessageAsync(e);
+                await Console.Out.WriteLineAsync(e.ToString());
+            }
+        }
+
+        /// <summary>
         /// 系統樹を出力するコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<TreeFormat> ExportTreeCommand { get; }
 
         /// <summary>
+        /// エクスポート処理を行います。
+        /// </summary>
+        /// <param name="format">出力する系統樹のフォーマット</param>
+        private async Task ExportAsTreeFile(TreeFormat format)
+        {
+            string? path = await electronService.ShowFileSaveDialogAsync();
+            if (path is null) return;
+
+            try
+            {
+                await model.ExportCurrentTreeAsTreeFile(path, format);
+            }
+            catch (Exception e)
+            {
+                await electronService.ShowErrorMessageAsync(e);
+                await Console.Out.WriteLineAsync(e.ToString());
+            }
+        }
+
+        /// <summary>
         /// エクスポートを行うコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<ExportType> ExportWithExporterCommand { get; }
+
+        /// <summary>
+        /// エクスポート処理を行います。
+        /// </summary>
+        /// <param name="exportType">出力するフォーマット</param>
+        private async Task ExportWithExporter(ExportType exportType)
+        {
+            string? path = await electronService.ShowFileSaveDialogAsync(([exportType.ToString().ToLower()], $"{exportType.ToString().ToUpper()} File"));
+            if (path is null) return;
+
+            try
+            {
+                await model.ExportWithExporter(path, exportType);
+            }
+            catch (Exception e)
+            {
+                await electronService.ShowErrorMessageAsync(e);
+                await Console.Out.WriteLineAsync(e.ToString());
+            }
+        }
 
         /// <summary>
         /// undoを行うコマンドを取得します。
@@ -123,6 +247,44 @@ namespace TreeMage.ViewModels
         /// redoを行うコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand RedoCommand { get; }
+
+        /// <summary>
+        /// 枝長を削除するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand ClearBranchLenghesCommand { get; }
+
+        /// <inheritdoc cref="MainModel.ClearBranchLenghes"/>
+        public async Task ClearBranchLenghes()
+        {
+            try
+            {
+                model.ClearBranchLenghes();
+            }
+            catch (Exception e)
+            {
+                await Console.Out.WriteLineAsync(e.ToString());
+                await electronService.ShowErrorMessageAsync(e);
+            }
+        }
+
+        /// <summary>
+        /// サポート値を削除するコマンドを取得します。
+        /// </summary>
+        public AsyncReactiveCommand ClearSupportsCommand { get; }
+
+        /// <inheritdoc cref="MainModel.ClearSupports"/>
+        public async Task ClearSupports()
+        {
+            try
+            {
+                model.ClearSupports();
+            }
+            catch (Exception e)
+            {
+                await Console.Out.WriteLineAsync(e.ToString());
+                await electronService.ShowErrorMessageAsync(e);
+            }
+        }
 
         #endregion Menu
 
@@ -232,6 +394,10 @@ namespace TreeMage.ViewModels
                                                     .AddTo(Disposables);
             RedoCommand = new AsyncReactiveCommand().WithSubscribe(model.Redo)
                                                     .AddTo(Disposables);
+            ClearBranchLenghesCommand = new AsyncReactiveCommand().WithSubscribe(ClearBranchLenghes)
+                                                                  .AddTo(Disposables);
+            ClearSupportsCommand = new AsyncReactiveCommand().WithSubscribe(ClearSupports)
+                                                             .AddTo(Disposables);
 
             FocusAllCommand = new AsyncReactiveCommand().WithSubscribe(model.FocusAll)
                                                           .AddTo(Disposables);
@@ -368,130 +534,6 @@ namespace TreeMage.ViewModels
             {
                 await Console.Out.WriteLineAsync(e.ToString());
                 await electronService.ShowErrorMessageAsync(e);
-            }
-        }
-
-        /// <inheritdoc cref="MainModel.CreateNew"/>
-        private async Task CreateNew()
-        {
-            if (!model.Saved.Value)
-            {
-                bool allowDiscard = await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure to discard these changes?");
-                if (!allowDiscard) return;
-            }
-
-            model.CreateNew();
-        }
-
-        /// <inheritdoc cref="MainModel.OpenProject(string)"/>
-        private async Task OpenProject()
-        {
-            string? path = await electronService.ShowSingleFileOpenDialogAsync((["treeprj"], "Tree viewer project file"));
-            if (path is null) return;
-
-            if (!model.Saved.Value)
-            {
-                bool allowDiscard = await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure to discard these changes?");
-                if (!allowDiscard) return;
-            }
-
-            try
-            {
-                await model.OpenProject(path);
-            }
-            catch (Exception e)
-            {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
-            }
-        }
-
-        /// <inheritdoc cref="MainModel.SaveProject(string)"/>
-        private async Task SaveProject(bool asNew)
-        {
-            string path;
-            if (asNew || model.ProjectPath.Value is null)
-            {
-                string? selectedPath = await electronService.ShowFileSaveDialogAsync((["treeprj"], "Tree viewer project file"));
-
-                if (selectedPath is null) return;
-                path = selectedPath;
-            }
-            else path = model.ProjectPath.Value;
-
-            try
-            {
-                await model.SaveProject(path);
-            }
-            catch (Exception e)
-            {
-                await electronService.ShowErrorMessageAsync(e);
-            }
-        }
-
-        /// <summary>
-        /// 系統樹を読み込みます。
-        /// </summary>
-        /// <param name="format">系統樹のフォーマット</param>
-        private async Task ImportTree(TreeFormat format)
-        {
-            try
-            {
-                string? path = await electronService.ShowSingleFileOpenDialogAsync();
-                if (path is null) return;
-
-                await model.ImportTree(path, format);
-            }
-            catch (TreeFormatException e)
-            {
-                await electronService.ShowErrorMessageAsync("ツリーのフォーマットが無効です");
-                await Console.Out.WriteLineAsync(e.ToString());
-                return;
-            }
-            catch (Exception e)
-            {
-                await electronService.ShowErrorMessageAsync(e);
-                await Console.Out.WriteLineAsync(e.ToString());
-            }
-        }
-
-        /// <summary>
-        /// エクスポート処理を行います。
-        /// </summary>
-        /// <param name="format">出力する系統樹のフォーマット</param>
-        private async Task ExportAsTreeFile(TreeFormat format)
-        {
-            string? path = await electronService.ShowFileSaveDialogAsync();
-            if (path is null) return;
-
-            try
-            {
-                await model.ExportCurrentTreeAsTreeFile(path, format);
-            }
-            catch (Exception e)
-            {
-                await electronService.ShowErrorMessageAsync(e);
-                await Console.Out.WriteLineAsync(e.ToString());
-            }
-        }
-
-        /// <summary>
-        /// エクスポート処理を行います。
-        /// </summary>
-        /// <param name="exportType">出力するフォーマット</param>
-        private async Task ExportWithExporter(ExportType exportType)
-        {
-            string? path = await electronService.ShowFileSaveDialogAsync(([exportType.ToString().ToLower()], $"{exportType.ToString().ToUpper()} File"));
-            if (path is null) return;
-
-            try
-            {
-                await model.ExportWithExporter(path, exportType);
-            }
-            catch (Exception e)
-            {
-                await electronService.ShowErrorMessageAsync(e);
-                await Console.Out.WriteLineAsync(e.ToString());
             }
         }
     }
