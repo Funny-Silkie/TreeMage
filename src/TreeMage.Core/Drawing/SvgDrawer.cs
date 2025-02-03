@@ -24,6 +24,7 @@ namespace TreeMage.Core.Drawing
         /// SVGドキュメントを取得します。
         /// </summary>
         /// <exception cref="InvalidOperationException">ドキュメントが初期化されていない</exception>
+        [MemberNotNull(nameof(drawingInfo))]
         public SvgDocument Document
         {
             get
@@ -294,6 +295,10 @@ namespace TreeMage.Core.Drawing
                 StrokeWidth = lineThickness,
             };
             scaleBarLine.AddTo(scaleBarArea);
+        }
+
+        void ITreeDrawer.FinishTree()
+        {
         }
 
         private sealed class DrawingInfo

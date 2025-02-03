@@ -26,10 +26,10 @@ namespace TreeMage.Core.Drawing
             ArgumentNullException.ThrowIfNull(options);
 
             PositionManager.Reset(tree);
+            InitDocument();
 
             (double documentWidth, double documentHeight) = PositionManager.CalcDocumentSize();
 
-            InitDocument();
             BeginTree(documentWidth, documentHeight, tree);
 
             #region 系統樹部分
@@ -133,6 +133,8 @@ namespace TreeMage.Core.Drawing
             }
 
             #endregion スケールバー
+
+            FinishTree();
         }
 
         /// <summary>
@@ -158,22 +160,98 @@ namespace TreeMage.Core.Drawing
         /// <param name="fill">色</param>
         void DrawCladeShade(double x, double y, double width, double height, string fill);
 
+        /// <summary>
+        /// 折りたたみの三角形を描画します。
+        /// </summary>
+        /// <param name="left">左の頂点座標</param>
+        /// <param name="rightTop">右上の頂点座標</param>
+        /// <param name="rightBottom">右下の頂点座標</param>
+        /// <param name="stroke">線の色</param>
+        /// <param name="lineThickness">線の太さ</param>
         void DrawCollapsedTriangle((double x, double y) left, (double x, double y) rightTop, (double x, double y) rightBottom, string stroke, int lineThickness);
 
+        /// <summary>
+        /// 葉を描画します。
+        /// </summary>
+        /// <param name="taxon">系統名</param>
+        /// <param name="x">X座標</param>
+        /// <param name="y">Y座標</param>
+        /// <param name="fill">文字色</param>
+        /// <param name="fontSize">フォントサイズ</param>
         void DrawLeafLabel(string taxon, double x, double y, string fill, int fontSize);
 
+        /// <summary>
+        /// 結節点の値を描画します。
+        /// </summary>
+        /// <param name="value">値</param>
+        /// <param name="x">X座標</param>
+        /// <param name="y">Y座標</param>
+        /// <param name="fill">文字色</param>
+        /// <param name="fontSize">フォントサイズ</param>
         void DrawNodeValue(string value, double x, double y, string fill, int fontSize);
 
+        /// <summary>
+        /// 枝の値を描画します。
+        /// </summary>
+        /// <param name="value">値</param>
+        /// <param name="x">X座標</param>
+        /// <param name="y">Y座標</param>
+        /// <param name="fill">文字色</param>
+        /// <param name="fontSize">フォントサイズ</param>
         void DrawBranchValue(string value, double x, double y, string fill, int fontSize);
 
+        /// <summary>
+        /// クレード名を描画します。
+        /// </summary>
+        /// <param name="cladeName">クレード名</param>
+        /// <param name="linePosition">線の座標</param>
+        /// <param name="textPosition">文字の座標</param>
+        /// <param name="lineThickness">線の太さ</param>
+        /// <param name="fontSize">フォントサイズ</param>
         void DrawCladeLabel(string cladeName, (double x, double yTop, double yBottom) linePosition, (double x, double y) textPosition, int lineThickness, int fontSize);
 
+        /// <summary>
+        /// 枝の横線を描画します。
+        /// </summary>
+        /// <param name="x1">X座標1</param>
+        /// <param name="x2">X座標2</param>
+        /// <param name="y">Y座標</param>
+        /// <param name="stroke">色</param>
+        /// <param name="thickness">太さ</param>
         void DrawHorizontalBranch(double x1, double x2, double y, string stroke, int thickness);
 
+        /// <summary>
+        /// 枝の横線を描画します。
+        /// </summary>
+        /// <param name="x">X座標</param>
+        /// <param name="y1">Y座標1</param>
+        /// <param name="y2">Y座標2</param>
+        /// <param name="stroke">色</param>
+        /// <param name="thickness">太さ</param>
         void DrawVerticalBranch(double x, double y1, double y2, string stroke, int thickness);
 
+        /// <summary>
+        /// 枝の装飾を描画します。
+        /// </summary>
+        /// <param name="target">対象のクレード</param>
+        /// <param name="style">スタイル</param>
         void DrawBranchDecoration(Clade target, BranchDecorationStyle style);
 
+        /// <summary>
+        /// スケールバーを描画します。
+        /// </summary>
+        /// <param name="value">値</param>
+        /// <param name="offsetX">オフセットのX座標</param>
+        /// <param name="offsetY">オフセットのY座標</param>
+        /// <param name="linePosition">線の座標</param>
+        /// <param name="textPosition">文字の座標</param>
+        /// <param name="fontSize">フォントサイズ</param>
+        /// <param name="lineThickness">線の太さ</param>
         void DrawScalebar(double value, double offsetX, double offsetY, (double, double, double) linePosition, (double, double) textPosition, int fontSize, int lineThickness);
+
+        /// <summary>
+        /// ツリーの描画を終了します。
+        /// </summary>
+        void FinishTree();
     }
 }
