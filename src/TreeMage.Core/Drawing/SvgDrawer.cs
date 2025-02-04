@@ -42,55 +42,55 @@ namespace TreeMage.Core.Drawing
 
         /// <inheritdoc/>
         [MemberNotNull(nameof(drawingInfo))]
-        public void BeginTree(double width, double height, Tree tree)
+        public void BeginTree(TMSize size, Tree tree)
         {
-            drawingInfo = new DrawingInfo(width, height, tree);
+            drawingInfo = new DrawingInfo(size, tree);
         }
 
         /// <inheritdoc/>
-        public void DrawCladeShade(double x, double y, double width, double height, string fill)
+        public void DrawCladeShade(TMRect area, TMColor fill)
         {
             Debug.Assert(drawingInfo is not null);
 
             var rectangle = new SvgRectangle()
             {
-                X = (SvgUnit)x,
-                Y = (SvgUnit)y,
-                Width = (SvgUnit)width,
-                Height = (SvgUnit)height,
-                Fill = DrawHelpers.CreateSvgColor(fill),
+                X = (SvgUnit)area.X,
+                Y = (SvgUnit)area.Y,
+                Width = (SvgUnit)area.Width,
+                Height = (SvgUnit)area.Height,
+                Fill = fill.ToSvgColorServer(),
             };
             rectangle.AddTo(drawingInfo.ShadesGroup);
         }
 
         /// <inheritdoc/>
-        public void DrawCollapsedTriangle((double x, double y) left, (double x, double y) rightTop, (double x, double y) rightBottom, string stroke, int lineThickness)
+        public void DrawCollapsedTriangle(TMPoint left, TMPoint rightTop, TMPoint rightBottom, TMColor stroke, int lineThickness)
         {
             Debug.Assert(drawingInfo is not null);
 
             var triangle = new SvgPath()
             {
                 Fill = SvgPaintServer.None,
-                Stroke = DrawHelpers.CreateSvgColor(stroke),
+                Stroke = stroke.ToSvgColorServer(),
                 StrokeWidth = lineThickness,
-                PathData = new SvgPathSegmentList().MoveToAbsolutely((float)left.x, (float)left.y)
-                                                   .DrawLineAbsolutely((float)rightTop.x, (float)rightTop.y)
-                                                   .DrawLineAbsolutely((float)rightBottom.x, (float)rightBottom.y)
-                                                   .DrawLineAbsolutely((float)left.x, (float)left.y),
+                PathData = new SvgPathSegmentList().MoveToAbsolutely((float)left.X, (float)left.Y)
+                                                   .DrawLineAbsolutely((float)rightTop.X, (float)rightTop.Y)
+                                                   .DrawLineAbsolutely((float)rightBottom.X, (float)rightBottom.Y)
+                                                   .DrawLineAbsolutely((float)left.X, (float)left.Y),
             };
             triangle.AddTo(drawingInfo.LeafLabelsGroup);
         }
 
         /// <inheritdoc/>
-        public void DrawLeafLabel(string taxon, double x, double y, string fill, int fontSize)
+        public void DrawLeafLabel(string taxon, TMPoint point, TMColor fill, int fontSize)
         {
             Debug.Assert(drawingInfo is not null);
 
             var leafText = new SvgText(taxon)
             {
-                X = [(SvgUnit)x],
-                Y = [(SvgUnit)y],
-                Fill = DrawHelpers.CreateSvgColor(fill),
+                X = [(SvgUnit)point.X],
+                Y = [(SvgUnit)point.Y],
+                Fill = fill.ToSvgColorServer(),
                 FontSize = fontSize,
                 FontFamily = FontFamily,
             };
@@ -98,15 +98,15 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawNodeValue(string value, double x, double y, string fill, int fontSize)
+        public void DrawNodeValue(string value, TMPoint point, TMColor fill, int fontSize)
         {
             Debug.Assert(drawingInfo is not null);
 
             var nodeValueText = new SvgText(value)
             {
-                X = [(SvgUnit)x],
-                Y = [(SvgUnit)y],
-                Fill = DrawHelpers.CreateSvgColor(fill),
+                X = [(SvgUnit)point.X],
+                Y = [(SvgUnit)point.Y],
+                Fill = fill.ToSvgColorServer(),
                 FontSize = fontSize,
                 FontFamily = FontFamily,
             };
@@ -114,15 +114,15 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawBranchValue(string value, double x, double y, string fill, int fontSize)
+        public void DrawBranchValue(string value, TMPoint point, TMColor fill, int fontSize)
         {
             Debug.Assert(drawingInfo is not null);
 
             var branchValueText = new SvgText(value)
             {
-                X = [(SvgUnit)x],
-                Y = [(SvgUnit)y],
-                Fill = DrawHelpers.CreateSvgColor(fill),
+                X = [(SvgUnit)point.X],
+                Y = [(SvgUnit)point.Y],
+                Fill = fill.ToSvgColorServer(),
                 FontSize = fontSize,
                 FontFamily = FontFamily,
                 TextAnchor = SvgTextAnchor.Middle,
@@ -131,7 +131,7 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawCladeLabel(string cladeName, (double x, double yTop, double yBottom) linePosition, (double x, double y) textPosition, int lineThickness, int fontSize)
+        public void DrawCladeLabel(string cladeName, TMPoint lineBegin, TMPoint lineEnd, TMPoint textPoint, int lineThickness, int fontSize)
         {
             Debug.Assert(drawingInfo is not null);
 
@@ -144,19 +144,19 @@ namespace TreeMage.Core.Drawing
             {
                 var svgLine = new SvgLine()
                 {
-                    StartX = (SvgUnit)linePosition.x,
-                    EndX = (SvgUnit)linePosition.x,
-                    StartY = (SvgUnit)linePosition.yTop,
-                    EndY = (SvgUnit)linePosition.yBottom,
-                    Stroke = DrawHelpers.CreateSvgColor("black"),
+                    StartX = (SvgUnit)lineBegin.X,
+                    EndX = (SvgUnit)lineEnd.X,
+                    StartY = (SvgUnit)lineBegin.Y,
+                    EndY = (SvgUnit)lineEnd.Y,
+                    Stroke = new SvgColourServer(Color.Black),
                     StrokeWidth = lineThickness,
                 };
                 svgLine.AddTo(group);
             }
             var svgText = new SvgText(cladeName)
             {
-                X = [(SvgUnit)textPosition.x],
-                Y = [(SvgUnit)textPosition.y],
+                X = [(SvgUnit)textPoint.X],
+                Y = [(SvgUnit)textPoint.Y],
                 FontFamily = FontFamily,
                 FontSize = fontSize,
             };
@@ -164,34 +164,34 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawHorizontalBranch(double x1, double x2, double y, string stroke, int thickness)
+        public void DrawHorizontalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness)
         {
             Debug.Assert(drawingInfo is not null);
 
             var horizontalLine = new SvgLine()
             {
-                StartX = (SvgUnit)x1,
-                StartY = (SvgUnit)y,
-                EndX = (SvgUnit)x2,
-                EndY = (SvgUnit)y,
-                Stroke = DrawHelpers.CreateSvgColor(stroke),
+                StartX = (SvgUnit)parentPoint.X,
+                StartY = (SvgUnit)parentPoint.Y,
+                EndX = (SvgUnit)childPoint.X,
+                EndY = (SvgUnit)childPoint.Y,
+                Stroke = stroke.ToSvgColorServer(),
                 StrokeWidth = thickness,
             };
             horizontalLine.AddTo(drawingInfo.BranchesGroup);
         }
 
         /// <inheritdoc/>
-        public void DrawVerticalBranch(double x, double y1, double y2, string stroke, int thickness)
+        public void DrawVerticalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness)
         {
             Debug.Assert(drawingInfo is not null);
 
             var verticalLine = new SvgLine()
             {
-                StartX = (SvgUnit)x,
-                StartY = (SvgUnit)y2,
-                EndX = (SvgUnit)x,
-                EndY = (SvgUnit)y1,
-                Stroke = DrawHelpers.CreateSvgColor(stroke),
+                StartX = (SvgUnit)childPoint.X,
+                StartY = (SvgUnit)childPoint.Y,
+                EndX = (SvgUnit)parentPoint.X,
+                EndY = (SvgUnit)parentPoint.Y,
+                Stroke = stroke.ToSvgColorServer(),
                 StrokeWidth = thickness,
             };
             verticalLine.AddTo(drawingInfo.BranchesGroup);
@@ -202,29 +202,30 @@ namespace TreeMage.Core.Drawing
         {
             Debug.Assert(drawingInfo is not null);
 
+            var color = new TMColor(style.ShapeColor);
             SvgElement decorationSvg;
             switch (style.DecorationType)
             {
                 case BranchDecorationType.ClosedCircle:
                 case BranchDecorationType.OpenCircle:
                     {
-                        (double centerX, double centerY, double radius) = positionManager.CalcBranchDecorationCircleArea(target, style);
+                        (TMPoint center, double radius) = positionManager.CalcBranchDecorationCircleArea(target, style);
 
                         decorationSvg = new SvgCircle()
                         {
-                            CenterX = (SvgUnit)centerX,
-                            CenterY = (SvgUnit)centerY,
+                            CenterX = (SvgUnit)center.X,
+                            CenterY = (SvgUnit)center.Y,
                             Radius = (SvgUnit)radius,
                         };
 
                         if (style.DecorationType == BranchDecorationType.ClosedCircle)
                         {
                             decorationSvg.Stroke = SvgPaintServer.None;
-                            decorationSvg.Fill = DrawHelpers.CreateSvgColor(style.ShapeColor);
+                            decorationSvg.Fill = color.ToSvgColorServer();
                         }
                         else
                         {
-                            decorationSvg.Stroke = DrawHelpers.CreateSvgColor(style.ShapeColor);
+                            decorationSvg.Stroke = color.ToSvgColorServer();
                             decorationSvg.Fill = new SvgColourServer(Color.White);
                         }
                     }
@@ -246,11 +247,11 @@ namespace TreeMage.Core.Drawing
                         if (style.DecorationType == BranchDecorationType.ClosedRectangle)
                         {
                             decorationSvg.Stroke = SvgPaintServer.None;
-                            decorationSvg.Fill = DrawHelpers.CreateSvgColor(style.ShapeColor);
+                            decorationSvg.Fill = color.ToSvgColorServer();
                         }
                         else
                         {
-                            decorationSvg.Stroke = DrawHelpers.CreateSvgColor(style.ShapeColor);
+                            decorationSvg.Stroke = color.ToSvgColorServer();
                             decorationSvg.StrokeWidth = style.ShapeSize / 5 + 1;
                             decorationSvg.Fill = new SvgColourServer(Color.White);
                         }
@@ -263,22 +264,20 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawScalebar(double value, double offsetX, double offsetY, (double, double, double) linePosition, (double, double) textPosition, int fontSize, int lineThickness)
+        public void DrawScalebar(double value, TMPoint offset, TMPoint lineBegin, TMPoint lineEnd, TMPoint textPoint, int fontSize, int lineThickness)
         {
             Debug.Assert(drawingInfo is not null);
 
             SvgGroup scaleBarArea = new SvgGroup()
             {
                 ID = "scale-bar",
-                Transforms = new SvgTransformCollection().Translate((SvgUnit)offsetX, (SvgUnit)offsetY),
+                Transforms = new SvgTransformCollection().Translate((SvgUnit)offset.X, (SvgUnit)offset.Y),
             }.AddTo(drawingInfo.Document);
-
-            ((double xLeft, double xRight, double y) line, (double x, double y) text) = positionManager.CalcScaleBarPositions();
 
             var scaleBarText = new SvgText(value.ToString())
             {
-                X = [(SvgUnit)text.x],
-                Y = [(SvgUnit)text.y],
+                X = [(SvgUnit)textPoint.X],
+                Y = [(SvgUnit)textPoint.Y],
                 FontFamily = FontFamily,
                 FontSize = fontSize,
                 TextAnchor = SvgTextAnchor.Middle,
@@ -287,10 +286,10 @@ namespace TreeMage.Core.Drawing
 
             var scaleBarLine = new SvgLine()
             {
-                StartX = (SvgUnit)line.xLeft,
-                StartY = (SvgUnit)line.y,
-                EndX = (SvgUnit)line.xRight,
-                EndY = (SvgUnit)line.y,
+                StartX = (SvgUnit)lineBegin.X,
+                StartY = (SvgUnit)lineBegin.Y,
+                EndX = (SvgUnit)lineEnd.X,
+                EndY = (SvgUnit)lineEnd.Y,
                 Stroke = new SvgColourServer(Color.Black),
                 StrokeWidth = lineThickness,
             };
@@ -321,12 +320,12 @@ namespace TreeMage.Core.Drawing
 
             public SvgGroup BranchDecorationsGroup { get; }
 
-            public DrawingInfo(double width, double height, Tree tree)
+            public DrawingInfo(TMSize size, Tree tree)
             {
                 Document = new SvgDocument()
                 {
-                    Width = (SvgUnit)width,
-                    Height = (SvgUnit)height,
+                    Width = (SvgUnit)size.Width,
+                    Height = (SvgUnit)size.Height,
                 };
                 TreeArea = new SvgGroup()
                 {

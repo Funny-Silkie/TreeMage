@@ -27,9 +27,9 @@ namespace TreeMage.Core.Drawing
             PositionManager.Reset(tree);
             InitDocument();
 
-            (double documentWidth, double documentHeight) = PositionManager.CalcDocumentSize();
+            TMSize documentSize = PositionManager.CalcDocumentSize();
 
-            BeginTree(documentWidth, documentHeight, tree);
+            BeginTree(documentSize, tree);
 
             #region 系統樹部分
 
@@ -40,15 +40,15 @@ namespace TreeMage.Core.Drawing
                 // クレードのシェード
                 if (!string.IsNullOrEmpty(current.Style.ShadeColor))
                 {
-                    (double x, double y, double width, double height) = PositionManager.CalcCladeShadePosition(current);
-                    DrawCladeShade(x, y, width, height, current.Style.ShadeColor);
+                    TMRect area = PositionManager.CalcCladeShadePosition(current);
+                    DrawCladeShade(area, new TMColor(current.Style.ShadeColor));
                 }
 
                 // 折りたたみ
                 if (current.GetIsExternal() && !current.IsLeaf)
                 {
-                    var (left, rightTop, rightBottom) = PositionManager.CalcCollapseTrianglePositions(current);
-                    DrawCollapsedTriangle(left, rightTop, rightBottom, current.Style.BranchColor, tree.Style.BranchThickness);
+                    (TMPoint left, TMPoint rightTop, TMPoint rightBottom) = PositionManager.CalcCollapseTrianglePositions(current);
+                    DrawCollapsedTriangle(left, rightTop, rightBottom, new TMColor(current.Style.BranchColor), tree.Style.BranchThickness);
                 }
 
                 if (current.IsLeaf)
@@ -56,8 +56,8 @@ namespace TreeMage.Core.Drawing
                     // 系統名
                     if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
                     {
-                        (double x, double y, _, _) = PositionManager.CalcLeafPosition(current);
-                        DrawLeafLabel(current.Taxon, x, y, current.Style.LeafColor, tree.Style.LeafLabelsFontSize);
+                        TMRect area = PositionManager.CalcLeafPosition(current);
+                        DrawLeafLabel(current.Taxon, area.Point, new TMColor(current.Style.LeafColor), tree.Style.LeafLabelsFontSize);
                     }
                 }
                 else
@@ -68,8 +68,8 @@ namespace TreeMage.Core.Drawing
                         string nodeValue = DrawHelpers.SelectShowValue(current, tree.Style.NodeValueType);
                         if (nodeValue.Length > 0)
                         {
-                            (double x, double y) = PositionManager.CalcNodeValuePosition(current, nodeValue);
-                            DrawNodeValue(nodeValue, x, y, current.Style.BranchColor, tree.Style.NodeValueFontSize);
+                            TMPoint point = PositionManager.CalcNodeValuePosition(current, nodeValue);
+                            DrawNodeValue(nodeValue, point, new TMColor(current.Style.BranchColor), tree.Style.NodeValueFontSize);
                         }
                     }
                 }
@@ -77,16 +77,16 @@ namespace TreeMage.Core.Drawing
                 // クレード名
                 if (tree.Style.ShowCladeLabels && !string.IsNullOrEmpty(current.Style.CladeLabel))
                 {
-                    var (line, text) = PositionManager.CalcCladeLabelPosition(current);
-                    DrawCladeLabel(current.Style.CladeLabel, line, text, tree.Style.CladeLabelsLineThickness, tree.Style.CladeLabelsFontSize);
+                    (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) = PositionManager.CalcCladeLabelPosition(current);
+                    DrawCladeLabel(current.Style.CladeLabel, lineBegin, lineEnd, text, tree.Style.CladeLabelsLineThickness, tree.Style.CladeLabelsFontSize);
                 }
 
                 if (current.GetDrawnBranchLength() > 0)
                 {
                     // 横棒
                     {
-                        (double xParent, double xChild, double y) = PositionManager.CalcHorizontalBranchPositions(current);
-                        DrawHorizontalBranch(xParent, xChild, y, options.BranchColoring is BranchColoringType.Both or BranchColoringType.Horizontal ? current.Style.BranchColor : "black", tree.Style.BranchThickness);
+                        (TMPoint parentPoint, TMPoint childPoint) = PositionManager.CalcHorizontalBranchPositions(current);
+                        DrawHorizontalBranch(parentPoint, childPoint, options.BranchColoring is BranchColoringType.Both or BranchColoringType.Horizontal ? new TMColor(current.Style.BranchColor) : new TMColor("black"), tree.Style.BranchThickness);
                     }
 
                     // 枝の装飾
@@ -100,8 +100,8 @@ namespace TreeMage.Core.Drawing
                         string branchValue = DrawHelpers.SelectShowValue(current, tree.Style.BranchValueType);
                         if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
                         {
-                            (double x, double y) = PositionManager.CalcBranchValuePosition(current, branchValue);
-                            DrawBranchValue(branchValue, x, y, current.Style.BranchColor, tree.Style.BranchValueFontSize);
+                            TMPoint point = PositionManager.CalcBranchValuePosition(current, branchValue);
+                            DrawBranchValue(branchValue, point, new TMColor(current.Style.BranchColor), tree.Style.BranchValueFontSize);
                         }
                     }
                 }
@@ -111,10 +111,10 @@ namespace TreeMage.Core.Drawing
                 {
                     if (parent.Children.Count > 1)
                     {
-                        (double x, double yParent, double yChild) = PositionManager.CalcVerticalBranchPositions(current);
+                        (TMPoint parentPoint, TMPoint childPoint) = PositionManager.CalcVerticalBranchPositions(current);
 
                         // 縦棒
-                        if (yParent != yChild) DrawVerticalBranch(x, yParent, yChild, options.BranchColoring is BranchColoringType.Both or BranchColoringType.Vertical ? current.Style.BranchColor : "black", tree.Style.BranchThickness);
+                        if (parentPoint != childPoint) DrawVerticalBranch(parentPoint, childPoint, options.BranchColoring is BranchColoringType.Both or BranchColoringType.Vertical ? new TMColor(current.Style.BranchColor) : new TMColor("black"), tree.Style.BranchThickness);
                     }
                 }
             }
@@ -125,10 +125,10 @@ namespace TreeMage.Core.Drawing
 
             if (tree.Style.ShowScaleBar && tree.Style.ScaleBarValue > 0)
             {
-                (double offsetX, double offsetY) = PositionManager.CalcScaleBarOffset();
-                ((double xLeft, double xRight, double y) line, (double x, double y) text) = PositionManager.CalcScaleBarPositions();
+                TMPoint offset = PositionManager.CalcScaleBarOffset();
+                (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) = PositionManager.CalcScaleBarPositions();
 
-                DrawScalebar(tree.Style.ScaleBarValue, offsetX, offsetY, line, text, tree.Style.ScaleBarFontSize, tree.Style.ScaleBarThickness);
+                DrawScalebar(tree.Style.ScaleBarValue, offset, lineBegin, lineEnd, text, tree.Style.ScaleBarFontSize, tree.Style.ScaleBarThickness);
             }
 
             #endregion スケールバー
@@ -144,20 +144,16 @@ namespace TreeMage.Core.Drawing
         /// <summary>
         /// ツリーの描画を開始します。
         /// </summary>
-        /// <param name="width">横幅</param>
-        /// <param name="height">高さ</param>
+        /// <param name="size">描画サイズ</param>
         /// <param name="tree">ツリー</param>
-        void BeginTree(double width, double height, Tree tree);
+        void BeginTree(TMSize size, Tree tree);
 
         /// <summary>
         /// クレードのシェードを描画します。
         /// </summary>
-        /// <param name="x">X座標</param>
-        /// <param name="y">Y座標</param>
-        /// <param name="width">横幅</param>
-        /// <param name="height">高さ</param>
+        /// <param name="area">描画範囲</param>
         /// <param name="fill">色</param>
-        void DrawCladeShade(double x, double y, double width, double height, string fill);
+        void DrawCladeShade(TMRect area, TMColor fill);
 
         /// <summary>
         /// 折りたたみの三角形を描画します。
@@ -167,67 +163,63 @@ namespace TreeMage.Core.Drawing
         /// <param name="rightBottom">右下の頂点座標</param>
         /// <param name="stroke">線の色</param>
         /// <param name="lineThickness">線の太さ</param>
-        void DrawCollapsedTriangle((double x, double y) left, (double x, double y) rightTop, (double x, double y) rightBottom, string stroke, int lineThickness);
+        void DrawCollapsedTriangle(TMPoint left, TMPoint rightTop, TMPoint rightBottom, TMColor stroke, int lineThickness);
 
         /// <summary>
         /// 葉を描画します。
         /// </summary>
         /// <param name="taxon">系統名</param>
-        /// <param name="x">X座標</param>
-        /// <param name="y">Y座標</param>
+        /// <param name="point">座標</param>
         /// <param name="fill">文字色</param>
         /// <param name="fontSize">フォントサイズ</param>
-        void DrawLeafLabel(string taxon, double x, double y, string fill, int fontSize);
+        void DrawLeafLabel(string taxon, TMPoint point, TMColor fill, int fontSize);
 
         /// <summary>
         /// 結節点の値を描画します。
         /// </summary>
         /// <param name="value">値</param>
-        /// <param name="x">X座標</param>
-        /// <param name="y">Y座標</param>
+        /// <param name="point">座標</param>
         /// <param name="fill">文字色</param>
         /// <param name="fontSize">フォントサイズ</param>
-        void DrawNodeValue(string value, double x, double y, string fill, int fontSize);
+        void DrawNodeValue(string value, TMPoint point, TMColor fill, int fontSize);
 
         /// <summary>
         /// 枝の値を描画します。
         /// </summary>
         /// <param name="value">値</param>
-        /// <param name="x">X座標</param>
-        /// <param name="y">Y座標</param>
+        /// <param name="point">座標</param>
         /// <param name="fill">文字色</param>
         /// <param name="fontSize">フォントサイズ</param>
-        void DrawBranchValue(string value, double x, double y, string fill, int fontSize);
+        void DrawBranchValue(string value, TMPoint point, TMColor fill, int fontSize);
 
         /// <summary>
         /// クレード名を描画します。
         /// </summary>
         /// <param name="cladeName">クレード名</param>
-        /// <param name="linePosition">線の座標</param>
-        /// <param name="textPosition">文字の座標</param>
+        /// <param name="lineBegin">線の開始点</param>
+        /// <param name="lineEnd">線の終了点</param>
+        /// <param name="testPoint">文字の座標</param>
         /// <param name="lineThickness">線の太さ</param>
         /// <param name="fontSize">フォントサイズ</param>
-        void DrawCladeLabel(string cladeName, (double x, double yTop, double yBottom) linePosition, (double x, double y) textPosition, int lineThickness, int fontSize);
+        void DrawCladeLabel(string cladeName, TMPoint lineBegin, TMPoint lineEnd, TMPoint testPoint, int lineThickness, int fontSize);
 
         /// <summary>
         /// 枝の横線を描画します。
         /// </summary>
-        /// <param name="x1">X座標1</param>
-        /// <param name="x2">X座標2</param>
-        /// <param name="y">Y座標</param>
+        /// <param name="parentPoint">親側の座標</param>
+        /// <param name="childPoint">子側の座標</param>
         /// <param name="stroke">色</param>
         /// <param name="thickness">太さ</param>
-        void DrawHorizontalBranch(double x1, double x2, double y, string stroke, int thickness);
+        void DrawHorizontalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness);
 
         /// <summary>
         /// 枝の横線を描画します。
         /// </summary>
-        /// <param name="x">X座標</param>
-        /// <param name="y1">Y座標1</param>
-        /// <param name="y2">Y座標2</param>
+        /// <param name="parentPoint">親側の座標</param>
+        /// <param name="childPoint">子側の座標</param>
         /// <param name="stroke">色</param>
         /// <param name="thickness">太さ</param>
-        void DrawVerticalBranch(double x, double y1, double y2, string stroke, int thickness);
+        void DrawVerticalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness);
 
         /// <summary>
         /// 枝の装飾を描画します。
@@ -240,13 +232,13 @@ namespace TreeMage.Core.Drawing
         /// スケールバーを描画します。
         /// </summary>
         /// <param name="value">値</param>
-        /// <param name="offsetX">オフセットのX座標</param>
-        /// <param name="offsetY">オフセットのY座標</param>
-        /// <param name="linePosition">線の座標</param>
-        /// <param name="textPosition">文字の座標</param>
+        /// <param name="offset">オフセット</param>
+        /// <param name="lineBegin">線の開始点</param>
+        /// <param name="lineEnd">線の終了点</param>
+        /// <param name="textPoint">文字の座標</param>
         /// <param name="fontSize">フォントサイズ</param>
         /// <param name="lineThickness">線の太さ</param>
-        void DrawScalebar(double value, double offsetX, double offsetY, (double, double, double) linePosition, (double, double) textPosition, int fontSize, int lineThickness);
+        void DrawScalebar(double value, TMPoint offset, TMPoint lineBegin, TMPoint lineEnd, TMPoint textPoint, int fontSize, int lineThickness);
 
         /// <summary>
         /// ツリーの描画を終了します。

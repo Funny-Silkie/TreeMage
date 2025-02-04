@@ -51,67 +51,67 @@ namespace TreeMage.Core.Drawing
         /// <inheritdoc/>
         [MemberNotNull(nameof(document))]
         [MemberNotNull(nameof(drawingInfo))]
-        public void BeginTree(double width, double height, Tree tree)
+        public void BeginTree(TMSize size, Tree tree)
         {
             Debug.Assert(document is not null);
 
-            drawingInfo = new DrawingInfo(Document, width, height, tree);
+            drawingInfo = new DrawingInfo(Document, size.Width, size.Height, tree);
             drawingInfo.Graphics.TranslateTransform(50, 50);
         }
 
         /// <inheritdoc/>
-        public void DrawCladeShade(double x, double y, double width, double height, string fill)
+        public void DrawCladeShade(TMRect area, TMColor fill)
         {
             Debug.Assert(drawingInfo is not null);
 
-            drawingInfo.Graphics.DrawRectangle(DrawHelpers.CreatePdfColor(fill).ToBrush(), x, y, width, height);
+            drawingInfo.Graphics.DrawRectangle(fill.ToPdfBrush(), area);
         }
 
         /// <inheritdoc/>
-        public void DrawCollapsedTriangle((double x, double y) left, (double x, double y) rightTop, (double x, double y) rightBottom, string stroke, int lineThickness)
+        public void DrawCollapsedTriangle(TMPoint left, TMPoint rightTop, TMPoint rightBottom, TMColor stroke, int lineThickness)
         {
             Debug.Assert(drawingInfo is not null);
 
             var path = new XGraphicsPath();
-            path.AddLine(left.x, left.y, rightTop.x, rightTop.y);
-            path.AddLine(rightTop.x, rightTop.y, rightBottom.x, rightBottom.y);
-            path.AddLine(left.x, left.y, rightBottom.x, rightBottom.y);
-            drawingInfo.Graphics.DrawPath(DrawHelpers.CreatePdfColor(stroke).ToPen(lineThickness),
+            path.AddLine(left, rightTop);
+            path.AddLine(rightTop, rightBottom);
+            path.AddLine(left, rightBottom);
+            drawingInfo.Graphics.DrawPath(stroke.ToPdfPen(lineThickness),
                                           XBrushes.Transparent,
                                           path);
         }
 
         /// <inheritdoc/>
-        public void DrawLeafLabel(string taxon, double x, double y, string fill, int fontSize)
+        public void DrawLeafLabel(string taxon, TMPoint point, TMColor fill, int fontSize)
         {
             Debug.Assert(drawingInfo is not null);
 
             drawingInfo.Graphics.DrawString(taxon,
                                             drawingInfo.LeafLabelFont,
-                                            DrawHelpers.CreatePdfColor(fill).ToBrush(),
-                                            new XPoint(x, y));
+                                            fill.ToPdfBrush(),
+                                            point);
         }
 
         /// <inheritdoc/>
-        public void DrawNodeValue(string value, double x, double y, string fill, int fontSize)
+        public void DrawNodeValue(string value, TMPoint point, TMColor fill, int fontSize)
         {
             Debug.Assert(drawingInfo is not null);
 
             drawingInfo.Graphics.DrawString(value,
                                             drawingInfo.NodeValuesFont,
-                                            DrawHelpers.CreatePdfColor(fill).ToBrush(),
-                                            new XPoint(x, y));
+                                            fill.ToPdfBrush(),
+                                            point);
         }
 
         /// <inheritdoc/>
-        public void DrawBranchValue(string value, double x, double y, string fill, int fontSize)
+        public void DrawBranchValue(string value, TMPoint point, TMColor fill, int fontSize)
         {
             Debug.Assert(drawingInfo is not null);
 
             drawingInfo.Graphics.DrawString(value,
                                             drawingInfo.BranchValuesFont,
-                                            DrawHelpers.CreatePdfColor(fill).ToBrush(),
-                                            new XPoint(x, y),
+                                            fill.ToPdfBrush(),
+                                            point,
                                             new XStringFormat()
                                             {
                                                 Alignment = XStringAlignment.Center,
@@ -120,41 +120,41 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawCladeLabel(string cladeName, (double x, double yTop, double yBottom) linePosition, (double x, double y) textPosition, int lineThickness, int fontSize)
+        public void DrawCladeLabel(string cladeName, TMPoint lineBegin, TMPoint lineEnd, TMPoint textPoint, int lineThickness, int fontSize)
         {
             Debug.Assert(drawingInfo is not null);
 
             if (lineThickness > 0)
             {
-                drawingInfo.Graphics.DrawLine(DrawHelpers.CreatePdfColor("black").ToPen(lineThickness),
-                                              new XPoint(linePosition.x, linePosition.yTop),
-                                              new XPoint(linePosition.x, linePosition.yBottom));
+                drawingInfo.Graphics.DrawLine(new XPen(XBrushes.Black, lineThickness),
+                                              lineBegin,
+                                              lineEnd);
             }
 
             drawingInfo.Graphics.DrawString(cladeName,
                                             drawingInfo.CladeLabelFont,
                                             XBrushes.Black,
-                                            new XPoint(textPosition.x, textPosition.y));
+                                            textPoint);
         }
 
         /// <inheritdoc/>
-        public void DrawHorizontalBranch(double x1, double x2, double y, string stroke, int thickness)
+        public void DrawHorizontalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness)
         {
             Debug.Assert(drawingInfo is not null);
 
-            drawingInfo.Graphics.DrawLine(DrawHelpers.CreatePdfColor(stroke).ToPen(thickness),
-                                          new XPoint(x1, y),
-                                          new XPoint(x2, y));
+            drawingInfo.Graphics.DrawLine(stroke.ToPdfPen(thickness),
+                                          parentPoint,
+                                          childPoint);
         }
 
         /// <inheritdoc/>
-        public void DrawVerticalBranch(double x, double y1, double y2, string stroke, int thickness)
+        public void DrawVerticalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness)
         {
             Debug.Assert(drawingInfo is not null);
 
-            drawingInfo.Graphics.DrawLine(DrawHelpers.CreatePdfColor(stroke).ToPen(thickness),
-                              new XPoint(x, y2),
-                              new XPoint(x, y1));
+            drawingInfo.Graphics.DrawLine(stroke.ToPdfPen(thickness),
+                                          parentPoint,
+                                          childPoint);
         }
 
         /// <inheritdoc/>
@@ -162,13 +162,13 @@ namespace TreeMage.Core.Drawing
         {
             Debug.Assert(drawingInfo is not null);
 
-            (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(target, style);
-            var shapeArea = new XRect(x, y, width, height);
+            TMRect shapeArea = positionManager.CalcBranchDecorationRectangleArea(target, style);
+            var color = new TMColor(style.ShapeColor);
 
             switch (style.DecorationType)
             {
                 case BranchDecorationType.ClosedCircle:
-                    drawingInfo.Graphics.DrawPie(DrawHelpers.CreatePdfColor(style.ShapeColor).ToBrush(),
+                    drawingInfo.Graphics.DrawPie(color.ToPdfBrush(),
                                                  shapeArea,
                                                  0,
                                                  360);
@@ -179,45 +179,44 @@ namespace TreeMage.Core.Drawing
                                                  shapeArea,
                                                  0,
                                                  360);
-                    drawingInfo.Graphics.DrawArc(DrawHelpers.CreatePdfColor(style.ShapeColor).ToPen(1),
+                    drawingInfo.Graphics.DrawArc(color.ToPdfPen(1),
                                                  shapeArea,
                                                  0,
                                                  360);
                     break;
 
                 case BranchDecorationType.ClosedRectangle:
-                    drawingInfo.Graphics.DrawRectangle(DrawHelpers.CreatePdfColor(style.ShapeColor).ToBrush(), shapeArea);
+                    drawingInfo.Graphics.DrawRectangle(color.ToPdfBrush(), shapeArea);
                     break;
 
                 case BranchDecorationType.OpenedRectangle:
                     drawingInfo.Graphics.DrawRectangle(XBrushes.White, shapeArea);
-                    drawingInfo.Graphics.DrawRectangle(DrawHelpers.CreatePdfColor(style.ShapeColor).ToPen(style.ShapeSize / 5 + 1), shapeArea);
+                    drawingInfo.Graphics.DrawRectangle(color.ToPdfPen(style.ShapeSize / 5 + 1), shapeArea);
                     break;
             }
         }
 
         /// <inheritdoc/>
-        public void DrawScalebar(double value, double offsetX, double offsetY, (double, double, double) linePosition, (double, double) textPosition, int fontSize, int lineThickness)
+        public void DrawScalebar(double value, TMPoint offset, TMPoint lineBegin, TMPoint lineEnd, TMPoint textPoint, int fontSize, int lineThickness)
         {
             Debug.Assert(drawingInfo is not null);
             drawingInfo.Graphics.Dispose();
 
             using XGraphics graphics = XGraphics.FromPdfPage(drawingInfo.Page);
-            graphics.TranslateTransform(offsetX, offsetY);
-
-            ((double xLeft, double xRight, double y) line, (double x, double y) text) = positionManager.CalcScaleBarPositions();
+            graphics.TranslateTransform(offset.X, offset.Y);
 
             graphics.DrawString(value.ToString(),
                                 new XFont(FontFamily, fontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault),
                                 XBrushes.Black,
-                                new XPoint(text.x, text.y), new XStringFormat()
+                                textPoint,
+                                new XStringFormat()
                                 {
                                     Alignment = XStringAlignment.Center,
                                     LineAlignment = XLineAlignment.BaseLine,
                                 });
             graphics.DrawLine(new XPen(XBrushes.Black, lineThickness),
-                              new XPoint(line.xLeft, line.y),
-                              new XPoint(line.xRight, line.y));
+                              lineBegin,
+                              lineEnd);
         }
 
         /// <inheritdoc/>

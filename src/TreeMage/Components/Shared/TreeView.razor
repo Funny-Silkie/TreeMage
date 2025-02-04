@@ -76,10 +76,10 @@
                 {
                     var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);
 
-                    <path class="collapsed-rectangle" d="M @left.x @left.y
-                                                                         L @rightTop.x @rightTop.y
-                                                                         L @rightBottom.x @rightBottom.y
-                                                                         L @left.x @left.y" stroke="@current.Style.BranchColor" />
+                    <path class="collapsed-rectangle" d="M @left.X @left.Y
+                                                                         L @rightTop.X @rightTop.Y
+                                                                         L @rightBottom.X @rightBottom.Y
+                                                                         L @left.X @left.Y" stroke="@current.Style.BranchColor" />
                 }
 
                 if (current.IsLeaf)
@@ -123,13 +123,13 @@
                 // クレード名
                 if (tree.Style.ShowCladeLabels && !string.IsNullOrEmpty(current.Style.CladeLabel))
                 {
-                    var (line, text) = positionManager.CalcCladeLabelPosition(current);
+                    (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) = positionManager.CalcCladeLabelPosition(current);
 
                     @if (tree.Style.CladeLabelsLineThickness > 0)
                     {
-                        <line x1="@line.x" x2="@line.x" y1="@line.yTop" y2="@line.yBottom" stroke="black" stroke-width="@tree.Style.CladeLabelsLineThickness" />
+                        <line x1="@lineBegin.X" x2="@lineEnd.X" y1="@lineBegin.Y" y2="@lineEnd.Y" stroke="black" stroke-width="@tree.Style.CladeLabelsLineThickness" />
                     }
-                    var svgText = new MarkupString($"<text class=\"clade-label\" x=\"{text.x}\" y=\"{text.y}\">{current.Style.CladeLabel}</text>");
+                    var svgText = new MarkupString($"<text class=\"clade-label\" x=\"{text.X}\" y=\"{text.Y}\">{current.Style.CladeLabel}</text>");
                     @svgText
                 }
 
@@ -137,12 +137,12 @@
                 {
                     // 横棒
                     {
-                        (double xParent, double xChild, double y) = positionManager.CalcHorizontalBranchPositions(current);
+                        (TMPoint parentPoint, TMPoint childPoint) = positionManager.CalcHorizontalBranchPositions(current);
 
                         string stroke;
                         if (config.BranchColoring is BranchColoringType.Both or BranchColoringType.Horizontal) stroke = current.Style.BranchColor;
                         else stroke = "black";
-                        <line class="branch" x1="@xParent" y1="@y" x2="@xChild" y2="@y" style="stroke: @(stroke)" />
+                        <line class="branch" x1="@parentPoint.X" y1="@parentPoint.Y" x2="@childPoint.X" y2="@childPoint.Y" style="stroke: @(stroke)" />
                     }
 
                     // 枝の装飾
@@ -156,7 +156,7 @@
                                 case BranchDecorationType.ClosedCircle:
                                 case BranchDecorationType.OpenCircle:
                                     {
-                                        (double centerX, double centerY, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentDecoration);
+                                        (TMPoint center, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentDecoration);
 
                                         string fill, stroke;
                                         if (currentDecoration.DecorationType == BranchDecorationType.ClosedCircle)
@@ -170,7 +170,7 @@
                                             stroke = color;
                                         }
 
-                                        <circle cx="@centerX" cy="@centerY" r="@radius" style="stroke: @stroke; fill: @fill" />
+                                        <circle cx="@center.X" cy="@center.Y" r="@radius" style="stroke: @stroke; fill: @fill" />
                                     }
                                     break;
                                 case BranchDecorationType.ClosedRectangle:
@@ -233,15 +233,15 @@
                 {
                     if (parent.Children.Count > 1)
                     {
-                        (double x, double yParent, double yChild) = positionManager.CalcVerticalBranchPositions(current);
+                        (TMPoint parentPoint, TMPoint childPoint) = positionManager.CalcVerticalBranchPositions(current);
 
                         // 縦棒
-                        if (yParent != yChild)
+                        if (parentPoint != childPoint)
                         {
                             string stroke;
                             if (config.BranchColoring is BranchColoringType.Both or BranchColoringType.Vertical) stroke = current.Style.BranchColor;
                             else stroke = "black";
-                            <line class="branch" x1="@x" y1="@yParent" x2="@x" y2="@yChild" style="stroke: @stroke" />
+                            <line class="branch" x1="@parentPoint.X" y1="@parentPoint.Y" x2="@childPoint.X" y2="@childPoint.Y" style="stroke: @stroke" />
                         }
                     }
                 }
@@ -300,11 +300,11 @@
         @if (tree.Style.ShowScaleBar && tree.Style.ScaleBarValue > 0)
         {
             (double offsetX, double offsetY) = positionManager.CalcScaleBarOffset();
-            ((double xLeft, double xRight, double y) line, (double x, double y) text) = positionManager.CalcScaleBarPositions();
+            (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) = positionManager.CalcScaleBarPositions();
 
             <g transform="translate(@offsetX, @offsetY)">
-                <text class="scalebar-text" x="@(text.x)" y="@(text.y)" text-anchor="middle">@tree.Style.ScaleBarValue</text>
-                <line class="scalebar-line" x1="@(line.xLeft)" y1="@(line.y)" x2="@(line.xRight)" y2="@(line.y)" />
+                <text class="scalebar-text" x="@(text.X)" y="@(text.Y)" text-anchor="middle">@tree.Style.ScaleBarValue</text>
+                <line class="scalebar-line" x1="@(lineBegin.X)" y1="@(lineBegin.Y)" x2="@(lineEnd.X)" y2="@(lineEnd.Y)" />
             </g>
         }
     </svg>
