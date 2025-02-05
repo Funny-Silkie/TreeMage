@@ -12,6 +12,30 @@
         #region Operators
 
         [Fact]
+        public void Operator_UnaryPlus()
+        {
+            Assert.Equal(point, +point);
+        }
+
+        [Fact]
+        public void Operator_UnaryNegation()
+        {
+            Assert.Equal(new TMPoint(-10, -20), -point);
+        }
+
+        [Fact]
+        public void Operator_Addition()
+        {
+            Assert.Equal(new TMPoint(40, 50), point + new TMPoint(30, 30));
+        }
+
+        [Fact]
+        public void Operator_Subtraction()
+        {
+            Assert.Equal(new TMPoint(5, 15), point - new TMPoint(5, 5));
+        }
+
+        [Fact]
         public void Implicit_Operator_FromValueTuple()
         {
             Assert.Equal(point, (TMPoint)(10, 20));
@@ -36,6 +60,30 @@
         }
 
         #region Operators
+
+        [Fact]
+        public void Operator_UnaryPlus()
+        {
+            Assert.Equal(size, +size);
+        }
+
+        [Fact]
+        public void Operator_UnaryNegation()
+        {
+            Assert.Equal(new TMSize(-10, -20), -size);
+        }
+
+        [Fact]
+        public void Operator_Addition()
+        {
+            Assert.Equal(new TMSize(40, 50), size + new TMSize(30, 30));
+        }
+
+        [Fact]
+        public void Operator_Subtraction()
+        {
+            Assert.Equal(new TMSize(5, 15), size - new TMSize(5, 5));
+        }
 
         [Fact]
         public void Implicit_Operator_FromValueTuple()

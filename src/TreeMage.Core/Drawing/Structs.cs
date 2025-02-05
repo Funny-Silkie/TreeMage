@@ -9,6 +9,18 @@ namespace TreeMage.Core.Drawing
     /// <param name="Y">Y座標を取得します。</param>
     public readonly partial record struct TMPoint(double X, double Y)
     {
+        /// <inheritdoc cref="System.Numerics.IUnaryPlusOperators{TSelf, TResult}.op_UnaryPlus"/>
+        public static TMPoint operator +(TMPoint value) => value;
+
+        /// <inheritdoc cref="System.Numerics.IUnaryNegationOperators{TSelf, TResult}.op_UnaryNegation"/>
+        public static TMPoint operator -(TMPoint value) => new TMPoint(-value.X, -value.Y);
+
+        /// <inheritdoc cref="System.Numerics.IAdditionOperators{TSelf, TOther, TResult}.op_Addition"/>
+        public static TMPoint operator +(TMPoint left, TMPoint right) => new TMPoint(left.X + right.X, left.Y + right.Y);
+
+        /// <inheritdoc cref="System.Numerics.ISubtractionOperators{TSelf, TOther, TResult}.op_Subtraction"/>
+        public static TMPoint operator -(TMPoint left, TMPoint right) => new TMPoint(left.X - right.X, left.Y - right.Y);
+
         /// <summary>
         /// <see cref="ValueTuple{T1, T2}"/>から暗黙的に変換します。
         /// </summary>
@@ -29,6 +41,18 @@ namespace TreeMage.Core.Drawing
     /// <param name="Height">高さを取得します。</param>
     public readonly partial record struct TMSize(double Width, double Height)
     {
+        /// <inheritdoc cref="System.Numerics.IUnaryPlusOperators{TSelf, TResult}.op_UnaryPlus"/>
+        public static TMSize operator +(TMSize value) => value;
+
+        /// <inheritdoc cref="System.Numerics.IUnaryNegationOperators{TSelf, TResult}.op_UnaryNegation"/>
+        public static TMSize operator -(TMSize value) => new TMSize(-value.Width, -value.Height);
+
+        /// <inheritdoc cref="System.Numerics.IAdditionOperators{TSelf, TOther, TResult}.op_Addition"/>
+        public static TMSize operator +(TMSize left, TMSize right) => new TMSize(left.Width + right.Width, left.Height + right.Height);
+
+        /// <inheritdoc cref="System.Numerics.ISubtractionOperators{TSelf, TOther, TResult}.op_Subtraction"/>
+        public static TMSize operator -(TMSize left, TMSize right) => new TMSize(left.Width - right.Width, left.Height - right.Height);
+
         /// <summary>
         /// <see cref="ValueTuple{T1, T2}"/>から暗黙的に変換します。
         /// </summary>
