@@ -7,14 +7,40 @@ namespace TreeMage.Core.Drawing
     /// </summary>
     /// <param name="X">X座標を取得します。</param>
     /// <param name="Y">Y座標を取得します。</param>
-    public readonly partial record struct TMPoint(double X, double Y);
+    public readonly partial record struct TMPoint(double X, double Y)
+    {
+        /// <summary>
+        /// <see cref="ValueTuple{T1, T2}"/>から暗黙的に変換します。
+        /// </summary>
+        /// <param name="value">変換する値</param>
+        public static implicit operator TMPoint((double, double) value) => new TMPoint(value.Item1, value.Item2);
+
+        /// <summary>
+        /// <see cref="ValueTuple{T1, T2}"/>へ暗黙的に変換します。
+        /// </summary>
+        /// <param name="value">変換する値</param>
+        public static implicit operator (double x, double y)(TMPoint value) => (value.X, value.Y);
+    }
 
     /// <summary>
     /// サイズを表します。
     /// </summary>
     /// <param name="Width">横幅を取得します。</param>
     /// <param name="Height">高さを取得します。</param>
-    public readonly partial record struct TMSize(double Width, double Height);
+    public readonly partial record struct TMSize(double Width, double Height)
+    {
+        /// <summary>
+        /// <see cref="ValueTuple{T1, T2}"/>から暗黙的に変換します。
+        /// </summary>
+        /// <param name="value">変換する値</param>
+        public static implicit operator TMSize((double, double) value) => new TMSize(value.Item1, value.Item2);
+
+        /// <summary>
+        /// <see cref="ValueTuple{T1, T2}"/>へ暗黙的に変換します。
+        /// </summary>
+        /// <param name="value">変換する値</param>
+        public static implicit operator (double width, double height)(TMSize value) => (value.Width, value.Height);
+    }
 
     /// <summary>
     /// 矩形を表します。
@@ -44,6 +70,18 @@ namespace TreeMage.Core.Drawing
             : this(point.X, point.Y, size.Width, size.Height)
         {
         }
+
+        /// <summary>
+        /// <see cref="ValueTuple{T1, T2, T3, T4}"/>から暗黙的に変換します。
+        /// </summary>
+        /// <param name="value">変換する値</param>
+        public static implicit operator TMRect((double, double, double, double) value) => new TMRect(value.Item1, value.Item2, value.Item3, value.Item4);
+
+        /// <summary>
+        /// <see cref="ValueTuple{T1, T2, T3, T4}"/>へ暗黙的に変換します。
+        /// </summary>
+        /// <param name="value">変換する値</param>
+        public static implicit operator (double x, double y, double width, double height)(TMRect value) => (value.X, value.Y, value.Width, value.Height);
     }
 
     /// <summary>

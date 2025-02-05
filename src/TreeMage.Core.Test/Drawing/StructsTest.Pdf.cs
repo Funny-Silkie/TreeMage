@@ -23,18 +23,6 @@ namespace TreeMage.Core.Drawing
             Assert.Equal(new XPoint(10, 20), (XPoint)point);
         }
 
-        [Fact]
-        public void Implicit_Operator_FromValueTuple()
-        {
-            Assert.Equal(point, (TMPoint)(10, 20));
-        }
-
-        [Fact]
-        public void Implicit_Operator_ValueTuple()
-        {
-            Assert.Equal((10d, 20d), ((double, double))point);
-        }
-
         #endregion Operators
     }
 
@@ -58,18 +46,6 @@ namespace TreeMage.Core.Drawing
             Assert.Equal(new XSize(10, 20), (XSize)size);
         }
 
-        [Fact]
-        public void Implicit_Operator_FromValueTuple()
-        {
-            Assert.Equal(size, (TMSize)(10, 20));
-        }
-
-        [Fact]
-        public void Implicit_Operator_ValueTuple()
-        {
-            Assert.Equal((10d, 20d), ((double, double))size);
-        }
-
         #endregion Operators
     }
 
@@ -91,18 +67,6 @@ namespace TreeMage.Core.Drawing
         public void Implicit_Operator_ToXRect()
         {
             Assert.Equal(new XRect(10, 20, 30, 40), (XRect)rect);
-        }
-
-        [Fact]
-        public void Implicit_Operator_FromValueTuple()
-        {
-            Assert.Equal(rect, (TMRect)(10, 20, 30, 40));
-        }
-
-        [Fact]
-        public void Implicit_Operator_ValueTuple()
-        {
-            Assert.Equal((10d, 20d, 30d, 40d), ((double, double, double, double))rect);
         }
 
         #endregion Operators

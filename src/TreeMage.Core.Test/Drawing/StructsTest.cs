@@ -8,6 +8,22 @@
         {
             point = new TMPoint(10, 20);
         }
+
+        #region Operators
+
+        [Fact]
+        public void Implicit_Operator_FromValueTuple()
+        {
+            Assert.Equal(point, (TMPoint)(10, 20));
+        }
+
+        [Fact]
+        public void Implicit_Operator_ValueTuple()
+        {
+            Assert.Equal((10d, 20d), ((double, double))point);
+        }
+
+        #endregion Operators
     }
 
     public partial class TMSizeTest
@@ -18,6 +34,22 @@
         {
             size = new TMSize(10, 20);
         }
+
+        #region Operators
+
+        [Fact]
+        public void Implicit_Operator_FromValueTuple()
+        {
+            Assert.Equal(size, (TMSize)(10, 20));
+        }
+
+        [Fact]
+        public void Implicit_Operator_ValueTuple()
+        {
+            Assert.Equal((10d, 20d), ((double, double))size);
+        }
+
+        #endregion Operators
     }
 
     public partial class TMRectTest
@@ -54,6 +86,22 @@
         }
 
         #endregion Properties
+
+        #region Operators
+
+        [Fact]
+        public void Implicit_Operator_FromValueTuple()
+        {
+            Assert.Equal(rect, (TMRect)(10, 20, 30, 40));
+        }
+
+        [Fact]
+        public void Implicit_Operator_ValueTuple()
+        {
+            Assert.Equal((10d, 20d, 30d, 40d), ((double, double, double, double))rect);
+        }
+
+        #endregion Operators
     }
 
     public partial class TMColorTest
