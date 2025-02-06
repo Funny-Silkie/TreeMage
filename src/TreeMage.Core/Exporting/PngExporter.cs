@@ -1,6 +1,4 @@
-﻿using Svg;
-using System.Drawing;
-using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
 using TreeMage.Core.Drawing;
 using TreeMage.Core.Trees;
 
@@ -28,20 +26,21 @@ namespace TreeMage.Core.Exporting
             ArgumentNullException.ThrowIfNull(destination);
             ArgumentNullException.ThrowIfNull(options);
 
-            var drawer = new SvgDrawer();
+            using var drawer = new PngDrawer();
             ((ITreeDrawer)drawer).Draw(tree, options.DrawingOptions);
-            SvgDocument svg = drawer.Document;
-
-            using Bitmap bitmap = svg.Draw();
-            bitmap.Save(destination, ImageFormat.Png);
+            drawer.Image.SaveAsPng(destination);
         }
 
         /// <inheritdoc/>
         public async Task ExportAsync(Tree tree, Stream destination, ExportOptions options)
         {
-            Export(tree, destination, options);
+            ArgumentNullException.ThrowIfNull(tree);
+            ArgumentNullException.ThrowIfNull(destination);
+            ArgumentNullException.ThrowIfNull(options);
 
-            await Task.CompletedTask;
+            using var drawer = new PngDrawer();
+            ((ITreeDrawer)drawer).Draw(tree, options.DrawingOptions);
+            await drawer.Image.SaveAsPngAsync(destination);
         }
     }
 }
