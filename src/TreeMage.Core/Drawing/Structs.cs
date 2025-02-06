@@ -53,6 +53,9 @@ namespace TreeMage.Core.Drawing
         /// <inheritdoc cref="System.Numerics.ISubtractionOperators{TSelf, TOther, TResult}.op_Subtraction"/>
         public static TMSize operator -(TMSize left, TMSize right) => new TMSize(left.Width - right.Width, left.Height - right.Height);
 
+        /// <inheritdoc cref="System.Numerics.IMultiplyOperators{TSelf, TOther, TResult}.op_Multiply"/>
+        public static TMSize operator *(TMSize left, double right) => new TMSize(left.Width * right, left.Height * right);
+
         /// <summary>
         /// <see cref="ValueTuple{T1, T2}"/>から暗黙的に変換します。
         /// </summary>

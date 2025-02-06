@@ -1,4 +1,4 @@
-﻿using SixLabors.Fonts;
+﻿using SkiaSharp;
 using TreeMage.Core.Drawing.Styles;
 using TreeMage.Core.Trees;
 
@@ -56,9 +56,14 @@ namespace TreeMage.Core.Drawing
         public static TMSize CalcTextSize(string? text, int fontSize)
         {
             if (string.IsNullOrEmpty(text)) return new TMSize(0, 0);
+
+            const double Pt2Mm = 25.4 / 72d;
+
 #warning Make as constant
-            FontRectangle rectangle = TextMeasurer.MeasureSize(text, new TextOptions(SystemFonts.CreateFont("Arial", fontSize)));
-            return new TMSize(rectangle.Width, rectangle.Height);
+            using var font = new SKFont(SKTypeface.FromFamilyName("Arial"), fontSize);
+
+            font.MeasureText(text, out SKRect measured);
+            return new TMSize((double)measured.Width - measured.Left, (double)measured.Height - measured.Top) * Pt2Mm;
         }
 
         /// <summary>
