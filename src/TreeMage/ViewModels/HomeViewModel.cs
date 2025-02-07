@@ -67,8 +67,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -98,7 +97,14 @@ namespace TreeMage.ViewModels
                 if (!allowDiscard) return;
             }
 
-            model.CreateNew();
+            try
+            {
+                model.CreateNew();
+            }
+            catch (Exception e)
+            {
+                await ErrorHandle.OutputErrorAsync(e, electronService);
+            }
         }
 
         /// <summary>
@@ -124,8 +130,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -153,7 +158,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -175,16 +180,14 @@ namespace TreeMage.ViewModels
 
                 await model.ImportTree(path, format);
             }
-            catch (TreeFormatException e)
+            catch (TreeFormatException)
             {
                 await electronService.ShowErrorMessageAsync("ツリーのフォーマットが無効です");
-                await Console.Out.WriteLineAsync(e.ToString());
                 return;
             }
             catch (Exception e)
             {
-                await electronService.ShowErrorMessageAsync(e);
-                await Console.Out.WriteLineAsync(e.ToString());
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -208,8 +211,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await electronService.ShowErrorMessageAsync(e);
-                await Console.Out.WriteLineAsync(e.ToString());
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -233,8 +235,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await electronService.ShowErrorMessageAsync(e);
-                await Console.Out.WriteLineAsync(e.ToString());
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -262,8 +263,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -281,8 +281,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -449,8 +448,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                electronService.ShowErrorMessageAsync(e).Wait();
+                ErrorHandle.OutputError(e, electronService);
             }
         }
 
@@ -476,8 +474,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await electronService.ShowErrorMessageAsync(e);
-                await Console.Out.WriteLineAsync(e.ToString());
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -490,8 +487,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -504,8 +500,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -518,8 +513,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -532,8 +526,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
     }

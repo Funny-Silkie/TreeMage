@@ -38,3 +38,6 @@ dotnet_diagnostic.CS8601.severity = error
 
 # CS8619: 値における参照型の Null 許容性が、対象の型と一致しません。
 dotnet_diagnostic.CS8619.severity = error
+
+# CS8774: 終了時にメンバーには null 以外の値が含まれている必要があります。
+dotnet_diagnostic.CS8774.severity = error

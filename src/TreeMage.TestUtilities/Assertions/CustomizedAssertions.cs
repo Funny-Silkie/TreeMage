@@ -1,5 +1,7 @@
-﻿using System.Buffers;
+﻿using PdfSharpCore.Drawing;
+using System.Buffers;
 using System.IO.Compression;
+using TreeMage.Core.Drawing;
 using TreeMage.Core.Drawing.Styles;
 using TreeMage.Core.Trees;
 using TreeMage.Settings;
@@ -281,6 +283,30 @@ namespace TreeMage.TestUtilities.Assertions
                 Assert.Equal(expected.BranchColoring, actual.BranchColoring);
                 Assert.Equal(expected.AutoOrderingMode, actual.AutoOrderingMode);
             });
+        }
+
+        /// <summary>
+        /// <see cref="DrawingOptions"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <remarks>親要素の比較は行いません</remarks>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(DrawingOptions expected, DrawingOptions actual)
+        {
+            Assert.Equal(expected.BranchColoring, actual.BranchColoring);
+        }
+
+        /// <summary>
+        /// <see cref="XColor"/>同士の等価性の比較を行います。
+        /// </summary>
+        /// <param name="expected">予期される値</param>
+        /// <param name="actual">実際の値</param>
+        /// <remarks>親要素の比較は行いません</remarks>
+        /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
+        public static void Equal(XColor expected, XColor actual)
+        {
+            Assert.Equal($"rgba({expected.R}, {expected.G}, {expected.B}, {expected.A})", $"rgba({actual.R}, {actual.G}, {actual.B}, {actual.A})");
         }
 
         /// <summary>

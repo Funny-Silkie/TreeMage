@@ -148,7 +148,7 @@ namespace TreeMage.Settings
             config.BranchColoring = BranchColoringType.Horizontal;
             ExportOptions options = config.ToExportOptions();
 
-            Assert.Equal(config.BranchColoring, options.BranchColoring);
+            Assert.Equal(config.BranchColoring, options.DrawingOptions.BranchColoring);
         }
 
         #endregion Instance Methods

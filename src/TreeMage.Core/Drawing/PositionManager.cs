@@ -1,6 +1,5 @@
 ﻿using SixLabors.Fonts;
 using TreeMage.Core.Drawing.Styles;
-using TreeMage.Core.Exporting;
 using TreeMage.Core.Trees;
 
 namespace TreeMage.Core.Drawing
@@ -54,12 +53,12 @@ namespace TreeMage.Core.Drawing
         /// <param name="text">テキスト内容</param>
         /// <param name="fontSize">フォントサイズ</param>
         /// <returns>テキストエリアのサイズ</returns>
-        public static (double width, double height) CalcTextSize(string? text, int fontSize)
+        public static TMSize CalcTextSize(string? text, int fontSize)
         {
-            if (string.IsNullOrEmpty(text)) return (0, 0);
-#warning Make as constant
-            FontRectangle rectangle = TextMeasurer.MeasureSize(text, new TextOptions(SystemFonts.CreateFont("Arial", fontSize)));
-            return (rectangle.Width, rectangle.Height);
+            if (string.IsNullOrEmpty(text)) return new TMSize(0, 0);
+
+            FontRectangle rectangle = TextMeasurer.MeasureSize(text, new TextOptions(FontManager.GetImageSharpFont(fontSize)));
+            return new TMSize(rectangle.Width, rectangle.Height);
         }
 
         /// <summary>
@@ -217,19 +216,19 @@ namespace TreeMage.Core.Drawing
         /// ドキュメントのサイズを取得します。
         /// </summary>
         /// <returns>ドキュメントのサイズ</returns>
-        public (double width, double height) CalcDocumentSize()
+        public TMSize CalcDocumentSize()
         {
             double width = allExternalNodes.Select(CalcTotalBranchLength).Max() * treeStyle.XScale + 100;
-            if (treeStyle.ShowLeafLabels) width += allExternalNodes.Select(x => CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize).width).Max();
+            if (treeStyle.ShowLeafLabels) width += allExternalNodes.Select(x => CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize).Width).Max();
             if (treeStyle.ShowCladeLabels && allExternalNodes.Length > 0)
             {
                 Clade root = allExternalNodes[0].FindRoot();
-                double maxLength = root.GetDescendants().Prepend(root).Max(x => CalcTextSize(x.Style.CladeLabel, treeStyle.CladeLabelsFontSize).width);
+                double maxLength = root.GetDescendants().Prepend(root).Max(x => CalcTextSize(x.Style.CladeLabel, treeStyle.CladeLabelsFontSize).Width);
                 if (maxLength > 0) width += maxLength + treeStyle.CladeLabelsLineThickness + 20;
             }
 
             double height = allExternalNodes.Length * treeStyle.YScale + 100;
-            if (treeStyle.ShowScaleBar) height += CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize).height + 20;
+            if (treeStyle.ShowScaleBar) height += CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize).Height + 20;
 
             return (width, height);
         }
@@ -240,7 +239,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="clade">対象のクレード</param>
         /// <returns><paramref name="clade"/>のシェードの座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double x, double y, double width, double height) CalcCladeShadePosition(Clade clade)
+        public TMRect CalcCladeShadePosition(Clade clade)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
@@ -271,7 +270,7 @@ namespace TreeMage.Core.Drawing
                 yBottom = CalcY1(externals[^1]) + halfLeafHeight;
             }
 
-            return (xLeft, yTop, xRight - xLeft + 5, yBottom - yTop);
+            return new TMRect(xLeft, yTop, xRight - xLeft + 5, yBottom - yTop);
         }
 
         /// <summary>
@@ -279,7 +278,7 @@ namespace TreeMage.Core.Drawing
         /// </summary>
         /// <param name="clade">対象のクレード</param>
         /// <returns>三角形の三点の座標</returns>
-        public ((double x, double y) left, (double x, double y) rightTop, (double x, double y) rightBottom) CalcCollapseTrianglePositions(Clade clade)
+        public (TMPoint left, TMPoint rightTop, TMPoint rightBottom) CalcCollapseTrianglePositions(Clade clade)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
@@ -324,7 +323,7 @@ namespace TreeMage.Core.Drawing
             xRightBottom = xRightBottom * treeStyle.XScale + xLeft;
             double yOffset = treeStyle.YScale / 2d;
 
-            return ((xLeft, y), (xRightTop, y - yOffset), (xRightBottom, y + yOffset));
+            return (new TMPoint(xLeft, y), new TMPoint(xRightTop, y - yOffset), new TMPoint(xRightBottom, y + yOffset));
         }
 
         /// <summary>
@@ -333,7 +332,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="clade">計算対象</param>
         /// <returns><paramref name="clade"/>における葉の座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double x, double y, double width, double height) CalcLeafPosition(Clade clade)
+        public TMRect CalcLeafPosition(Clade clade)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
@@ -342,7 +341,7 @@ namespace TreeMage.Core.Drawing
             double x = CalcTotalBranchLength(clade) * treeStyle.XScale + 5;
             double y = CalcY1(clade) + height / 2;
 
-            return (x, y, width, height);
+            return new TMRect(x, y, width, height);
         }
 
         /// <summary>
@@ -351,7 +350,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="clade">クレード名</param>
         /// <returns>クレード名の座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public ((double x, double yTop, double yBottom) line, (double x, double y) text) CalcCladeLabelPosition(Clade clade)
+        public (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) CalcCladeLabelPosition(Clade clade)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
@@ -384,7 +383,8 @@ namespace TreeMage.Core.Drawing
                 y = (yTop + yBottom) / 2 + height / 2;
             }
 
-            return ((x + treeStyle.CladeLabelsLineThickness / 2d, yTop, yBottom), (x + treeStyle.CladeLabelsLineThickness + 5, y));
+            double lineX = x + treeStyle.CladeLabelsLineThickness / 2d;
+            return (new TMPoint(lineX, yTop), new TMPoint(lineX, yBottom), new TMPoint(x + treeStyle.CladeLabelsLineThickness + 5, y));
         }
 
         /// <summary>
@@ -393,7 +393,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="clade">計算対象</param>
         /// <returns><paramref name="clade"/>における枝の横棒の座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double xParent, double xChild, double y) CalcHorizontalBranchPositions(Clade clade)
+        public (TMPoint parent, TMPoint child) CalcHorizontalBranchPositions(Clade clade)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
@@ -402,7 +402,7 @@ namespace TreeMage.Core.Drawing
             double xChild = CalcX2(clade);
             if (clade.IsLeaf) xChild += treeStyle.BranchThickness / 2;
 
-            return (xParent, xChild, y);
+            return (new TMPoint(xParent, y), new TMPoint(xChild, y));
         }
 
         /// <summary>
@@ -411,11 +411,12 @@ namespace TreeMage.Core.Drawing
         /// <param name="clade">計算対象</param>
         /// <returns><paramref name="clade"/>における枝の縦棒の座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double x, double yParent, double yChild) CalcVerticalBranchPositions(Clade clade)
+        public (TMPoint parent, TMPoint child) CalcVerticalBranchPositions(Clade clade)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
-            return (CalcX1(clade), CalcY2(clade), CalcY1(clade));
+            double x = CalcX1(clade);
+            return (new TMPoint(x, CalcY2(clade)), new TMPoint(x, CalcY1(clade)));
         }
 
         /// <summary>
@@ -425,7 +426,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="text">表示する値</param>
         /// <returns><paramref name="clade"/>における結節点の値の座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double x, double y) CalcNodeValuePosition(Clade clade, string text)
+        public TMPoint CalcNodeValuePosition(Clade clade, string text)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
@@ -435,7 +436,7 @@ namespace TreeMage.Core.Drawing
 
             if (clade.ChildrenInternal.Count % 2 == 1) y += treeStyle.BranchThickness / 2 + height / 2 + 3;
 
-            return (x, y);
+            return new TMPoint(x, y);
         }
 
         /// <summary>
@@ -444,7 +445,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="clade">計算対象</param>
         /// <returns><paramref name="clade"/>の結節点の装飾の矩形領域</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double x, double y, double width, double height) CalcNodeDecorationRectangleArea(Clade clade)
+        public TMRect CalcNodeDecorationRectangleArea(Clade clade)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
@@ -454,7 +455,7 @@ namespace TreeMage.Core.Drawing
             double y = CalcY1(clade) - size;
             double length = size * 2;
 
-            return (x, y, length, length);
+            return new TMRect(x, y, length, length);
         }
 
         /// <summary>
@@ -464,7 +465,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="text">表示する値</param>
         /// <returns><paramref name="clade"/>における枝の値の座標</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
-        public (double x, double y) CalcBranchValuePosition(Clade clade, string text)
+        public TMPoint CalcBranchValuePosition(Clade clade, string text)
         {
             ArgumentNullException.ThrowIfNull(clade);
 
@@ -472,7 +473,7 @@ namespace TreeMage.Core.Drawing
             (_, double height) = CalcTextSize(text, treeStyle.BranchValueFontSize);
             double y = CalcY1(clade) - height / 2 - treeStyle.BranchThickness / 2;
 
-            return (x, y);
+            return new TMPoint(x, y);
         }
 
         /// <summary>
@@ -482,7 +483,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="decorationStyle">装飾スタイル</param>
         /// <returns><paramref name="clade"/>の枝の装飾の矩形領域</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>または<paramref name="decorationStyle"/>が<see langword="null"/></exception>
-        public (double x, double y, double width, double height) CalcBranchDecorationRectangleArea(Clade clade, BranchDecorationStyle decorationStyle)
+        public TMRect CalcBranchDecorationRectangleArea(Clade clade, BranchDecorationStyle decorationStyle)
         {
             ArgumentNullException.ThrowIfNull(clade);
             ArgumentNullException.ThrowIfNull(decorationStyle);
@@ -495,7 +496,7 @@ namespace TreeMage.Core.Drawing
             double y = CalcY1(clade) - size;
             double length = size * 2;
 
-            return (x, y, length, length);
+            return new TMRect(x, y, length, length);
         }
 
         /// <summary>
@@ -505,7 +506,7 @@ namespace TreeMage.Core.Drawing
         /// <param name="decorationStyle">装飾スタイル</param>
         /// <returns><paramref name="clade"/>の枝の装飾の円領域</returns>
         /// <exception cref="ArgumentNullException"><paramref name="clade"/>または<paramref name="decorationStyle"/>が<see langword="null"/></exception>
-        public (double centerX, double centerY, double radius) CalcBranchDecorationCircleArea(Clade clade, BranchDecorationStyle decorationStyle)
+        public (TMPoint center, double radius) CalcBranchDecorationCircleArea(Clade clade, BranchDecorationStyle decorationStyle)
         {
             ArgumentNullException.ThrowIfNull(clade);
             ArgumentNullException.ThrowIfNull(decorationStyle);
@@ -516,30 +517,30 @@ namespace TreeMage.Core.Drawing
             double x = (xParent + xChild) / 2;
             double y = CalcY1(clade);
 
-            return (x, y, decorationStyle.ShapeSize);
+            return (new TMPoint(x, y), decorationStyle.ShapeSize);
         }
 
         /// <summary>
         /// スケールバーの座標オフセットを算出します。
         /// </summary>
         /// <returns>スケールバーの座標オフセット</returns>
-        public (double x, double y) CalcScaleBarOffset()
+        public TMPoint CalcScaleBarOffset()
         {
-            (double textWidth, double textHeight) = CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize);
-            double y = indexTable.Count * treeStyle.YScale + 30 + textHeight;
+            TMSize textSize = CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize);
+            double y = indexTable.Count * treeStyle.YScale + 30 + textSize.Height;
 
-            return (50 + textWidth / 2, 20 + y);
+            return new TMPoint(50 + textSize.Width / 2, 20 + y);
         }
 
         /// <summary>
         /// スケールバーの座標を算出します。
         /// </summary>
         /// <returns>スケールバーの座標</returns>
-        public ((double xLeft, double xRight, double y) line, (double x, double y) text) CalcScaleBarPositions()
+        public (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) CalcScaleBarPositions()
         {
             double barWidth = treeStyle.ScaleBarValue * treeStyle.XScale;
 
-            return ((0, barWidth, 10), (barWidth / 2, 0));
+            return (new TMPoint(0, 10), new TMPoint(barWidth, 10), new TMPoint(barWidth / 2, 0));
         }
 
         /// <summary>
