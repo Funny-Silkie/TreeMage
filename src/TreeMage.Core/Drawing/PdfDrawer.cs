@@ -51,7 +51,7 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawCladeShade(TMRect area, TMColor fill)
+        public void DrawCladeShade(TMRect area, TMColor fill, Clade target)
         {
             Debug.Assert(drawingInfo is not null);
 
@@ -59,7 +59,7 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawCollapsedTriangle(TMPoint left, TMPoint rightTop, TMPoint rightBottom, TMColor stroke, int lineThickness)
+        public void DrawCollapsedTriangle(TMPoint left, TMPoint rightTop, TMPoint rightBottom, TMColor stroke, int lineThickness, Clade target)
         {
             Debug.Assert(drawingInfo is not null);
 
@@ -73,18 +73,18 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawLeafLabel(string taxon, TMPoint point, TMColor fill, int fontSize)
+        public void DrawLeafLabel(string taxon, TMRect area, TMColor fill, int fontSize, Clade target)
         {
             Debug.Assert(drawingInfo is not null);
 
             drawingInfo.Graphics.DrawString(taxon,
                                             drawingInfo.LeafLabelFont,
                                             fill.ToPdfBrush(),
-                                            point);
+                                            area.Point);
         }
 
         /// <inheritdoc/>
-        public void DrawNodeValue(string value, TMPoint point, TMColor fill, int fontSize)
+        public void DrawNodeValue(string value, TMPoint point, TMColor fill, int fontSize, Clade target)
         {
             Debug.Assert(drawingInfo is not null);
 
@@ -95,7 +95,7 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawBranchValue(string value, TMPoint point, TMColor fill, int fontSize)
+        public void DrawBranchValue(string value, TMPoint point, TMColor fill, int fontSize, Clade target)
         {
             Debug.Assert(drawingInfo is not null);
 
@@ -111,7 +111,7 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawCladeLabel(string cladeName, TMPoint lineBegin, TMPoint lineEnd, TMPoint textPoint, int lineThickness, int fontSize)
+        public void DrawCladeLabel(string cladeName, TMPoint lineBegin, TMPoint lineEnd, TMPoint textPoint, int lineThickness, int fontSize, Clade target)
         {
             Debug.Assert(drawingInfo is not null);
 
@@ -129,7 +129,7 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawHorizontalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness)
+        public void DrawHorizontalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness, Clade target)
         {
             Debug.Assert(drawingInfo is not null);
 
@@ -139,7 +139,7 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <inheritdoc/>
-        public void DrawVerticalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness)
+        public void DrawVerticalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness, Clade target)
         {
             Debug.Assert(drawingInfo is not null);
 

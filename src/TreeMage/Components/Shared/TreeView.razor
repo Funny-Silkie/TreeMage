@@ -1,6 +1,6 @@
 @inject IElectronService ElectronService
 
-@* NOTE: ErrorBoundaryが再帰的に例外を補足できないのでここに設置 ref: https://github.com/dotnet/aspnetcore/issues/56413 *@
+@* NOTE: ErrorBoundaryが再帰的に例外を捕捉できないのでここに設置 ref: https://github.com/dotnet/aspnetcore/issues/56413 *@
 @if (ViewModel.TargetTree.Value is not null)
 {
     <ErrorBoundary>
