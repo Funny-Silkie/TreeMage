@@ -7,8 +7,8 @@
     </ChildContent>
     <ErrorContent>
         @{
-            Console.WriteLine(context.ToString());
-            ElectronService.ShowErrorMessageAsync(context).Wait();
+            ErrorHandle.OutputError(context, ElectronService);
+            <div>@context.ToString()</div>
         }
     </ErrorContent>
 </ErrorBoundary>

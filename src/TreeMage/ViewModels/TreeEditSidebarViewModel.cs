@@ -38,8 +38,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 
@@ -57,8 +56,7 @@ namespace TreeMage.ViewModels
             }
             catch (Exception e)
             {
-                await Console.Out.WriteLineAsync(e.ToString());
-                await electronService.ShowErrorMessageAsync(e);
+                await ErrorHandle.OutputErrorAsync(e, electronService);
             }
         }
 

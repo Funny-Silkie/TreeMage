@@ -1,313 +1,327 @@
+@inject IElectronService ElectronService
+
+@* NOTE: ErrorBoundaryが再帰的に例外を補足できないのでここに設置 ref: https://github.com/dotnet/aspnetcore/issues/56413 *@
 @if (ViewModel.TargetTree.Value is not null)
 {
-    Configurations config = Configurations.LoadOrCreate();
+    <ErrorBoundary>
+        <ChildContent>
+            @{
+                Configurations config = Configurations.LoadOrCreate();
 
-    Tree tree = ViewModel.TargetTree.Value;
-    positionManager.Reset(tree);
+                Tree tree = ViewModel.TargetTree.Value;
+                positionManager.Reset(tree);
 
-    (double svgWidth, double svgHeight) = positionManager.CalcDocumentSize();
+                (double svgWidth, double svgHeight) = positionManager.CalcDocumentSize();
 
-    <svg width="@svgWidth" height="@svgHeight">
-        <style type="text/css">
-            text {
-                font-family: Arial, Helvetica, sans-serif;
-            }
-
-            .leaf {
-                font-size: @(tree.Style.LeafLabelsFontSize + "px");
-            }
-
-            .clade-label {
-                font-size: @(tree.Style.CladeLabelsFontSize + "px");
-            }
-
-            .node-value {
-                font-size: @(tree.Style.NodeValueFontSize + "px");
-            }
-
-            .branch-value {
-                font-size: @(tree.Style.BranchValueFontSize + "px");
-            }
-
-            .branch {
-                fill: none;
-                stroke-width: @(tree.Style.BranchThickness + "px");
-            }
-
-            .collapsed-rectangle {
-                fill: none;
-                stroke-width: @(tree.Style.BranchThickness + "px");
-            }
-
-            .scalebar-line {
-                fill: none;
-                stroke: black;
-                stroke-width: @(tree.Style.ScaleBarThickness + "px");
-            }
-
-            .scalebar-text {
-                font-size: @(tree.Style.ScaleBarFontSize + "px");
-            }
-
-            .clickable-leaf {
-                stroke: none;
-            }
-
-            .clickable-branch {
-                fill: none;
-            }
-        </style>
-        <rect width="100%" height="100%" style="fill: transparent; stroke: none" onclick="@ViewModel.UnfocusAllCommand.ToDelegate()" />
-        <g transform="translate(50, 50)">
-            @foreach (Clade current in tree.GetAllClades())
-            {
-                if (current.GetIsHidden()) continue;
-
-                // シェード
-                if (!string.IsNullOrEmpty(current.Style.ShadeColor))
-                {
-                    (double x, double y, double width, double height) = positionManager.CalcCladeShadePosition(current);
-
-                    <rect x="@x" y="@y" width="@width" height="@height" fill="@current.Style.ShadeColor" />
-                }
-
-                // 折り畳み
-                if (current.GetIsExternal() && !current.IsLeaf)
-                {
-                    var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);
-
-                    <path class="collapsed-rectangle" d="M @left.X @left.Y
-                                                                         L @rightTop.X @rightTop.Y
-                                                                         L @rightBottom.X @rightBottom.Y
-                                                                         L @left.X @left.Y" stroke="@current.Style.BranchColor" />
-                }
-
-                if (current.IsLeaf)
-                {
-                    // 系統名
-                    if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
-                    {
-                        (double x, double y, double width, double height) = positionManager.CalcLeafPosition(current);
-
-                        var svgText = new MarkupString($"<text class=\"leaf\" x=\"{x}\" y=\"{y}\" style=\"fill: {current.Style.LeafColor}\">{current.Taxon}</text>");
-                        @svgText
-
-                        // クリックエリア
-                        if (ViewModel.EditMode.Value == TreeEditMode.Select)
-                        {
-                            CladeId id = current.GetId(CladeIdSuffix.Leaf);
-                            string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
-                            const int margin = 3;
-
-                            <rect id="@id" class="clickable-leaf" x="@(x - margin)" y="@(y - height - margin)" width="@(width + margin * 2)" height="@(height + margin * 2)"
-                                  style="fill: @fillColor" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+                <svg width="@svgWidth" height="@svgHeight">
+                    <style type="text/css">
+                        text {
+                            font-family: @FontManager.DefaultFontFamily;
                         }
-                    }
-                }
-                else
-                {
-                    // 結節点の値
-                    @if (tree.Style.ShowNodeValues && !current.GetIsExternal())
-                    {
-                        string nodeValue = SelectShowValue(current, tree.Style.NodeValueType);
-                        if (nodeValue.Length > 0)
-                        {
-                            (double x, double y) = positionManager.CalcNodeValuePosition(current, nodeValue);
 
-                            var svgText = new MarkupString($"<text class=\"node-value\" x=\"{x}\" y=\"{y}\" style=\"fill: {current.Style.BranchColor}\">{nodeValue}</text>");
-                            @svgText
+                        .leaf {
+                            font-size: @(tree.Style.LeafLabelsFontSize + "px");
                         }
-                    }
-                }
 
-                // クレード名
-                if (tree.Style.ShowCladeLabels && !string.IsNullOrEmpty(current.Style.CladeLabel))
-                {
-                    (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) = positionManager.CalcCladeLabelPosition(current);
+                        .clade-label {
+                            font-size: @(tree.Style.CladeLabelsFontSize + "px");
+                        }
 
-                    @if (tree.Style.CladeLabelsLineThickness > 0)
-                    {
-                        <line x1="@lineBegin.X" x2="@lineEnd.X" y1="@lineBegin.Y" y2="@lineEnd.Y" stroke="black" stroke-width="@tree.Style.CladeLabelsLineThickness" />
-                    }
-                    var svgText = new MarkupString($"<text class=\"clade-label\" x=\"{text.X}\" y=\"{text.Y}\">{current.Style.CladeLabel}</text>");
-                    @svgText
-                }
+                        .node-value {
+                            font-size: @(tree.Style.NodeValueFontSize + "px");
+                        }
 
-                if (current.GetDrawnBranchLength() > 0)
-                {
-                    // 横棒
-                    {
-                        (TMPoint parentPoint, TMPoint childPoint) = positionManager.CalcHorizontalBranchPositions(current);
+                        .branch-value {
+                            font-size: @(tree.Style.BranchValueFontSize + "px");
+                        }
 
-                        string stroke;
-                        if (config.BranchColoring is BranchColoringType.Both or BranchColoringType.Horizontal) stroke = current.Style.BranchColor;
-                        else stroke = "black";
-                        <line class="branch" x1="@parentPoint.X" y1="@parentPoint.Y" x2="@childPoint.X" y2="@childPoint.Y" style="stroke: @(stroke)" />
-                    }
+                        .branch {
+                            fill: none;
+                            stroke-width: @(tree.Style.BranchThickness + "px");
+                        }
 
-                    // 枝の装飾
-                    if (ViewModel.EditMode.Value is TreeEditMode.Select or TreeEditMode.Swap && tree.Style.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
-                        foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Enabled && (x.Regex?.IsMatch(current.Supports) ?? false)))
+                        .collapsed-rectangle {
+                            fill: none;
+                            stroke-width: @(tree.Style.BranchThickness + "px");
+                        }
+
+                        .scalebar-line {
+                            fill: none;
+                            stroke: black;
+                            stroke-width: @(tree.Style.ScaleBarThickness + "px");
+                        }
+
+                        .scalebar-text {
+                            font-size: @(tree.Style.ScaleBarFontSize + "px");
+                        }
+
+                        .clickable-leaf {
+                            stroke: none;
+                        }
+
+                        .clickable-branch {
+                            fill: none;
+                        }
+                    </style>
+                    <rect width="100%" height="100%" style="fill: transparent; stroke: none" onclick="@ViewModel.UnfocusAllCommand.ToDelegate()" />
+                    <g transform="translate(50, 50)">
+                        @foreach (Clade current in tree.GetAllClades())
                         {
-                            string color = currentDecoration.ShapeColor;
+                            if (current.GetIsHidden()) continue;
 
-                            switch (currentDecoration.DecorationType)
+                            // シェード
+                            if (!string.IsNullOrEmpty(current.Style.ShadeColor))
                             {
-                                case BranchDecorationType.ClosedCircle:
-                                case BranchDecorationType.OpenCircle:
+                                (double x, double y, double width, double height) = positionManager.CalcCladeShadePosition(current);
+
+                                <rect x="@x" y="@y" width="@width" height="@height" fill="@current.Style.ShadeColor" />
+                            }
+
+                            // 折り畳み
+                            if (current.GetIsExternal() && !current.IsLeaf)
+                            {
+                                var (left, rightTop, rightBottom) = positionManager.CalcCollapseTrianglePositions(current);
+
+                                <path class="collapsed-rectangle" d="M @left.X @left.Y
+                                                                     L @rightTop.X @rightTop.Y
+                                                                     L @rightBottom.X @rightBottom.Y
+                                                                     L @left.X @left.Y" stroke="@current.Style.BranchColor" />
+                            }
+
+                            if (current.IsLeaf)
+                            {
+                                // 系統名
+                                if (tree.Style.ShowLeafLabels && !string.IsNullOrEmpty(current.Taxon))
+                                {
+                                    (double x, double y, double width, double height) = positionManager.CalcLeafPosition(current);
+
+                                    var svgText = new MarkupString($"<text class=\"leaf\" x=\"{x}\" y=\"{y}\" style=\"fill: {current.Style.LeafColor}\">{current.Taxon}</text>");
+                                    @svgText
+
+                                    // クリックエリア
+                                    if (ViewModel.EditMode.Value == TreeEditMode.Select)
                                     {
-                                        (TMPoint center, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentDecoration);
+                                        CladeId id = current.GetId(CladeIdSuffix.Leaf);
+                                        string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
+                                        const int margin = 3;
 
-                                        string fill, stroke;
-                                        if (currentDecoration.DecorationType == BranchDecorationType.ClosedCircle)
-                                        {
-                                            fill = color;
-                                            stroke = "none";
-                                        }
-                                        else
-                                        {
-                                            fill = "white";
-                                            stroke = color;
-                                        }
-
-                                        <circle cx="@center.X" cy="@center.Y" r="@radius" style="stroke: @stroke; fill: @fill" />
+                                        <rect id="@id" class="clickable-leaf" x="@(x - margin)" y="@(y - height - margin)" width="@(width + margin * 2)" height="@(height + margin * 2)"
+                                              style="fill: @fillColor" onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
                                     }
-                                    break;
-                                case BranchDecorationType.ClosedRectangle:
-                                case BranchDecorationType.OpenedRectangle:
+                                }
+                            }
+                            else
+                            {
+                                // 結節点の値
+                                @if (tree.Style.ShowNodeValues && !current.GetIsExternal())
+                                {
+                                    string nodeValue = SelectShowValue(current, tree.Style.NodeValueType);
+                                    if (nodeValue.Length > 0)
                                     {
-                                        (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(current, currentDecoration);
+                                        (double x, double y) = positionManager.CalcNodeValuePosition(current, nodeValue);
 
-                                        string fill, stroke;
-                                        if (currentDecoration.DecorationType == BranchDecorationType.ClosedRectangle)
-                                        {
-                                            fill = color;
-                                            stroke = "none";
-                                        }
-                                        else
-                                        {
-                                            fill = "white";
-                                            stroke = color;
-                                        }
-
-                                        <rect x="@x" y="@y" width="@width" height="@height" style="stroke: @stroke; fill: @fill" />
+                                        var svgText = new MarkupString($"<text class=\"node-value\" x=\"{x}\" y=\"{y}\" style=\"fill: {current.Style.BranchColor}\">{nodeValue}</text>");
+                                        @svgText
                                     }
-                                    break;
+                                }
+                            }
+
+                            // クレード名
+                            if (tree.Style.ShowCladeLabels && !string.IsNullOrEmpty(current.Style.CladeLabel))
+                            {
+                                (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) = positionManager.CalcCladeLabelPosition(current);
+
+                                @if (tree.Style.CladeLabelsLineThickness > 0)
+                                {
+                                    <line x1="@lineBegin.X" x2="@lineEnd.X" y1="@lineBegin.Y" y2="@lineEnd.Y" stroke="black" stroke-width="@tree.Style.CladeLabelsLineThickness" />
+                                }
+                                var svgText = new MarkupString($"<text class=\"clade-label\" x=\"{text.X}\" y=\"{text.Y}\">{current.Style.CladeLabel}</text>");
+                                @svgText
+                            }
+
+                            if (current.GetDrawnBranchLength() > 0)
+                            {
+                                // 横棒
+                                {
+                                    (TMPoint parentPoint, TMPoint childPoint) = positionManager.CalcHorizontalBranchPositions(current);
+
+                                    string stroke;
+                                    if (config.BranchColoring is BranchColoringType.Both or BranchColoringType.Horizontal) stroke = current.Style.BranchColor;
+                                    else stroke = "black";
+                                    <line class="branch" x1="@parentPoint.X" y1="@parentPoint.Y" x2="@childPoint.X" y2="@childPoint.Y" style="stroke: @(stroke)" />
+                                }
+
+                                // 枝の装飾
+                                if (ViewModel.EditMode.Value is TreeEditMode.Select or TreeEditMode.Swap && tree.Style.ShowBranchDecorations && !string.IsNullOrEmpty(current.Supports))
+                                    foreach (BranchDecorationStyle currentDecoration in tree.Style.DecorationStyles.Where(x => x.Enabled && (x.Regex?.IsMatch(current.Supports) ?? false)))
+                                    {
+                                        string color = currentDecoration.ShapeColor;
+
+                                        switch (currentDecoration.DecorationType)
+                                        {
+                                            case BranchDecorationType.ClosedCircle:
+                                            case BranchDecorationType.OpenCircle:
+                                                {
+                                                    (TMPoint center, double radius) = positionManager.CalcBranchDecorationCircleArea(current, currentDecoration);
+
+                                                    string fill, stroke;
+                                                    if (currentDecoration.DecorationType == BranchDecorationType.ClosedCircle)
+                                                    {
+                                                        fill = color;
+                                                        stroke = "none";
+                                                    }
+                                                    else
+                                                    {
+                                                        fill = "white";
+                                                        stroke = color;
+                                                    }
+
+                                                    <circle cx="@center.X" cy="@center.Y" r="@radius" style="stroke: @stroke; fill: @fill" />
+                                                }
+                                                break;
+                                            case BranchDecorationType.ClosedRectangle:
+                                            case BranchDecorationType.OpenedRectangle:
+                                                {
+                                                    (double x, double y, double width, double height) = positionManager.CalcBranchDecorationRectangleArea(current, currentDecoration);
+
+                                                    string fill, stroke;
+                                                    if (currentDecoration.DecorationType == BranchDecorationType.ClosedRectangle)
+                                                    {
+                                                        fill = color;
+                                                        stroke = "none";
+                                                    }
+                                                    else
+                                                    {
+                                                        fill = "white";
+                                                        stroke = color;
+                                                    }
+
+                                                    <rect x="@x" y="@y" width="@width" height="@height" style="stroke: @stroke; fill: @fill" />
+                                                }
+                                                break;
+                                        }
+                                    }
+                                if (ViewModel.EditMode.Value is TreeEditMode.Reroot && !current.IsRoot && !current.IsLeaf && (tree.IsUnrooted || !current.Parent.IsRoot))
+                                {
+                                    const double size = 5;
+                                    double x = (positionManager.CalcX1(current) + positionManager.CalcX2(current)) / 2 - size;
+                                    double y = positionManager.CalcY1(current) - size;
+
+                                    <rect x="@x" y="@y" width="@(size * 2)" height="@(size * 2)" style="stroke: black; stroke-width: 2px; fill: white" onclick="@ViewModel.RerootCommand.ToDelegate((current, true))" />
+
+                                }
+                                if (ViewModel.EditMode.Value is TreeEditMode.Subtree && !current.IsRoot && !current.IsLeaf)
+                                {
+                                    const double size = 5;
+                                    double x = (positionManager.CalcX1(current) + positionManager.CalcX2(current)) / 2 - size;
+                                    double y = positionManager.CalcY1(current) - size;
+
+                                    <rect x="@x" y="@y" width="@(size * 2)" height="@(size * 2)" style="stroke: transparent; stroke-width: 2px; fill: black" onclick="@ViewModel.ExtractSubtreeCommand.ToDelegate(current)" />
+
+                                }
+
+                                // 二分岐の値
+                                if (tree.Style.ShowBranchValues)
+                                {
+                                    string branchValue = SelectShowValue(current, tree.Style.BranchValueType);
+                                    if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
+                                    {
+                                        (double x, double y) = positionManager.CalcBranchValuePosition(current, branchValue);
+
+                                        var svgText = new MarkupString($"<text class=\"branch-value\" x=\"{x}\" y=\"{y}\" text-anchor=\"middle\" style=\"fill: {current.Style.BranchColor}\">{branchValue}</text>");
+                                        @svgText
+                                    }
+                                }
+                            }
+
+                            Clade? parent = current.Parent;
+                            if (parent is not null)
+                            {
+                                if (parent.Children.Count > 1)
+                                {
+                                    (TMPoint parentPoint, TMPoint childPoint) = positionManager.CalcVerticalBranchPositions(current);
+
+                                    // 縦棒
+                                    if (parentPoint != childPoint)
+                                    {
+                                        string stroke;
+                                        if (config.BranchColoring is BranchColoringType.Both or BranchColoringType.Vertical) stroke = current.Style.BranchColor;
+                                        else stroke = "black";
+                                        <line class="branch" x1="@parentPoint.X" y1="@parentPoint.Y" x2="@childPoint.X" y2="@childPoint.Y" style="stroke: @stroke" />
+                                    }
+                                }
+                            }
+
+                            // 枝クリックエリア
+                            if (ViewModel.EditMode.Value == TreeEditMode.Select)
+                            {
+                                double x2 = positionManager.CalcX2(current);
+
+                                if (!double.IsNaN(x2))
+                                {
+                                    double x1 = positionManager.CalcX1(current);
+                                    double y1 = positionManager.CalcY1(current);
+                                    double y2 = positionManager.CalcY2(current);
+
+                                    string path = $"M {x2} {y1}";
+                                    if (x1 != x2) path += $"H {x1}";
+                                    if (y1 != y2) path += $"V {y2}";
+
+                                    CladeId id = current.GetId(CladeIdSuffix.Branch);
+                                    string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
+
+                                    <path id="@id" class="clickable-branch" d="@path"
+                                          style="stroke: @strokeColor; stroke-width: @(tree.Style.BranchThickness + 4)"
+                                          onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
+                                }
+                            }
+
+                            // 結節点クリックエリア
+                            if (ViewModel.EditMode.Value == TreeEditMode.Reroot && !current.IsLeaf && !current.IsRoot)
+                            {
+                                CladeId id = current.GetId(CladeIdSuffix.Node);
+                                (double x, double y, double width, double height) = positionManager.CalcNodeDecorationRectangleArea(current);
+
+                                <rect id="@id" x="@x" y="@y" width="@width" height="@height" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.RerootCommand.ToDelegate((current, false))" />
+                            }
+                            else if (ViewModel.EditMode.Value == TreeEditMode.Swap && !current.IsRoot)
+                            {
+                                CladeId id = current.GetId(CladeIdSuffix.Node);
+                                int index = current.Parent.Children.IndexOf(current);
+
+                                if (index < current.Parent.Children.Count - 1)
+                                {
+                                    Clade sister = current.Parent.Children[index + 1];
+
+                                    double x = positionManager.CalcX1(current) - 5;
+                                    double y = (positionManager.CalcY1(current) + positionManager.CalcY1(sister)) / 2 - 5;
+
+                                    <rect id="@id" x="@x" y="@y" width="10" height="10" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.SwapSisterCommand.ToDelegate((current, sister))" />
+                                }
                             }
                         }
-                    if (ViewModel.EditMode.Value is TreeEditMode.Reroot && !current.IsRoot && !current.IsLeaf && (tree.IsUnrooted || !current.Parent.IsRoot))
+                    </g>
+
+                    // Scale bar
+                    @if (tree.Style.ShowScaleBar && tree.Style.ScaleBarValue > 0)
                     {
-                        const double size = 5;
-                        double x = (positionManager.CalcX1(current) + positionManager.CalcX2(current)) / 2 - size;
-                        double y = positionManager.CalcY1(current) - size;
+                        (double offsetX, double offsetY) = positionManager.CalcScaleBarOffset();
+                        (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) = positionManager.CalcScaleBarPositions();
 
-                        <rect x="@x" y="@y" width="@(size * 2)" height="@(size * 2)" style="stroke: black; stroke-width: 2px; fill: white" onclick="@ViewModel.RerootCommand.ToDelegate((current, true))" />
-
+                        <g transform="translate(@offsetX, @offsetY)">
+                            <text class="scalebar-text" x="@(text.X)" y="@(text.Y)" text-anchor="middle">@tree.Style.ScaleBarValue</text>
+                            <line class="scalebar-line" x1="@(lineBegin.X)" y1="@(lineBegin.Y)" x2="@(lineEnd.X)" y2="@(lineEnd.Y)" />
+                        </g>
                     }
-                    if (ViewModel.EditMode.Value is TreeEditMode.Subtree && !current.IsRoot && !current.IsLeaf)
-                    {
-                        const double size = 5;
-                        double x = (positionManager.CalcX1(current) + positionManager.CalcX2(current)) / 2 - size;
-                        double y = positionManager.CalcY1(current) - size;
-
-                        <rect x="@x" y="@y" width="@(size * 2)" height="@(size * 2)" style="stroke: transparent; stroke-width: 2px; fill: black" onclick="@ViewModel.ExtractSubtreeCommand.ToDelegate(current)" />
-
-                    }
-
-                    // 二分岐の値
-                    if (tree.Style.ShowBranchValues)
-                    {
-                        string branchValue = SelectShowValue(current, tree.Style.BranchValueType);
-                        if (branchValue.Length > 0 && (!tree.Style.BranchValueHideRegex?.IsMatch(branchValue) ?? true))
-                        {
-                            (double x, double y) = positionManager.CalcBranchValuePosition(current, branchValue);
-
-                            var svgText = new MarkupString($"<text class=\"branch-value\" x=\"{x}\" y=\"{y}\" text-anchor=\"middle\" style=\"fill: {current.Style.BranchColor}\">{branchValue}</text>");
-                            @svgText
-                        }
-                    }
-                }
-
-                Clade? parent = current.Parent;
-                if (parent is not null)
-                {
-                    if (parent.Children.Count > 1)
-                    {
-                        (TMPoint parentPoint, TMPoint childPoint) = positionManager.CalcVerticalBranchPositions(current);
-
-                        // 縦棒
-                        if (parentPoint != childPoint)
-                        {
-                            string stroke;
-                            if (config.BranchColoring is BranchColoringType.Both or BranchColoringType.Vertical) stroke = current.Style.BranchColor;
-                            else stroke = "black";
-                            <line class="branch" x1="@parentPoint.X" y1="@parentPoint.Y" x2="@childPoint.X" y2="@childPoint.Y" style="stroke: @stroke" />
-                        }
-                    }
-                }
-
-                // 枝クリックエリア
-                if (ViewModel.EditMode.Value == TreeEditMode.Select)
-                {
-                    double x2 = positionManager.CalcX2(current);
-
-                    if (!double.IsNaN(x2))
-                    {
-                        double x1 = positionManager.CalcX1(current);
-                        double y1 = positionManager.CalcY1(current);
-                        double y2 = positionManager.CalcY2(current);
-
-                        string path = $"M {x2} {y1}";
-                        if (x1 != x2) path += $"H {x1}";
-                        if (y1 != y2) path += $"V {y2}";
-
-                        CladeId id = current.GetId(CladeIdSuffix.Branch);
-                        string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
-
-                        <path id="@id" class="clickable-branch" d="@path"
-                              style="stroke: @strokeColor; stroke-width: @(tree.Style.BranchThickness + 4)"
-                              onclick="@ViewModel.SvgElementClickedCommand.ToDelegate(id)" />
-                    }
-                }
-
-                // 結節点クリックエリア
-                if (ViewModel.EditMode.Value == TreeEditMode.Reroot && !current.IsLeaf && !current.IsRoot)
-                {
-                    CladeId id = current.GetId(CladeIdSuffix.Node);
-                    (double x, double y, double width, double height) = positionManager.CalcNodeDecorationRectangleArea(current);
-
-                    <rect id="@id" x="@x" y="@y" width="@width" height="@height" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.RerootCommand.ToDelegate((current, false))" />
-                }
-                else if (ViewModel.EditMode.Value == TreeEditMode.Swap && !current.IsRoot)
-                {
-                    CladeId id = current.GetId(CladeIdSuffix.Node);
-                    int index = current.Parent.Children.IndexOf(current);
-
-                    if (index < current.Parent.Children.Count - 1)
-                    {
-                        Clade sister = current.Parent.Children[index + 1];
-
-                        double x = positionManager.CalcX1(current) - 5;
-                        double y = (positionManager.CalcY1(current) + positionManager.CalcY1(sister)) / 2 - 5;
-
-                        <rect id="@id" x="@x" y="@y" width="10" height="10" style="fill: black; stroke: transparent; stroke-width: 2px" onclick="@ViewModel.SwapSisterCommand.ToDelegate((current, sister))" />
-                    }
-                }
+                </svg>
             }
-        </g>
-
-        // Scale bar
-        @if (tree.Style.ShowScaleBar && tree.Style.ScaleBarValue > 0)
-        {
-            (double offsetX, double offsetY) = positionManager.CalcScaleBarOffset();
-            (TMPoint lineBegin, TMPoint lineEnd, TMPoint text) = positionManager.CalcScaleBarPositions();
-
-            <g transform="translate(@offsetX, @offsetY)">
-                <text class="scalebar-text" x="@(text.X)" y="@(text.Y)" text-anchor="middle">@tree.Style.ScaleBarValue</text>
-                <line class="scalebar-line" x1="@(lineBegin.X)" y1="@(lineBegin.Y)" x2="@(lineEnd.X)" y2="@(lineEnd.Y)" />
-            </g>
-        }
-    </svg>
+        </ChildContent>
+        <ErrorContent>
+            @{
+                ErrorHandle.OutputError(context, ElectronService);
+            }
+        </ErrorContent>
+    </ErrorBoundary>
 }
 
 @code {
