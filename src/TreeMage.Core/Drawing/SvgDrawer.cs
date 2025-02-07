@@ -15,8 +15,6 @@ namespace TreeMage.Core.Drawing
     /// </summary>
     public class SvgDrawer : ITreeDrawer
     {
-        internal const string FontFamily = "Arial, Helvetica, sans-serif";
-
         private readonly PositionManager positionManager = new PositionManager();
         private DrawingInfo? drawingInfo;
 
@@ -92,7 +90,7 @@ namespace TreeMage.Core.Drawing
                 Y = [(SvgUnit)point.Y],
                 Fill = fill.ToSvgColorServer(),
                 FontSize = fontSize,
-                FontFamily = FontFamily,
+                FontFamily = FontManager.DefaultFontFamily,
             };
             leafText.AddTo(drawingInfo.LeafLabelsGroup);
         }
@@ -108,7 +106,7 @@ namespace TreeMage.Core.Drawing
                 Y = [(SvgUnit)point.Y],
                 Fill = fill.ToSvgColorServer(),
                 FontSize = fontSize,
-                FontFamily = FontFamily,
+                FontFamily = FontManager.DefaultFontFamily,
             };
             nodeValueText.AddTo(drawingInfo.NodeValuesGroup);
         }
@@ -124,7 +122,7 @@ namespace TreeMage.Core.Drawing
                 Y = [(SvgUnit)point.Y],
                 Fill = fill.ToSvgColorServer(),
                 FontSize = fontSize,
-                FontFamily = FontFamily,
+                FontFamily = FontManager.DefaultFontFamily,
                 TextAnchor = SvgTextAnchor.Middle,
             };
             branchValueText.AddTo(drawingInfo.BranchValuesGroup);
@@ -157,7 +155,7 @@ namespace TreeMage.Core.Drawing
             {
                 X = [(SvgUnit)textPoint.X],
                 Y = [(SvgUnit)textPoint.Y],
-                FontFamily = FontFamily,
+                FontFamily = FontManager.DefaultFontFamily,
                 FontSize = fontSize,
             };
             svgText.AddTo(group);
@@ -278,7 +276,7 @@ namespace TreeMage.Core.Drawing
             {
                 X = [(SvgUnit)textPoint.X],
                 Y = [(SvgUnit)textPoint.Y],
-                FontFamily = FontFamily,
+                FontFamily = FontManager.DefaultFontFamily,
                 FontSize = fontSize,
                 TextAnchor = SvgTextAnchor.Middle,
             };

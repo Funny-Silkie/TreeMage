@@ -56,8 +56,8 @@ namespace TreeMage.Core.Drawing
         public static TMSize CalcTextSize(string? text, int fontSize)
         {
             if (string.IsNullOrEmpty(text)) return new TMSize(0, 0);
-#warning Make as constant
-            FontRectangle rectangle = TextMeasurer.MeasureSize(text, new TextOptions(SystemFonts.CreateFont("Arial", fontSize)));
+
+            FontRectangle rectangle = TextMeasurer.MeasureSize(text, new TextOptions(FontManager.GetImageSharpFont(fontSize)));
             return new TMSize(rectangle.Width, rectangle.Height);
         }
 

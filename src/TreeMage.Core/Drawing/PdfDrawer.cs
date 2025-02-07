@@ -1,7 +1,5 @@
 ﻿using PdfSharpCore.Drawing;
-using PdfSharpCore.Fonts;
 using PdfSharpCore.Pdf;
-using PdfSharpCore.Utils;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using TreeMage.Core.Drawing.Styles;
@@ -14,8 +12,6 @@ namespace TreeMage.Core.Drawing
     /// </summary>
     public class PdfDrawer : ITreeDrawer
     {
-        internal const string FontFamily = "Arial";
-
         private readonly PositionManager positionManager = new PositionManager();
         private PdfDocument? document;
         private DrawingInfo? drawingInfo;
@@ -35,11 +31,6 @@ namespace TreeMage.Core.Drawing
         }
 
         PositionManager ITreeDrawer.PositionManager => positionManager;
-
-        static PdfDrawer()
-        {
-            GlobalFontSettings.FontResolver = new FontResolver();
-        }
 
         /// <inheritdoc/>
         [MemberNotNull(nameof(document))]
@@ -206,7 +197,7 @@ namespace TreeMage.Core.Drawing
             graphics.TranslateTransform(offset.X, offset.Y);
 
             graphics.DrawString(value.ToString(),
-                                new XFont(FontFamily, fontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault),
+                                FontManager.GetPdfFont(fontSize),
                                 XBrushes.Black,
                                 textPoint,
                                 new XStringFormat()
@@ -250,10 +241,10 @@ namespace TreeMage.Core.Drawing
                 Page.Height = height;
                 Graphics = XGraphics.FromPdfPage(Page);
 
-                LeafLabelFont = new XFont(FontFamily, tree.Style.LeafLabelsFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
-                CladeLabelFont = new XFont(FontFamily, tree.Style.CladeLabelsFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
-                NodeValuesFont = new XFont(FontFamily, tree.Style.NodeValueFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
-                BranchValuesFont = new XFont(FontFamily, tree.Style.BranchValueFontSize, XFontStyle.Regular, XPdfFontOptions.UnicodeDefault);
+                LeafLabelFont = FontManager.GetPdfFont(tree.Style.LeafLabelsFontSize);
+                CladeLabelFont = FontManager.GetPdfFont(tree.Style.CladeLabelsFontSize);
+                NodeValuesFont = FontManager.GetPdfFont(tree.Style.NodeValueFontSize);
+                BranchValuesFont = FontManager.GetPdfFont(tree.Style.BranchValueFontSize);
             }
         }
     }
