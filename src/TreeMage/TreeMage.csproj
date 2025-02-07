@@ -4,6 +4,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+	
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+	<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="ElectronNET.API" Version="23.6.2" />
