@@ -31,7 +31,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="..\.editorconfig" Link=".editorconfig" />
-    <None Include="Components\Pages\*.razor.ts" />
     <Compile Remove="obj\**" />
     <Content Remove="obj\**" />
     <EmbeddedResource Remove="obj\**" />
