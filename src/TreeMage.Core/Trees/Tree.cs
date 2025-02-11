@@ -153,6 +153,7 @@ namespace TreeMage.Core.Trees
                     Clade rootChild1 = CreateClade(clade);
                     Root.TreeInternal = null;
                     rootChild1.BranchLength /= 2;
+                    rootChild1.Style.Collapsed = false;
 
                     var rootChild2 = new Clade()
                     {
@@ -180,6 +181,7 @@ namespace TreeMage.Core.Trees
                 clade.Parent = null;
                 clade.BranchLength = double.NaN;
                 clade.Supports = null;
+                clade.Style.Collapsed = false;
                 Root = clade;
                 Root.TreeInternal = this;
             }

@@ -58,7 +58,7 @@ namespace TreeMage.Components.Shared
                          stroke-width: {tree.Style.BranchThickness}px;
                      }}
 
-                     .collapsed-rectangle {{
+                     .collapsed-triangle {{
                          fill: none;
                          stroke-width: {tree.Style.BranchThickness}px;
                      }}
@@ -109,13 +109,13 @@ namespace TreeMage.Components.Shared
         void ITreeDrawer.DrawCollapsedTriangle(TMPoint left, TMPoint rightTop, TMPoint rightBottom, TMColor stroke, int lineThickness, Clade target)
         {
             builder.OpenElement(++__elementCount, "path");
-            builder.AddAttribute(++__elementCount, "class", "collapsed-rectangle");
-            builder.AddAttribute(++__elementCount, "d",
-                $@"""M {left.X} {left.Y}
-                     L {rightTop.X} {rightTop.Y}
-                     L {rightBottom.X} {rightBottom.Y}
-                     L {left.X} {left.Y}
-                  """);
+            builder.AddAttribute(++__elementCount, "class", "collapsed-triangle");
+            builder.AddAttribute(++__elementCount, "d", $"""
+                                     M {left.X} {left.Y}
+                                     L {rightTop.X} {rightTop.Y}
+                                     L {rightBottom.X} {rightBottom.Y}
+                                     L {left.X} {left.Y}
+                """);
             builder.AddAttribute(++__elementCount, "stroke", stroke.Value);
             builder.CloseElement();
         }
@@ -280,6 +280,7 @@ namespace TreeMage.Components.Shared
             // Reroot用クリックエリア
             if (ViewModel.EditMode.Value is TreeEditMode.Reroot && !target.IsRoot)
             {
+                // Rooted
                 if (!target.IsLeaf && (tree.IsUnrooted || !target.Parent.IsRoot))
                 {
                     const double size = 5;
@@ -295,7 +296,8 @@ namespace TreeMage.Components.Shared
                     builder.CloseElement();
                 }
 
-                if (!target.IsLeaf)
+                // Unrooted
+                if (!target.GetIsExternal())
                 {
                     CladeId id = target.GetId(CladeIdSuffix.Node);
                     (double x, double y, double width, double height) = positionManager.CalcNodeDecorationRectangleArea(target);
