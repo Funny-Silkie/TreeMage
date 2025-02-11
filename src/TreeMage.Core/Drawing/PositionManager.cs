@@ -1,4 +1,5 @@
 ﻿using SixLabors.Fonts;
+using System.Diagnostics;
 using TreeMage.Core.Drawing.Styles;
 using TreeMage.Core.Trees;
 
@@ -361,12 +362,28 @@ namespace TreeMage.Core.Drawing
             ArgumentNullException.ThrowIfNull(clade);
 
             double x, y, yTop, yBottom;
-            if (clade.GetIsExternal())
+            if (clade.IsLeaf)
             {
                 (x, y, double width, double height) = CalcLeafPosition(clade);
                 if (treeStyle.ShowLeafLabels) x += width + 10;
                 yTop = y - height;
                 yBottom = yTop + treeStyle.YScale;
+            }
+            else if (clade.Style.Collapsed)
+            {
+                Debug.Assert(clade.ChildrenInternal.Count > 0);
+
+                double maxLength = clade.GetDescendants()
+                                        .Where(x => x.IsLeaf)
+                                        .Max(CalcTotalBranchLength);
+
+                x = CalcX2(clade) + (maxLength - CalcTotalBranchLength(clade)) * treeStyle.XScale + 10;
+
+                (_, double height) = CalcTextSize(clade.Style.CladeLabel, treeStyle.CladeLabelsFontSize);
+
+                yTop = CalcY1(clade) - treeStyle.YScale / 2;
+                yBottom = CalcY1(clade) + treeStyle.YScale / 2;
+                y = (yTop + yBottom) / 2 + height / 2;
             }
             else
             {
