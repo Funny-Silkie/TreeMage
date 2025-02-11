@@ -12,26 +12,24 @@ namespace TreeMage.Components.Shared
         private readonly PositionManager positionManager = new();
 
         private RenderTreeBuilder builder = default!;
-        private int __elementCount;
 
         PositionManager ITreeDrawer.PositionManager => positionManager;
 
-#pragma warning disable ASP0006 // Do not use non-literal sequence numbers
-
         void ITreeDrawer.InitDocument()
         {
-            __elementCount = 1;
         }
 
         void ITreeDrawer.BeginTree(TMSize size, Tree tree)
         {
-            builder.OpenElement(++__elementCount, "svg");
-            builder.AddAttribute(++__elementCount, "width", size.Width);
-            builder.AddAttribute(++__elementCount, "height", size.Height);
+            builder.OpenElement(0, "svg");
+            builder.AddAttribute(1, "width", size.Width);
+            builder.AddAttribute(2, "height", size.Height);
 
-            builder.OpenElement(++__elementCount, "style");
-            builder.AddAttribute(++__elementCount, "type", "text/css");
-            builder.AddMarkupContent(++__elementCount,
+            builder.OpenRegion(3);
+
+            builder.OpenElement(0, "style");
+            builder.AddAttribute(1, "type", "text/css");
+            builder.AddMarkupContent(2,
                 @$"""
                      text {{
                          font-family: {FontManager.DefaultFontFamily};
@@ -83,139 +81,175 @@ namespace TreeMage.Components.Shared
                      """);
             builder.CloseElement(); // style
 
-            builder.OpenElement(++__elementCount, "rect");
-            builder.AddAttribute(++__elementCount, "width", "100%");
-            builder.AddAttribute(++__elementCount, "height", "100%");
-            builder.AddAttribute(++__elementCount, "style", "fill: transparent; stroke: none");
-            builder.AddAttribute(++__elementCount, "onclick", ViewModel.UnfocusAllCommand.ToDelegate());
+            builder.OpenElement(3, "rect");
+            builder.AddAttribute(4, "width", "100%");
+            builder.AddAttribute(5, "height", "100%");
+            builder.AddAttribute(6, "style", "fill: transparent; stroke: none");
+            builder.AddAttribute(7, "onclick", ViewModel.UnfocusAllCommand.ToDelegate());
             builder.CloseElement(); // rect
 
+            builder.CloseRegion();
+
             // tree area
-            builder.OpenElement(++__elementCount, "g");
-            builder.AddAttribute(++__elementCount, "transform", "translate(50, 50)");
+            builder.OpenElement(4, "g");
+            builder.AddAttribute(5, "transform", "translate(50, 50)");
         }
 
         void ITreeDrawer.DrawCladeShade(TMRect area, TMColor fill, Clade target)
         {
-            builder.OpenElement(++__elementCount, "rect");
-            builder.AddAttribute(++__elementCount, "x", area.X);
-            builder.AddAttribute(++__elementCount, "y", area.Y);
-            builder.AddAttribute(++__elementCount, "width", area.Width);
-            builder.AddAttribute(++__elementCount, "height", area.Height);
-            builder.AddAttribute(++__elementCount, "fill", fill.Value);
+            builder.OpenRegion(6);
+
+            builder.OpenElement(0, "rect");
+            builder.AddAttribute(1, "x", area.X);
+            builder.AddAttribute(2, "y", area.Y);
+            builder.AddAttribute(3, "width", area.Width);
+            builder.AddAttribute(4, "height", area.Height);
+            builder.AddAttribute(5, "fill", fill.Value);
             builder.CloseElement();
+
+            builder.CloseRegion();
         }
 
         void ITreeDrawer.DrawCollapsedTriangle(TMPoint left, TMPoint rightTop, TMPoint rightBottom, TMColor stroke, int lineThickness, Clade target)
         {
-            builder.OpenElement(++__elementCount, "path");
-            builder.AddAttribute(++__elementCount, "class", "collapsed-triangle");
-            builder.AddAttribute(++__elementCount, "d", $"""
+            builder.OpenRegion(7);
+
+            builder.OpenElement(8, "path");
+            builder.AddAttribute(9, "class", "collapsed-triangle");
+            builder.AddAttribute(10, "d", $"""
                                      M {left.X} {left.Y}
                                      L {rightTop.X} {rightTop.Y}
                                      L {rightBottom.X} {rightBottom.Y}
                                      L {left.X} {left.Y}
                 """);
-            builder.AddAttribute(++__elementCount, "stroke", stroke.Value);
+            builder.AddAttribute(11, "stroke", stroke.Value);
             builder.CloseElement();
+
+            builder.CloseRegion();
         }
 
         void ITreeDrawer.DrawLeafLabel(string taxon, TMRect area, TMColor fill, int fontSize, Clade target)
         {
-            builder.OpenElement(++__elementCount, "text");
-            builder.AddAttribute(++__elementCount, "class", "leaf");
-            builder.AddAttribute(++__elementCount, "x", area.X);
-            builder.AddAttribute(++__elementCount, "y", area.Y);
-            builder.AddAttribute(++__elementCount, "fill", fill.Value);
-            builder.AddContent(++__elementCount, taxon);
+            builder.OpenRegion(8);
+
+            builder.OpenElement(0, "text");
+            builder.AddAttribute(1, "class", "leaf");
+            builder.AddAttribute(2, "x", area.X);
+            builder.AddAttribute(3, "y", area.Y);
+            builder.AddAttribute(4, "fill", fill.Value);
+            builder.AddContent(5, taxon);
             builder.CloseElement();
 
             // クリックエリア
-            if (ViewModel.EditMode.Value == TreeEditMode.Select)
+            if (ViewModel.EditMode.Value is TreeEditMode.Select)
             {
                 CladeId id = target.GetId(CladeIdSuffix.Leaf);
                 string fillColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
                 const int margin = 3;
-                builder.OpenElement(++__elementCount, "rect");
-                builder.AddAttribute(++__elementCount, "id", id);
-                builder.AddAttribute(++__elementCount, "class", "clickable-leaf");
-                builder.AddAttribute(++__elementCount, "x", area.X - margin);
-                builder.AddAttribute(++__elementCount, "y", area.Y - area.Height - margin);
-                builder.AddAttribute(++__elementCount, "width", area.Width + margin * 2);
-                builder.AddAttribute(++__elementCount, "height", area.Height + margin * 2);
-                builder.AddAttribute(++__elementCount, "fill", fillColor);
-                builder.AddAttribute(++__elementCount, "onclick", ViewModel.SvgElementClickedCommand.ToDelegate(id));
+                builder.OpenElement(6, "rect");
+                builder.AddAttribute(7, "id", id);
+                builder.AddAttribute(8, "class", "clickable-leaf");
+                builder.AddAttribute(9, "x", area.X - margin);
+                builder.AddAttribute(10, "y", area.Y - area.Height - margin);
+                builder.AddAttribute(11, "width", area.Width + margin * 2);
+                builder.AddAttribute(12, "height", area.Height + margin * 2);
+                builder.AddAttribute(13, "fill", fillColor);
+                builder.AddAttribute(14, "onclick", ViewModel.SvgElementClickedCommand.ToDelegate(id));
                 builder.CloseElement();
             }
+
+            builder.CloseElement();
         }
 
         void ITreeDrawer.DrawNodeValue(string value, TMPoint point, TMColor fill, int fontSize, Clade target)
         {
-            builder.OpenElement(++__elementCount, "text");
-            builder.AddAttribute(++__elementCount, "class", "node-value");
-            builder.AddAttribute(++__elementCount, "x", point.X);
-            builder.AddAttribute(++__elementCount, "y", point.Y);
-            builder.AddAttribute(++__elementCount, "fill", fill.Value);
-            builder.AddContent(++__elementCount, value);
+            builder.OpenRegion(9);
+
+            builder.OpenElement(0, "text");
+            builder.AddAttribute(1, "class", "node-value");
+            builder.AddAttribute(2, "x", point.X);
+            builder.AddAttribute(3, "y", point.Y);
+            builder.AddAttribute(4, "fill", fill.Value);
+            builder.AddContent(5, value);
             builder.CloseElement();
+
+            builder.CloseRegion();
         }
 
         void ITreeDrawer.DrawBranchValue(string value, TMPoint point, TMColor fill, int fontSize, Clade target)
         {
-            builder.OpenElement(++__elementCount, "text");
-            builder.AddAttribute(++__elementCount, "class", "branch-value");
-            builder.AddAttribute(++__elementCount, "x", point.X);
-            builder.AddAttribute(++__elementCount, "y", point.Y);
-            builder.AddAttribute(++__elementCount, "fill", fill.Value);
-            builder.AddContent(++__elementCount, value);
+            builder.OpenRegion(10);
+
+            builder.OpenElement(0, "text");
+            builder.AddAttribute(1, "class", "branch-value");
+            builder.AddAttribute(2, "x", point.X);
+            builder.AddAttribute(3, "y", point.Y);
+            builder.AddAttribute(4, "fill", fill.Value);
+            builder.AddContent(5, value);
             builder.CloseElement();
+
+            builder.CloseRegion();
         }
 
         void ITreeDrawer.DrawCladeLabel(string cladeName, TMPoint lineBegin, TMPoint lineEnd, TMPoint testPoint, int lineThickness, int fontSize, Clade target)
         {
-            builder.OpenElement(++__elementCount, "line");
-            builder.AddAttribute(++__elementCount, "x1", lineBegin.X);
-            builder.AddAttribute(++__elementCount, "x2", lineEnd.X);
-            builder.AddAttribute(++__elementCount, "y1", lineBegin.Y);
-            builder.AddAttribute(++__elementCount, "y2", lineEnd.Y);
-            builder.AddAttribute(++__elementCount, "stroke", "black");
-            builder.AddAttribute(++__elementCount, "stroke-width", lineThickness);
+            builder.OpenRegion(11);
+
+            builder.OpenElement(0, "line");
+            builder.AddAttribute(1, "x1", lineBegin.X);
+            builder.AddAttribute(2, "x2", lineEnd.X);
+            builder.AddAttribute(3, "y1", lineBegin.Y);
+            builder.AddAttribute(4, "y2", lineEnd.Y);
+            builder.AddAttribute(5, "stroke", "black");
+            builder.AddAttribute(6, "stroke-width", lineThickness);
             builder.CloseElement();
 
-            builder.OpenElement(++__elementCount, "text");
-            builder.AddAttribute(++__elementCount, "class", "clade-label");
-            builder.AddAttribute(++__elementCount, "x", testPoint.X);
-            builder.AddAttribute(++__elementCount, "y", testPoint.Y);
-            builder.AddContent(++__elementCount, cladeName);
+            builder.OpenElement(7, "text");
+            builder.AddAttribute(8, "class", "clade-label");
+            builder.AddAttribute(9, "x", testPoint.X);
+            builder.AddAttribute(10, "y", testPoint.Y);
+            builder.AddContent(11, cladeName);
             builder.CloseElement();
+
+            builder.CloseRegion();
         }
 
         void ITreeDrawer.DrawHorizontalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness, Clade target)
         {
-            builder.OpenElement(++__elementCount, "line");
-            builder.AddAttribute(++__elementCount, "class", "branch");
-            builder.AddAttribute(++__elementCount, "x1", parentPoint.X);
-            builder.AddAttribute(++__elementCount, "y1", parentPoint.Y);
-            builder.AddAttribute(++__elementCount, "x2", childPoint.X);
-            builder.AddAttribute(++__elementCount, "y2", childPoint.Y);
-            builder.AddAttribute(++__elementCount, "stroke", stroke.Value);
+            builder.OpenRegion(12);
+
+            builder.OpenElement(0, "line");
+            builder.AddAttribute(1, "class", "branch");
+            builder.AddAttribute(2, "x1", parentPoint.X);
+            builder.AddAttribute(3, "y1", parentPoint.Y);
+            builder.AddAttribute(4, "x2", childPoint.X);
+            builder.AddAttribute(5, "y2", childPoint.Y);
+            builder.AddAttribute(6, "stroke", stroke.Value);
             builder.CloseElement();
+
+            builder.CloseRegion();
         }
 
         void ITreeDrawer.DrawVerticalBranch(TMPoint parentPoint, TMPoint childPoint, TMColor stroke, int thickness, Clade target)
         {
-            builder.OpenElement(++__elementCount, "line");
-            builder.AddAttribute(++__elementCount, "class", "branch");
-            builder.AddAttribute(++__elementCount, "x1", parentPoint.X);
-            builder.AddAttribute(++__elementCount, "y1", parentPoint.Y);
-            builder.AddAttribute(++__elementCount, "x2", childPoint.X);
-            builder.AddAttribute(++__elementCount, "y2", childPoint.Y);
-            builder.AddAttribute(++__elementCount, "stroke", stroke.Value);
+            builder.OpenRegion(13);
+
+            builder.OpenElement(0, "line");
+            builder.AddAttribute(1, "class", "branch");
+            builder.AddAttribute(2, "x1", parentPoint.X);
+            builder.AddAttribute(3, "y1", parentPoint.Y);
+            builder.AddAttribute(4, "x2", childPoint.X);
+            builder.AddAttribute(5, "y2", childPoint.Y);
+            builder.AddAttribute(6, "stroke", stroke.Value);
             builder.CloseElement();
+
+            builder.CloseRegion();
         }
 
         void ITreeDrawer.DrawBranchDecoration(Clade target, BranchDecorationStyle style)
         {
+            builder.OpenRegion(14);
+
             string color = style.ShapeColor;
             switch (style.DecorationType)
             {
@@ -234,12 +268,12 @@ namespace TreeMage.Components.Shared
                             fill = "white";
                             stroke = color;
                         }
-                        builder.OpenElement(++__elementCount, "circle");
-                        builder.AddAttribute(++__elementCount, "cx", center.X);
-                        builder.AddAttribute(++__elementCount, "cy", center.Y);
-                        builder.AddAttribute(++__elementCount, "r", radius);
-                        builder.AddAttribute(++__elementCount, "stroke", stroke);
-                        builder.AddAttribute(++__elementCount, "fill", fill);
+                        builder.OpenElement(0, "circle");
+                        builder.AddAttribute(1, "cx", center.X);
+                        builder.AddAttribute(2, "cy", center.Y);
+                        builder.AddAttribute(3, "r", radius);
+                        builder.AddAttribute(4, "stroke", stroke);
+                        builder.AddAttribute(5, "fill", fill);
                         builder.CloseElement();
                     }
                     break;
@@ -259,17 +293,19 @@ namespace TreeMage.Components.Shared
                             fill = "white";
                             stroke = color;
                         }
-                        builder.OpenElement(++__elementCount, "rect");
-                        builder.AddAttribute(++__elementCount, "x", x);
-                        builder.AddAttribute(++__elementCount, "y", y);
-                        builder.AddAttribute(++__elementCount, "width", width);
-                        builder.AddAttribute(++__elementCount, "height", height);
-                        builder.AddAttribute(++__elementCount, "stroke", stroke);
-                        builder.AddAttribute(++__elementCount, "fill", fill);
+                        builder.OpenElement(0, "rect");
+                        builder.AddAttribute(1, "x", x);
+                        builder.AddAttribute(2, "y", y);
+                        builder.AddAttribute(3, "width", width);
+                        builder.AddAttribute(4, "height", height);
+                        builder.AddAttribute(5, "stroke", stroke);
+                        builder.AddAttribute(6, "fill", fill);
                         builder.CloseElement();
                     }
                     break;
             }
+
+            builder.CloseRegion();
         }
 
         void ITreeDrawer.OnCladeDrawn(Clade target)
@@ -280,19 +316,21 @@ namespace TreeMage.Components.Shared
             // Reroot用クリックエリア
             if (ViewModel.EditMode.Value is TreeEditMode.Reroot && !target.IsRoot)
             {
+                builder.OpenRegion(15);
+
                 // Rooted
                 if (!target.IsLeaf && (tree.IsUnrooted || !target.Parent.IsRoot))
                 {
                     const double size = 5;
                     double x = (positionManager.CalcX1(target) + positionManager.CalcX2(target)) / 2 - size;
                     double y = positionManager.CalcY1(target) - size;
-                    builder.OpenElement(++__elementCount, "rect");
-                    builder.AddAttribute(++__elementCount, "x", x);
-                    builder.AddAttribute(++__elementCount, "y", y);
-                    builder.AddAttribute(++__elementCount, "width", size * 2);
-                    builder.AddAttribute(++__elementCount, "height", size * 2);
-                    builder.AddAttribute(++__elementCount, "style", "stroke: black; stroke-width: 2px; fill: white");
-                    builder.AddAttribute(++__elementCount, "onclick", ViewModel.RerootCommand.ToDelegate((target, true)));
+                    builder.OpenElement(0, "rect");
+                    builder.AddAttribute(1, "x", x);
+                    builder.AddAttribute(2, "y", y);
+                    builder.AddAttribute(3, "width", size * 2);
+                    builder.AddAttribute(4, "height", size * 2);
+                    builder.AddAttribute(5, "style", "stroke: black; stroke-width: 2px; fill: white");
+                    builder.AddAttribute(6, "onclick", ViewModel.RerootCommand.ToDelegate((target, true)));
                     builder.CloseElement();
                 }
 
@@ -301,20 +339,22 @@ namespace TreeMage.Components.Shared
                 {
                     CladeId id = target.GetId(CladeIdSuffix.Node);
                     (double x, double y, double width, double height) = positionManager.CalcNodeDecorationRectangleArea(target);
-                    builder.OpenElement(++__elementCount, "rect");
-                    builder.AddAttribute(++__elementCount, "id", id);
-                    builder.AddAttribute(++__elementCount, "x", x);
-                    builder.AddAttribute(++__elementCount, "y", y);
-                    builder.AddAttribute(++__elementCount, "width", width);
-                    builder.AddAttribute(++__elementCount, "height", height);
-                    builder.AddAttribute(++__elementCount, "style", "fill: black; stroke: transparent; stroke-width: 2px");
-                    builder.AddAttribute(++__elementCount, "onclick", ViewModel.RerootCommand.ToDelegate((target, false)));
+                    builder.OpenElement(7, "rect");
+                    builder.AddAttribute(8, "id", id);
+                    builder.AddAttribute(9, "x", x);
+                    builder.AddAttribute(10, "y", y);
+                    builder.AddAttribute(11, "width", width);
+                    builder.AddAttribute(12, "height", height);
+                    builder.AddAttribute(13, "style", "fill: black; stroke: transparent; stroke-width: 2px");
+                    builder.AddAttribute(14, "onclick", ViewModel.RerootCommand.ToDelegate((target, false)));
                     builder.CloseElement();
                 }
+
+                builder.CloseRegion();
             }
 
             // Swap用クリックエリア
-            if (ViewModel.EditMode.Value == TreeEditMode.Swap && !target.IsRoot)
+            if (ViewModel.EditMode.Value is TreeEditMode.Swap && !target.IsRoot)
             {
                 CladeId id = target.GetId(CladeIdSuffix.Node);
                 int index = target.Parent.Children.IndexOf(target);
@@ -323,15 +363,20 @@ namespace TreeMage.Components.Shared
                     Clade sister = target.Parent.Children[index + 1];
                     double x = positionManager.CalcX1(target) - 5;
                     double y = (positionManager.CalcY1(target) + positionManager.CalcY1(sister)) / 2 - 5;
-                    builder.OpenElement(++__elementCount, "rect");
-                    builder.AddAttribute(++__elementCount, "id", id);
-                    builder.AddAttribute(++__elementCount, "x", x);
-                    builder.AddAttribute(++__elementCount, "y", y);
-                    builder.AddAttribute(++__elementCount, "width", "10");
-                    builder.AddAttribute(++__elementCount, "height", "10");
-                    builder.AddAttribute(++__elementCount, "style", "fill: black; stroke: transparent; stroke-width: 2px");
-                    builder.AddAttribute(++__elementCount, "onclick", ViewModel.SwapSisterCommand.ToDelegate((target, sister)));
+
+                    builder.OpenRegion(16);
+
+                    builder.OpenElement(0, "rect");
+                    builder.AddAttribute(1, "id", id);
+                    builder.AddAttribute(2, "x", x);
+                    builder.AddAttribute(3, "y", y);
+                    builder.AddAttribute(4, "width", "10");
+                    builder.AddAttribute(5, "height", "10");
+                    builder.AddAttribute(6, "style", "fill: black; stroke: transparent; stroke-width: 2px");
+                    builder.AddAttribute(7, "onclick", ViewModel.SwapSisterCommand.ToDelegate((target, sister)));
                     builder.CloseElement();
+
+                    builder.CloseRegion();
                 }
             }
 
@@ -341,18 +386,23 @@ namespace TreeMage.Components.Shared
                 const double size = 5;
                 double x = (positionManager.CalcX1(target) + positionManager.CalcX2(target)) / 2 - size;
                 double y = positionManager.CalcY1(target) - size;
-                builder.OpenElement(++__elementCount, "rect");
-                builder.AddAttribute(++__elementCount, "x", x);
-                builder.AddAttribute(++__elementCount, "y", y);
-                builder.AddAttribute(++__elementCount, "width", size * 2);
-                builder.AddAttribute(++__elementCount, "height", size * 2);
-                builder.AddAttribute(++__elementCount, "style", "stroke: transparent; stroke-width: 2px; fill: black");
-                builder.AddAttribute(++__elementCount, "onclick", ViewModel.ExtractSubtreeCommand.ToDelegate(target));
+
+                builder.OpenRegion(17);
+
+                builder.OpenElement(0, "rect");
+                builder.AddAttribute(1, "x", x);
+                builder.AddAttribute(2, "y", y);
+                builder.AddAttribute(3, "width", size * 2);
+                builder.AddAttribute(4, "height", size * 2);
+                builder.AddAttribute(5, "style", "stroke: transparent; stroke-width: 2px; fill: black");
+                builder.AddAttribute(6, "onclick", ViewModel.ExtractSubtreeCommand.ToDelegate(target));
                 builder.CloseElement();
+
+                builder.CloseRegion();
             }
 
             // 枝クリックエリア
-            if (ViewModel.EditMode.Value == TreeEditMode.Select)
+            if (ViewModel.EditMode.Value is TreeEditMode.Select)
             {
                 double x2 = positionManager.CalcX2(target);
                 if (!double.IsNaN(x2))
@@ -366,14 +416,18 @@ namespace TreeMage.Components.Shared
                     CladeId id = target.GetId(CladeIdSuffix.Branch);
                     string strokeColor = ViewModel.FocusedSvgElementIdList.Contains(id) ? "#A0D8EFC4" : "transparent";
 
-                    builder.OpenElement(++__elementCount, "path");
-                    builder.AddAttribute(++__elementCount, "id", id);
-                    builder.AddAttribute(++__elementCount, "class", "clickable-branch");
-                    builder.AddAttribute(++__elementCount, "d", path);
-                    builder.AddAttribute(++__elementCount, "stroke", strokeColor);
-                    builder.AddAttribute(++__elementCount, "style", $"stroke-width: {tree.Style.BranchThickness + 4}px");
-                    builder.AddAttribute(++__elementCount, "onclick", ViewModel.SvgElementClickedCommand.ToDelegate(id));
+                    builder.OpenRegion(18);
+
+                    builder.OpenElement(0, "path");
+                    builder.AddAttribute(1, "id", id);
+                    builder.AddAttribute(2, "class", "clickable-branch");
+                    builder.AddAttribute(3, "d", path);
+                    builder.AddAttribute(4, "stroke", strokeColor);
+                    builder.AddAttribute(5, "style", $"stroke-width: {tree.Style.BranchThickness + 4}px");
+                    builder.AddAttribute(6, "onclick", ViewModel.SvgElementClickedCommand.ToDelegate(id));
                     builder.CloseElement();
+
+                    builder.CloseRegion();
                 }
             }
         }
@@ -382,24 +436,28 @@ namespace TreeMage.Components.Shared
         {
             builder.CloseElement(); // tree area
 
-            builder.OpenElement(++__elementCount, "g");
-            builder.AddAttribute(++__elementCount, "transform", $"translate({offset.X}, {offset.Y})");
+            builder.OpenRegion(19);
 
-            builder.OpenElement(++__elementCount, "text");
-            builder.AddAttribute(++__elementCount, "class", "scalebar-text");
-            builder.AddAttribute(++__elementCount, "x", textPoint.X);
-            builder.AddAttribute(++__elementCount, "y", textPoint.Y);
-            builder.AddAttribute(++__elementCount, "text-anchor", "middle");
-            builder.AddContent(++__elementCount, value);
+            builder.OpenElement(0, "g");
+            builder.AddAttribute(1, "transform", $"translate({offset.X}, {offset.Y})");
+
+            builder.OpenElement(2, "text");
+            builder.AddAttribute(3, "class", "scalebar-text");
+            builder.AddAttribute(4, "x", textPoint.X);
+            builder.AddAttribute(5, "y", textPoint.Y);
+            builder.AddAttribute(6, "text-anchor", "middle");
+            builder.AddContent(7, value);
             builder.CloseElement(); // text
 
-            builder.OpenElement(++__elementCount, "line");
-            builder.AddAttribute(++__elementCount, "class", "scalebar-line");
-            builder.AddAttribute(++__elementCount, "x1", lineBegin.X);
-            builder.AddAttribute(++__elementCount, "y1", lineBegin.Y);
-            builder.AddAttribute(++__elementCount, "x2", lineEnd.X);
-            builder.AddAttribute(++__elementCount, "y2", lineEnd.Y);
+            builder.OpenElement(8, "line");
+            builder.AddAttribute(9, "class", "scalebar-line");
+            builder.AddAttribute(10, "x1", lineBegin.X);
+            builder.AddAttribute(11, "y1", lineBegin.Y);
+            builder.AddAttribute(12, "x2", lineEnd.X);
+            builder.AddAttribute(13, "y2", lineEnd.Y);
             builder.CloseElement(); // line
+
+            builder.CloseRegion();
         }
 
         void ITreeDrawer.FinishTree()
