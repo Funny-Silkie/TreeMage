@@ -256,7 +256,15 @@ namespace TreeMage.Core.Drawing
 
             if (clade.GetIsExternal())
             {
-                xRight = CalcXRight(clade);
+                if (clade.IsLeaf) xRight = CalcXRight(clade);
+                else
+                {
+                    double maxLength = clade.GetDescendants()
+                                            .Where(x => x.IsLeaf)
+                                            .Max(CalcTotalBranchLength);
+                    xRight = CalcX2(clade) + (maxLength - CalcTotalBranchLength(clade)) * treeStyle.XScale;
+                }
+
                 double y1 = CalcY1(clade);
                 yTop = y1 - halfLeafHeight;
                 yBottom = y1 + halfLeafHeight;
