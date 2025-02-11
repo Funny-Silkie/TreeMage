@@ -288,16 +288,22 @@ namespace TreeMage.Core.Drawing
                 case CladeCollapseType.TopMax:
                 case CladeCollapseType.BottomMax:
                 case CladeCollapseType.AllMax:
-                    double maxLength = clade.GetDescendants().Where(x => x.IsLeaf).Max(CalcTotalBranchLength);
+                    double maxLength = clade.GetDescendants()
+                                            .Where(x => x.IsLeaf)
+                                            .Max(CalcTotalBranchLength);
                     switch (treeStyle.CollapseType)
                     {
                         case CladeCollapseType.TopMax:
                             xRightTop = maxLength;
-                            xRightBottom = clade.GetDescendants().Where(x => x.IsLeaf).Min(CalcTotalBranchLength);
+                            xRightBottom = clade.GetDescendants()
+                                                .Where(x => x.IsLeaf)
+                                                .Min(CalcTotalBranchLength);
                             break;
 
                         case CladeCollapseType.BottomMax:
-                            xRightTop = clade.GetDescendants().Where(x => x.IsLeaf).Min(CalcTotalBranchLength);
+                            xRightTop = clade.GetDescendants()
+                                             .Where(x => x.IsLeaf)
+                                             .Min(CalcTotalBranchLength);
                             xRightBottom = maxLength;
                             break;
 
