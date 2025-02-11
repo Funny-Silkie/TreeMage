@@ -3,7 +3,6 @@ using Svg.Pathing;
 using Svg.Transforms;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
 using TreeMage.Core.Drawing.Styles;
 using TreeMage.Core.Internal;
 using TreeMage.Core.Trees;
@@ -146,7 +145,7 @@ namespace TreeMage.Core.Drawing
                     EndX = (SvgUnit)lineEnd.X,
                     StartY = (SvgUnit)lineBegin.Y,
                     EndY = (SvgUnit)lineEnd.Y,
-                    Stroke = new SvgColourServer(Color.Black),
+                    Stroke = TMColor.Black.ToSvgColorServer(),
                     StrokeWidth = lineThickness,
                 };
                 svgLine.AddTo(group);
@@ -224,7 +223,7 @@ namespace TreeMage.Core.Drawing
                         else
                         {
                             decorationSvg.Stroke = color.ToSvgColorServer();
-                            decorationSvg.Fill = new SvgColourServer(Color.White);
+                            decorationSvg.Fill = TMColor.White.ToSvgColorServer();
                         }
                     }
                     break;
@@ -251,7 +250,7 @@ namespace TreeMage.Core.Drawing
                         {
                             decorationSvg.Stroke = color.ToSvgColorServer();
                             decorationSvg.StrokeWidth = style.ShapeSize / 5 + 1;
-                            decorationSvg.Fill = new SvgColourServer(Color.White);
+                            decorationSvg.Fill = TMColor.White.ToSvgColorServer();
                         }
                     }
                     break;
@@ -288,7 +287,7 @@ namespace TreeMage.Core.Drawing
                 StartY = (SvgUnit)lineBegin.Y,
                 EndX = (SvgUnit)lineEnd.X,
                 EndY = (SvgUnit)lineEnd.Y,
-                Stroke = new SvgColourServer(Color.Black),
+                Stroke = TMColor.Black.ToSvgColorServer(),
                 StrokeWidth = lineThickness,
             };
             scaleBarLine.AddTo(scaleBarArea);

@@ -21,6 +21,15 @@ namespace TreeMage.Core.Drawing
         /// <inheritdoc cref="System.Numerics.ISubtractionOperators{TSelf, TOther, TResult}.op_Subtraction"/>
         public static TMPoint operator -(TMPoint left, TMPoint right) => new TMPoint(left.X - right.X, left.Y - right.Y);
 
+        /// <inheritdoc cref="System.Numerics.IMultiplyOperators{TSelf, TOther, TResult}.op_Multiply"/>
+        public static TMPoint operator *(TMPoint left, double right) => new TMPoint(left.X * right, left.Y * right);
+
+        /// <inheritdoc cref="System.Numerics.IMultiplyOperators{TSelf, TOther, TResult}.op_Multiply"/>
+        public static TMPoint operator *(double left, TMPoint right) => right * left;
+
+        /// <inheritdoc cref="System.Numerics.IDivisionOperators{TSelf, TOther, TResult}.op_Division"/>
+        public static TMPoint operator /(TMPoint left, double right) => new TMPoint(left.X / right, left.Y / right);
+
         /// <summary>
         /// <see cref="ValueTuple{T1, T2}"/>から暗黙的に変換します。
         /// </summary>
@@ -52,6 +61,15 @@ namespace TreeMage.Core.Drawing
 
         /// <inheritdoc cref="System.Numerics.ISubtractionOperators{TSelf, TOther, TResult}.op_Subtraction"/>
         public static TMSize operator -(TMSize left, TMSize right) => new TMSize(left.Width - right.Width, left.Height - right.Height);
+
+        /// <inheritdoc cref="System.Numerics.IMultiplyOperators{TSelf, TOther, TResult}.op_Multiply"/>
+        public static TMSize operator *(TMSize left, double right) => new TMSize(left.Width * right, left.Height * right);
+
+        /// <inheritdoc cref="System.Numerics.IMultiplyOperators{TSelf, TOther, TResult}.op_Multiply"/>
+        public static TMSize operator *(double left, TMSize right) => right * left;
+
+        /// <inheritdoc cref="System.Numerics.IDivisionOperators{TSelf, TOther, TResult}.op_Division"/>
+        public static TMSize operator /(TMSize left, double right) => new TMSize(left.Width / right, left.Height / right);
 
         /// <summary>
         /// <see cref="ValueTuple{T1, T2}"/>から暗黙的に変換します。
@@ -114,6 +132,37 @@ namespace TreeMage.Core.Drawing
     /// <param name="Value">色を表す文字列を取得します。</param>
     public readonly partial record struct TMColor(string Value)
     {
+        /// <summary>
+        /// 黒を表すインスタンスを取得します。
+        /// </summary>
+        public static TMColor Black { get; } = new TMColor("black");
+
+        /// <summary>
+        /// 黒を表すインスタンスを取得します。
+        /// </summary>
+        public static TMColor White { get; } = new TMColor("white");
+
+        /// <summary>
+        /// <see cref="TMColor"/>の新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="r">R</param>
+        /// <param name="g">G</param>
+        /// <param name="b">B</param>
+        public TMColor(byte r, byte g, byte b) : this(string.Create(null, stackalloc char[18], $"rgb({r}, {g}, {b})"))
+        {
+        }
+
+        /// <summary>
+        /// <see cref="TMColor"/>の新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="r">R</param>
+        /// <param name="g">G</param>
+        /// <param name="b">B</param>
+        /// <param name="a">A</param>
+        public TMColor(byte r, byte g, byte b, byte a) : this(string.Create(null, stackalloc char[23], $"rgb({r}, {g}, {b}, {a})"))
+        {
+        }
+
         /// <summary>
         /// RGBカラーを取得します。
         /// </summary>
