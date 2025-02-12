@@ -646,6 +646,7 @@ namespace TreeMage.Models
                 Assert.Equal(1, model.MaxTreeIndex.Value);
                 Clade collapsed = Assert.Single(tree.GetAllClades(), x => x.Style.Collapsed);
                 Assert.DoesNotContain(tree.GetAllClades().Where(x => x != collapsed), x => x.Style.Collapsed);
+                Assert.Equal(2, collapsed.Style.YScale);
                 Assert.Single(updatedProperties, "TargetTree");
             });
 
@@ -655,6 +656,7 @@ namespace TreeMage.Models
             {
                 Assert.True(undoSuccess);
                 Assert.DoesNotContain(tree.GetAllClades(), x => x.Style.Collapsed);
+                Assert.DoesNotContain(tree.GetAllExternalNodes(), x => x.Style.YScale != 1);
                 Assert.Single(updatedProperties, "TargetTree");
             });
 
@@ -665,6 +667,7 @@ namespace TreeMage.Models
                 Assert.True(redoSuccess);
                 Clade collapsed = Assert.Single(tree.GetAllClades(), x => x.Style.Collapsed);
                 Assert.DoesNotContain(tree.GetAllClades().Where(x => x != collapsed), x => x.Style.Collapsed);
+                Assert.Equal(2, collapsed.Style.YScale);
                 Assert.Single(updatedProperties, "TargetTree");
             });
         }
