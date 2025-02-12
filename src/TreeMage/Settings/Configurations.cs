@@ -90,7 +90,9 @@ namespace TreeMage.Settings
                 }
                 catch (Exception e)
                 {
+#if !TEST
                     Console.Error.WriteLine(e);
+#endif
                 }
             }
 
@@ -114,7 +116,9 @@ namespace TreeMage.Settings
                 }
                 catch (Exception e)
                 {
+#if !TEST
                     await Console.Error.WriteLineAsync(e.ToString());
+#endif
                 }
             }
 
