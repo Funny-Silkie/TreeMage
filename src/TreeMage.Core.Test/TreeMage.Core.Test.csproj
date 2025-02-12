@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
 	<RootNamespace>TreeMage.Core</RootNamespace>
+	<Configurations>Debug;Release;Test</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

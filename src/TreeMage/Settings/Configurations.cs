@@ -1,4 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 using TreeMage.Core.Drawing;
 using TreeMage.Core.Exporting;
 using TreeMage.Data;
@@ -50,7 +53,17 @@ namespace TreeMage.Settings
         /// </summary>
         static Configurations()
         {
-            Location = Path.Combine(Path.GetDirectoryName(Environment.ProcessPath)!, "config.json");
+            string? directory;
+#if TEST
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) directory = Path.GetDirectoryName(Environment.ProcessPath);
+            else directory = Path.GetDirectoryName(Assembly.GetCallingAssembly().Location);
+
+#else
+            directory = Path.GetDirectoryName(Environment.ProcessPath)!;
+#endif
+            Debug.Assert(directory is not null);
+
+            Location = Path.Combine(directory, "config.json");
         }
 
         /// <summary>
