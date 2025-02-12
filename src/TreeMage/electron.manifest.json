@@ -11,7 +11,7 @@
     "appId": "com.TreeMage.app",
     "productName": "TreeMage",
     "copyright": "Copyright © 2024",
-    "buildVersion": "1.0.1-alpha",
+    "buildVersion": "1.1.0-dev",
     "compression": "maximum",
     "win": {
       "icon": "../../../Assets/icon.png"
