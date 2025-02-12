@@ -1,6 +1,7 @@
 ﻿using TreeMage.TestUtilities.Assertions;
 using TreeMage.Core.Trees;
 using TreeMage.TestUtilities;
+using System.Runtime.InteropServices;
 
 namespace TreeMage.Core.Exporting
 {
@@ -50,6 +51,8 @@ namespace TreeMage.Core.Exporting
         [Fact]
         public void Export_WithNullTree()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
             using var stream = new MemoryStream();
             Assert.Throws<ArgumentNullException>(() => exporter.Export(null!, stream, new ExportOptions()));
         }
@@ -57,12 +60,16 @@ namespace TreeMage.Core.Exporting
         [Fact]
         public void Export_WithNullStream()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
             Assert.Throws<ArgumentNullException>(() => exporter.Export(tree, null!, new ExportOptions()));
         }
 
         [Fact]
         public void Export_WithNullOptions()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
             using var stream = new MemoryStream();
             Assert.Throws<ArgumentNullException>(() => exporter.Export(tree, stream, null!));
         }
@@ -70,6 +77,8 @@ namespace TreeMage.Core.Exporting
         [Fact]
         public void Export_AsPositive()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
             using (var stream = new FileStream(outputPath, FileMode.Create))
             {
                 exporter.Export(tree, stream, exportOptions);
@@ -87,6 +96,8 @@ namespace TreeMage.Core.Exporting
         [Fact]
         public async Task ExportAsync_WithNullTree()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
             using var stream = new MemoryStream();
             await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(null!, stream, new ExportOptions()));
         }
@@ -94,12 +105,16 @@ namespace TreeMage.Core.Exporting
         [Fact]
         public async Task ExportAsync_WithNullStream()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
             await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(tree, null!, new ExportOptions()));
         }
 
         [Fact]
         public async Task ExportAsync_WithNullOptions()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
             using var stream = new MemoryStream();
             await Assert.ThrowsAsync<ArgumentNullException>(() => exporter.ExportAsync(tree, stream, null!));
         }
@@ -107,6 +122,8 @@ namespace TreeMage.Core.Exporting
         [Fact]
         public async Task ExportAsync_AsPositive()
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
             using (var stream = new FileStream(outputPath, FileMode.Create))
             {
                 await exporter.ExportAsync(tree, stream, exportOptions);

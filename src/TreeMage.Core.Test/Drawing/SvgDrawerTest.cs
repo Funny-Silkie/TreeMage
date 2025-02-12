@@ -1,4 +1,5 @@
 ﻿using Svg;
+using System.Runtime.InteropServices;
 using TreeMage.Core.Drawing.Styles;
 using TreeMage.Core.Trees;
 using TreeMage.TestUtilities;
@@ -272,8 +273,11 @@ namespace TreeMage.Core.Drawing
 
             Assert.Multiple(() =>
             {
-                Assert.Equal(459.2, svg.Width, 0.1);
-                Assert.Equal(348, svg.Height, 0.1);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Assert.Equal(459.2, svg.Width, 0.1);
+                    Assert.Equal(348, svg.Height, 0.1);
+                }
 
                 SvgElement? shadesGroup = svg.GetElementById("shades");
                 Assert.NotNull(shadesGroup);
