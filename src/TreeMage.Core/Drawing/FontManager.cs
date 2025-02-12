@@ -2,6 +2,7 @@
 using PdfSharpCore.Fonts;
 using PdfSharpCore.Utils;
 using SixLabors.Fonts;
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace TreeMage.Core.Drawing
@@ -35,8 +36,12 @@ namespace TreeMage.Core.Drawing
         static FontManager()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) _defaultFontFamily = "Arial";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) _defaultFontFamily = "sans-serif";
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) _defaultFontFamily = "Helvetica";
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) _defaultFontFamily = CultureInfo.CurrentCulture.Name switch
+            {
+                "ja-JP" => "Noto Sans CJK JP",
+                _ => "Ubuntu",
+            };
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX)) _defaultFontFamily = "Arial";
             else _defaultFontFamily = "Arial";
 
             GlobalFontSettings.FontResolver = new FontResolver();

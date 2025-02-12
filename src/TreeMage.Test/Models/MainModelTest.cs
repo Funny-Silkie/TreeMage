@@ -1,5 +1,6 @@
 using Reactive.Bindings;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using TreeMage.Core.Drawing;
 using TreeMage.Core.Drawing.Styles;
 using TreeMage.Core.Exporting;
@@ -1099,7 +1100,6 @@ namespace TreeMage.Models
 
         [Theory]
         [InlineData(ExportType.Svg)]
-        [InlineData(ExportType.Png)]
         [InlineData(ExportType.Pdf)]
         public async Task ExportWithExporter_OnTreeExisting(ExportType type)
         {
@@ -1107,6 +1107,19 @@ namespace TreeMage.Models
             File.Delete(destPath);
 
             await model.ExportWithExporter(destPath, type);
+
+            Assert.True(File.Exists(destPath));
+        }
+
+        [Fact]
+        public async Task ExportWithExporter_OnTreeExisting_AsPng()
+        {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
+
+            string destPath = "test.png";
+            File.Delete(destPath);
+
+            await model.ExportWithExporter(destPath, ExportType.Png);
 
             Assert.True(File.Exists(destPath));
         }

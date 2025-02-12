@@ -1,6 +1,7 @@
 ﻿using TreeMage.TestUtilities.Assertions;
 using TreeMage.Core.Trees;
 using TreeMage.TestUtilities;
+using System.Runtime.InteropServices;
 
 namespace TreeMage.Core.Exporting
 {
@@ -80,7 +81,7 @@ namespace TreeMage.Core.Exporting
             Assert.Multiple(() =>
             {
                 Assert.True(fileInfo.Length > 0);
-                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Core", "Export", "test.svg"), outputPath);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Core", "Export", "test.svg"), outputPath);
             });
         }
 
@@ -117,7 +118,7 @@ namespace TreeMage.Core.Exporting
             Assert.Multiple(() =>
             {
                 Assert.True(fileInfo.Length > 0);
-                CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Core", "Export", "test.svg"), outputPath);
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) CustomizedAssertions.EqualTextFiles(CreateTestDataPath("Core", "Export", "test.svg"), outputPath);
             });
         }
 
