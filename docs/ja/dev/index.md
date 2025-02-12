@@ -11,7 +11,7 @@
 ## 要求
 **開発を行う際に**必要なものです。
 
-- .NET SDK: .NET9 & .NET8
+- .NET SDK: .NET9, .NET8 & .NET6
 - npm: バージョン16.17.1以上
 - ElectronNET.CLI
 
