@@ -43,6 +43,9 @@ namespace TreeMage.ViewModels
         /// <inheritdoc cref="StyleSidebarModel.Supports"/>
         public ReactivePropertySlim<string?> Supports { get; }
 
+        /// <inheritdoc cref="StyleSidebarModel.YScale"/>
+        public ReactivePropertySlim<double> YScale { get; }
+
         /// <summary>
         /// <see cref="StyleSidebarViewModel"/>の新しいインスタンスを初期化します。
         /// </summary>
@@ -72,6 +75,8 @@ namespace TreeMage.ViewModels
                                                    .AddTo(Disposables);
             Supports = styleSidebarmodel.Supports.ToReactivePropertySlimAsSynchronized(x => x.Value)
                                                  .AddTo(Disposables);
+            YScale = styleSidebarmodel.YScale.ToReactivePropertySlimAsSynchronized(x => x.Value)
+                                             .AddTo(Disposables);
         }
     }
 }

@@ -71,6 +71,11 @@ namespace TreeMage.Models
         public ReactiveProperty<string?> Supports { get; }
 
         /// <summary>
+        /// Y方向の拡大率のプロパティを取得します。
+        /// </summary>
+        public ReactiveProperty<double> YScale { get; }
+
+        /// <summary>
         /// <see cref="StyleSidebarModel"/>の新しいインスタンスを初期化します。
         /// </summary>
         public StyleSidebarModel(MainModel mainModel)
@@ -219,7 +224,28 @@ namespace TreeMage.Models
 
                     this.mainModel.NotifyTreeUpdated();
                 }, (clade: id.Clade, before: id.Clade.Supports, after: string.IsNullOrEmpty(v) ? null : v));
-            });
+            }).AddTo(Disposables);
+            YScale = new ReactiveProperty<double>().WithSubscribe(v =>
+            {
+                if (updating) return;
+
+                CladeId id = FirstSelectedElement.Value;
+                if (id.Clade is null) return;
+
+                this.mainModel.OperateAsUndoable((arg, tree) =>
+                {
+                    YScale!.Value = arg.after;
+                    arg.clade.Style.YScale = arg.after;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (arg, tree) =>
+                {
+                    YScale!.Value = arg.before;
+                    arg.clade.Style.YScale = arg.before;
+
+                    this.mainModel.NotifyTreeUpdated();
+                }, (clade: id.Clade, before: id.Clade.Style.YScale, after: v));
+            }).AddTo(Disposables);
 
             updating = false;
             mainModel.ClearUndoQueue();
@@ -258,7 +284,11 @@ namespace TreeMage.Models
                     ShadeColor.Value = clade.Style.ShadeColor;
 
                     if (clade.IsLeaf) LeafLabel.Value = clade.Taxon;
-                    else Supports.Value = clade.Supports;
+                    else
+                    {
+                        Supports.Value = clade.Supports;
+                        YScale.Value = clade.Style.YScale;
+                    }
                 }
 
                 OnPropertyChanged(nameof(FirstSelectedElement));
