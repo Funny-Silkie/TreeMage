@@ -1,6 +1,7 @@
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using System.Runtime.InteropServices;
 using TreeMage.Core.Exporting;
 using TreeMage.Core.Trees;
 using TreeMage.Core.Trees.Parsers;
@@ -226,6 +227,12 @@ namespace TreeMage.ViewModels
         /// <param name="exportType">出力するフォーマット</param>
         private async Task ExportWithExporter(ExportType exportType)
         {
+            if (exportType is ExportType.Png && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                await electronService.ShowErrorMessageAsync("この操作は現在Windows版のみ有効です");
+                return;
+            }
+
             string? path = await electronService.ShowFileSaveDialogAsync(([exportType.ToString().ToLower()], $"{exportType.ToString().ToUpper()} File"));
             if (path is null) return;
 

@@ -7,7 +7,7 @@
         Clade clade = ViewModel.FirstSelectedElement.Value.Clade;
         <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
             <RadzenColumn>
-                <RadzenText class="style-sidebar-label">Branch color: </RadzenText>
+                <RadzenText class="style-sidebar-label">Branch color:</RadzenText>
             </RadzenColumn>
             <RadzenColumn>
                 <RadzenColorPicker @bind-Value="ViewModel.BranchColor.Value" />
@@ -17,7 +17,7 @@
         {
             <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
                 <RadzenColumn>
-                    <RadzenText class="style-sidebar-label">Leaf color: </RadzenText>
+                    <RadzenText class="style-sidebar-label">Leaf color:</RadzenText>
                 </RadzenColumn>
                 <RadzenColumn>
                     <RadzenColorPicker @bind-Value="ViewModel.LeafColor.Value" />
@@ -55,12 +55,20 @@
             }
             else
             {
-                <RadzenRow AlignItems="AlignItems.Center">
+                <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
                     <RadzenColumn>
-                        <RadzenText>Support value:</RadzenText>
+                        <RadzenText class="style-sidebar-label">Support value:</RadzenText>
                     </RadzenColumn>
                     <RadzenColumn>
                         <RadzenTextBox class="style-sidebar-value" @bind-Value="ViewModel.Supports.Value" />
+                    </RadzenColumn>
+                </RadzenRow>
+                <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
+                    <RadzenColumn>
+                        <RadzenText class="style-sidebar-label">Y scale:</RadzenText>
+                    </RadzenColumn>
+                    <RadzenColumn>
+                        <RadzenNumeric TValue="double" class="style-sidebar-value" Min="0" Step="0.1" @bind-Value="ViewModel.YScale.Value" />
                     </RadzenColumn>
                 </RadzenRow>
             }

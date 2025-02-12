@@ -31,12 +31,18 @@
         public string? ShadeColor { get; set; }
 
         /// <summary>
+        /// Y方向の拡大率を取得または設定します。
+        /// </summary>
+        public double YScale { get; set; }
+
+        /// <summary>
         /// <see cref="CladeStyle"/>の新しいインスタンスを初期化します。
         /// </summary>
         public CladeStyle()
         {
             BranchColor = "black";
             LeafColor = "black";
+            YScale = 1;
         }
 
         /// <summary>
@@ -53,6 +59,7 @@
             Collapsed = style.Collapsed;
             CladeLabel = style.CladeLabel;
             ShadeColor = style.ShadeColor;
+            YScale = style.YScale;
         }
 
         /// <summary>
@@ -66,6 +73,7 @@
             Collapsed = Collapsed,
             CladeLabel = CladeLabel,
             ShadeColor = ShadeColor,
+            YScale = YScale,
         };
 
         object ICloneable.Clone() => Clone();

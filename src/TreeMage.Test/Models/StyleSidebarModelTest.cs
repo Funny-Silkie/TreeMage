@@ -276,6 +276,7 @@ namespace TreeMage.Models
                 Assert.Equal("red", styleSidebarModel.ShadeColor.Value);
                 Assert.Null(styleSidebarModel.LeafLabel.Value);
                 Assert.Equal("20/30", styleSidebarModel.Supports.Value);
+                Assert.Equal(1, styleSidebarModel.YScale.Value);
             });
         }
 
@@ -403,7 +404,7 @@ namespace TreeMage.Models
         }
 
         [Fact]
-        public async Task Supports_Set_OnSingleLeafSelected()
+        public async Task Supports_Set_OnSingleBipartitionSelected()
         {
             SetupAsCladeBAFocused();
 
@@ -411,6 +412,17 @@ namespace TreeMage.Models
                                                          "hoge",
                                                          (_, v) => Assert.Equal(v, cladeBA.Supports),
                                                          (_, v) => Assert.Equal(v, cladeBA.Supports));
+        }
+
+        [Fact]
+        public async Task YScale_Set_OnSingleBipartitionSelected()
+        {
+            SetupAsCladeBAFocused();
+
+            await PropertySetTestAsOnlyTargetTreeUpdated(styleSidebarModel.YScale,
+                                                         2,
+                                                         (_, v) => Assert.Equal(v, cladeBA.Style.YScale),
+                                                         (_, v) => Assert.Equal(v, cladeBA.Style.YScale));
         }
 
         #endregion Properties

@@ -157,34 +157,31 @@ namespace TreeMage.TestUtilities.Assertions
         /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
         public static void Equal(TreeStyle expected, TreeStyle actual)
         {
-            Assert.Multiple(() =>
-            {
-                Assert.Equal(expected.XScale, actual.XScale);
-                Assert.Equal(expected.YScale, actual.YScale);
-                Assert.Equal(expected.BranchThickness, actual.BranchThickness);
-                Assert.Equal(expected.DefaultBranchLength, actual.DefaultBranchLength);
-                Assert.Equal(expected.ShowLeafLabels, actual.ShowLeafLabels);
-                Assert.Equal(expected.LeafLabelsFontSize, actual.LeafLabelsFontSize);
-                Assert.Equal(expected.ShowCladeLabels, actual.ShowCladeLabels);
-                Assert.Equal(expected.CladeLabelsFontSize, actual.CladeLabelsFontSize);
-                Assert.Equal(expected.CladeLabelsLineThickness, actual.CladeLabelsLineThickness);
-                Assert.Equal(expected.ShowNodeValues, actual.ShowNodeValues);
-                Assert.Equal(expected.NodeValueType, actual.NodeValueType);
-                Assert.Equal(expected.NodeValueFontSize, actual.NodeValueFontSize);
-                Assert.Equal(expected.ShowBranchValues, actual.ShowBranchValues);
-                Assert.Equal(expected.BranchValueType, actual.BranchValueType);
-                Assert.Equal(expected.BranchValueFontSize, actual.BranchValueFontSize);
-                Assert.Equal(expected.BranchValueHideRegex?.ToString(), actual.BranchValueHideRegex?.ToString());
-                Assert.Equal(expected.BranchValueHideRegexPattern, actual.BranchValueHideRegexPattern);
-                Assert.Equal(expected.ShowBranchDecorations, actual.ShowBranchDecorations);
-                Assert.Equal(expected.DecorationStyles.Length, actual.DecorationStyles.Length);
-                Assert.Equal(expected.ShowScaleBar, actual.ShowScaleBar);
-                Assert.Equal(expected.ScaleBarValue, actual.ScaleBarValue);
-                Assert.Equal(expected.ScaleBarFontSize, actual.ScaleBarFontSize);
-                Assert.Equal(expected.ScaleBarThickness, actual.ScaleBarThickness);
-                Assert.Equal(expected.CollapseType, actual.CollapseType);
-                Assert.Equal(expected.CollapsedConstantWidth, actual.CollapsedConstantWidth);
-            });
+            Assert.Multiple(() => Assert.Equal(expected.XScale, actual.XScale),
+                            () => Assert.Equal(expected.YScale, actual.YScale),
+                            () => Assert.Equal(expected.BranchThickness, actual.BranchThickness),
+                            () => Assert.Equal(expected.DefaultBranchLength, actual.DefaultBranchLength),
+                            () => Assert.Equal(expected.ShowLeafLabels, actual.ShowLeafLabels),
+                            () => Assert.Equal(expected.LeafLabelsFontSize, actual.LeafLabelsFontSize),
+                            () => Assert.Equal(expected.ShowCladeLabels, actual.ShowCladeLabels),
+                            () => Assert.Equal(expected.CladeLabelsFontSize, actual.CladeLabelsFontSize),
+                            () => Assert.Equal(expected.CladeLabelsLineThickness, actual.CladeLabelsLineThickness),
+                            () => Assert.Equal(expected.ShowNodeValues, actual.ShowNodeValues),
+                            () => Assert.Equal(expected.NodeValueType, actual.NodeValueType),
+                            () => Assert.Equal(expected.NodeValueFontSize, actual.NodeValueFontSize),
+                            () => Assert.Equal(expected.ShowBranchValues, actual.ShowBranchValues),
+                            () => Assert.Equal(expected.BranchValueType, actual.BranchValueType),
+                            () => Assert.Equal(expected.BranchValueFontSize, actual.BranchValueFontSize),
+                            () => Assert.Equal(expected.BranchValueHideRegex?.ToString(), actual.BranchValueHideRegex?.ToString()),
+                            () => Assert.Equal(expected.BranchValueHideRegexPattern, actual.BranchValueHideRegexPattern),
+                            () => Assert.Equal(expected.ShowBranchDecorations, actual.ShowBranchDecorations),
+                            () => Assert.Equal(expected.DecorationStyles.Length, actual.DecorationStyles.Length),
+                            () => Assert.Equal(expected.ShowScaleBar, actual.ShowScaleBar),
+                            () => Assert.Equal(expected.ScaleBarValue, actual.ScaleBarValue),
+                            () => Assert.Equal(expected.ScaleBarFontSize, actual.ScaleBarFontSize),
+                            () => Assert.Equal(expected.ScaleBarThickness, actual.ScaleBarThickness),
+                            () => Assert.Equal(expected.CollapseType, actual.CollapseType),
+                            () => Assert.Equal(expected.CollapsedConstantWidth, actual.CollapsedConstantWidth));
             for (int i = 0; i < expected.DecorationStyles.Length; i++) Equal(expected.DecorationStyles[i], actual.DecorationStyles[i]);
         }
 
@@ -196,14 +193,12 @@ namespace TreeMage.TestUtilities.Assertions
         /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
         public static void Equal(CladeStyle expected, CladeStyle actual)
         {
-            Assert.Multiple(() =>
-            {
-                Assert.Equal(expected.BranchColor, actual.BranchColor);
-                Assert.Equal(expected.LeafColor, actual.LeafColor);
-                Assert.Equal(expected.Collapsed, actual.Collapsed);
-                Assert.Equal(expected.CladeLabel, actual.CladeLabel);
-                Assert.Equal(expected.ShadeColor, actual.ShadeColor);
-            });
+            Assert.Multiple(() => Assert.Equal(expected.BranchColor, actual.BranchColor),
+                            () => Assert.Equal(expected.LeafColor, actual.LeafColor),
+                            () => Assert.Equal(expected.Collapsed, actual.Collapsed),
+                            () => Assert.Equal(expected.CladeLabel, actual.CladeLabel),
+                            () => Assert.Equal(expected.ShadeColor, actual.ShadeColor),
+                            () => Assert.Equal(expected.YScale, actual.YScale));
         }
 
         /// <summary>
@@ -214,15 +209,12 @@ namespace TreeMage.TestUtilities.Assertions
         /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
         public static void Equal(BranchDecorationStyle expected, BranchDecorationStyle actual)
         {
-            Assert.Multiple(() =>
-            {
-                Assert.Equal(expected.Enabled, actual.Enabled);
-                Assert.Equal(expected.Regex?.ToString(), actual.Regex?.ToString());
-                Assert.Equal(expected.RegexPattern, actual.RegexPattern);
-                Assert.Equal(expected.ShapeSize, actual.ShapeSize);
-                Assert.Equal(expected.DecorationType, actual.DecorationType);
-                Assert.Equal(expected.ShapeColor, actual.ShapeColor);
-            });
+            Assert.Multiple(() => Assert.Equal(expected.Enabled, actual.Enabled),
+                            () => Assert.Equal(expected.Regex?.ToString(), actual.Regex?.ToString()),
+                            () => Assert.Equal(expected.RegexPattern, actual.RegexPattern),
+                            () => Assert.Equal(expected.ShapeSize, actual.ShapeSize),
+                            () => Assert.Equal(expected.DecorationType, actual.DecorationType),
+                            () => Assert.Equal(expected.ShapeColor, actual.ShapeColor));
         }
 
         /// <summary>
@@ -234,14 +226,11 @@ namespace TreeMage.TestUtilities.Assertions
         /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
         public static void Equal(Clade expected, Clade actual)
         {
-            Assert.Multiple(() =>
-            {
-                Assert.Equal(expected.Taxon, actual.Taxon);
-                Assert.Equal(expected.Supports, actual.Supports);
-                Assert.Equal(expected.BranchLength, actual.BranchLength);
-                Assert.Equal(expected.ChildrenInternal.Count, actual.ChildrenInternal.Count);
-                Equal(expected.Style, actual.Style);
-            });
+            Assert.Multiple(() => Assert.Equal(expected.Taxon, actual.Taxon),
+                            () => Assert.Equal(expected.Supports, actual.Supports),
+                            () => Assert.Equal(expected.BranchLength, actual.BranchLength),
+                            () => Assert.Equal(expected.ChildrenInternal.Count, actual.ChildrenInternal.Count),
+                            () => Equal(expected.Style, actual.Style));
 
             for (int i = 0; i < expected.ChildrenInternal.Count; i++) Equal(expected.ChildrenInternal[i], actual.ChildrenInternal[i]);
         }
@@ -275,14 +264,11 @@ namespace TreeMage.TestUtilities.Assertions
         /// <exception cref="EqualException"><paramref name="expected"/>と<paramref name="actual"/>間に等価性が認められない</exception>
         public static void Equal(Configurations expected, Configurations actual)
         {
-            Assert.Multiple(() =>
-            {
-                Assert.Equal(expected.MainWindowWidth, actual.MainWindowWidth);
-                Assert.Equal(expected.MainWindowHeight, actual.MainWindowHeight);
-                Assert.Equal(expected.IsMaximized, actual.IsMaximized);
-                Assert.Equal(expected.BranchColoring, actual.BranchColoring);
-                Assert.Equal(expected.AutoOrderingMode, actual.AutoOrderingMode);
-            });
+            Assert.Multiple(() => Assert.Equal(expected.MainWindowWidth, actual.MainWindowWidth),
+                            () => Assert.Equal(expected.MainWindowHeight, actual.MainWindowHeight),
+                            () => Assert.Equal(expected.IsMaximized, actual.IsMaximized),
+                            () => Assert.Equal(expected.BranchColoring, actual.BranchColoring),
+                            () => Assert.Equal(expected.AutoOrderingMode, actual.AutoOrderingMode));
         }
 
         /// <summary>

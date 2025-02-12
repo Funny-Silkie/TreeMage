@@ -1,6 +1,8 @@
 ﻿using Reactive.Bindings;
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
+using TreeMage.Core.Drawing;
 using TreeMage.Core.Exporting;
 using TreeMage.Core.ProjectData;
 using TreeMage.Core.Trees;
@@ -430,18 +432,27 @@ namespace TreeMage.Models
             if (clade.IsLeaf || clade.IsRoot) return;
 
             bool prevValue = clade.Style.Collapsed;
+            double prevYScale = clade.Style.YScale;
+            int externalCount = clade.GetDescendants().Count(x => x.GetIsExternal());
+            Debug.Assert(externalCount > 0);
+
+            double nextYScale = clade.Style.Collapsed ? prevYScale / externalCount : prevYScale * externalCount;
 
             OperateAsUndoable((arg, tree) =>
             {
                 arg.clade.Style.Collapsed = !prevValue;
+                arg.clade.Style.YScale = arg.nextYScale;
+                UnfocusAll();
 
                 NotifyTreeUpdated();
             }, (arg, tree) =>
             {
                 arg.clade.Style.Collapsed = prevValue;
+                arg.clade.Style.YScale = arg.prevYScale;
+                UnfocusAll();
 
                 NotifyTreeUpdated();
-            }, (clade, prevValue));
+            }, (clade, prevValue, prevYScale, nextYScale));
         }
 
         /// <summary>

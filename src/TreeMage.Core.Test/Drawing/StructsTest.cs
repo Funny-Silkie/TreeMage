@@ -36,6 +36,19 @@
         }
 
         [Fact]
+        public void Operator_Multiply()
+        {
+            Assert.Multiple(() => Assert.Equal(new TMPoint(20, 40), point * 2),
+                            () => Assert.Equal(new TMPoint(20, 40), 2 * point));
+        }
+
+        [Fact]
+        public void Operator_Division()
+        {
+            Assert.Equal(new TMPoint(5, 10), point / 2);
+        }
+
+        [Fact]
         public void Implicit_Operator_FromValueTuple()
         {
             Assert.Equal(point, (TMPoint)(10, 20));
@@ -83,6 +96,19 @@
         public void Operator_Subtraction()
         {
             Assert.Equal(new TMSize(5, 15), size - new TMSize(5, 5));
+        }
+
+        [Fact]
+        public void Operator_Multiply()
+        {
+            Assert.Multiple(() => Assert.Equal(new TMSize(20, 40), size * 2),
+                            () => Assert.Equal(new TMSize(20, 40), 2 * size));
+        }
+
+        [Fact]
+        public void Operator_Division()
+        {
+            Assert.Equal(new TMSize(5, 10), size / 2);
         }
 
         [Fact]
@@ -164,5 +190,37 @@
             rgb = new TMColor("rgb(10, 20, 30)");
             rgba = new TMColor("rgba(10, 20, 30, 40)");
         }
+
+        #region Ctors
+
+        [Fact]
+        public void Ctor_WithRgb()
+        {
+            Assert.Equal(new TMColor("rgb(10, 20, 30)"), new TMColor(10, 20, 30));
+        }
+
+        [Fact]
+        public void Ctor_WithRgba()
+        {
+            Assert.Equal(new TMColor("rgb(10, 20, 30, 40)"), new TMColor(10, 20, 30, 40));
+        }
+
+        #endregion Ctors
+
+        #region Static Properties
+
+        [Fact]
+        public void Black_Get()
+        {
+            Assert.Equal("black", TMColor.Black.Value);
+        }
+
+        [Fact]
+        public void White_Get()
+        {
+            Assert.Equal("white", TMColor.White.Value);
+        }
+
+        #endregion Static Properties
     }
 }
