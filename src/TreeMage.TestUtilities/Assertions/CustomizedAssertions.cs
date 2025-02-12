@@ -197,7 +197,8 @@ namespace TreeMage.TestUtilities.Assertions
                             () => Assert.Equal(expected.LeafColor, actual.LeafColor),
                             () => Assert.Equal(expected.Collapsed, actual.Collapsed),
                             () => Assert.Equal(expected.CladeLabel, actual.CladeLabel),
-                            () => Assert.Equal(expected.ShadeColor, actual.ShadeColor));
+                            () => Assert.Equal(expected.ShadeColor, actual.ShadeColor),
+                            () => Assert.Equal(expected.YScale, actual.YScale));
         }
 
         /// <summary>

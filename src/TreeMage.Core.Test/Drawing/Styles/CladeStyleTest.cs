@@ -11,6 +11,20 @@ namespace TreeMage.Core.Drawing.Styles
             style = new CladeStyle();
         }
 
+        /// <summary>
+        /// ダミーの値を設定します。
+        /// </summary>
+        /// <param name="style">対象の<see cref="CladeStyle"/>のインスタンス</param>
+        private static void ApplyDummyValues(CladeStyle style)
+        {
+            style.BranchColor = "red";
+            style.LeafColor = "blue";
+            style.Collapsed = true;
+            style.CladeLabel = "clade";
+            style.ShadeColor = "blue";
+            style.YScale = 2;
+        }
+
         #region Ctors
 
         [Fact]
@@ -25,6 +39,7 @@ namespace TreeMage.Core.Drawing.Styles
                 Assert.False(style.Collapsed);
                 Assert.Null(style.CladeLabel);
                 Assert.Null(style.ShadeColor);
+                Assert.Equal(1, style.YScale);
             });
         }
 
@@ -41,14 +56,9 @@ namespace TreeMage.Core.Drawing.Styles
         [Fact]
         public void ApplyValues_AsPositive()
         {
-            var applied = new CladeStyle()
-            {
-                BranchColor = "white",
-                LeafColor = "none",
-                Collapsed = true,
-                CladeLabel = "clade",
-                ShadeColor = "blue",
-            };
+            var applied = new CladeStyle();
+            ApplyDummyValues(applied);
+
             style.ApplyValues(applied);
 
             CustomizedAssertions.Equal(applied, style);
@@ -57,11 +67,7 @@ namespace TreeMage.Core.Drawing.Styles
         [Fact]
         public void Clone()
         {
-            style.BranchColor = "red";
-            style.LeafColor = "blue";
-            style.Collapsed = true;
-            style.CladeLabel = "clade";
-            style.ShadeColor = "blue";
+            ApplyDummyValues(style);
 
             CladeStyle cloned = style.Clone();
 
@@ -71,11 +77,7 @@ namespace TreeMage.Core.Drawing.Styles
         [Fact]
         public void Interface_ICloneable_Clone()
         {
-            style.BranchColor = "red";
-            style.LeafColor = "blue";
-            style.Collapsed = true;
-            style.CladeLabel = "clade";
-            style.ShadeColor = "blue";
+            ApplyDummyValues(style);
 
             var cloned = (CladeStyle)((ICloneable)style).Clone();
 

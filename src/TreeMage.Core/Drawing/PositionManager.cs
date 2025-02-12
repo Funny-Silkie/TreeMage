@@ -158,7 +158,16 @@ namespace TreeMage.Core.Drawing
         /// <returns><paramref name="clade"/>のY座標1</returns>
         private double CalcY1Core(Clade clade)
         {
-            if (clade.GetIsExternal()) return indexTable[clade] * treeStyle.YScale;
+            if (clade.GetIsExternal())
+            {
+                int index = indexTable[clade];
+                if (index == 0) return 0;
+                Clade prevClade = allExternalNodes[index - 1];
+                double prevYScale = CalcYScale(prevClade);
+                double result = CalcY1(prevClade) + (prevClade.Style.Collapsed ? prevYScale / 2 : prevYScale);
+                if (clade.Style.Collapsed) result += CalcYScale(clade) / 2;
+                return result;
+            }
             if (clade.Children.Count == 1) return CalcY2(clade.Children[0]);
             return (CalcY2(clade.Children[0]) + CalcY2(clade.Children[^1])) / 2;
         }
@@ -214,6 +223,36 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <summary>
+        /// Y方向の拡大率を算出します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <returns><paramref name="clade"/>におけるY方向の拡大率</returns>
+        public double CalcYScale(Clade clade)
+        {
+            if (!positions.TryGetValue(clade, out PositionInfo? info))
+            {
+                info = new PositionInfo();
+                positions.Add(clade, info);
+            }
+            if (!double.IsNaN(info.YScale)) return info.YScale;
+            double result = CalcYScaleCore(clade);
+            info.YScale = result;
+            return result;
+        }
+
+        /// <summary>
+        /// Y方向の拡大率を算出します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <returns><paramref name="clade"/>におけるY方向の拡大率</returns>
+        private double CalcYScaleCore(Clade clade)
+        {
+            if (clade.IsRoot) return treeStyle.YScale * clade.Style.YScale;
+
+            return clade.Style.YScale * CalcYScale(clade.Parent);
+        }
+
+        /// <summary>
         /// ドキュメントのサイズを取得します。
         /// </summary>
         /// <returns>ドキュメントのサイズ</returns>
@@ -228,7 +267,7 @@ namespace TreeMage.Core.Drawing
                 if (maxLength > 0) width += maxLength + treeStyle.CladeLabelsLineThickness + 20;
             }
 
-            double height = allExternalNodes.Length * treeStyle.YScale + 100;
+            double height = allExternalNodes.Sum(CalcYScale) + 100;
             if (treeStyle.ShowScaleBar) height += CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize).Height + 20;
 
             return (width, height);
@@ -252,7 +291,7 @@ namespace TreeMage.Core.Drawing
 
             double xLeft = (CalcX1(clade) + CalcX2(clade)) / 2;
             double xRight, yTop, yBottom;
-            double halfLeafHeight = treeStyle.YScale / 2;
+            double halfLeafHeight = CalcYScale(clade) / 2;
 
             if (clade.GetIsExternal())
             {
@@ -336,7 +375,7 @@ namespace TreeMage.Core.Drawing
             (double xLeft, double y, _, _) = CalcLeafPosition(clade);
             xRightTop = xRightTop * treeStyle.XScale + xLeft;
             xRightBottom = xRightBottom * treeStyle.XScale + xLeft;
-            double yOffset = treeStyle.YScale / 2d;
+            double yOffset = CalcYScale(clade) / 2d;
 
             return (new TMPoint(xLeft, y), new TMPoint(xRightTop, y - yOffset), new TMPoint(xRightBottom, y + yOffset));
         }
@@ -375,7 +414,7 @@ namespace TreeMage.Core.Drawing
                 (x, y, double width, double height) = CalcLeafPosition(clade);
                 if (treeStyle.ShowLeafLabels) x += width + 10;
                 yTop = y - height;
-                yBottom = yTop + treeStyle.YScale;
+                yBottom = yTop + CalcYScale(clade);
             }
             else if (clade.Style.Collapsed)
             {
@@ -389,8 +428,8 @@ namespace TreeMage.Core.Drawing
 
                 (_, double height) = CalcTextSize(clade.Style.CladeLabel, treeStyle.CladeLabelsFontSize);
 
-                yTop = CalcY1(clade) - treeStyle.YScale / 2;
-                yBottom = CalcY1(clade) + treeStyle.YScale / 2;
+                yTop = CalcY1(clade) - CalcYScale(clade) / 2;
+                yBottom = CalcY1(clade) + CalcYScale(clade) / 2;
                 y = (yTop + yBottom) / 2 + height / 2;
             }
             else
@@ -409,8 +448,8 @@ namespace TreeMage.Core.Drawing
 
                     return result;
                 });
-                yTop = CalcY1(allExternals[0]) - treeStyle.YScale / 2;
-                yBottom = CalcY1(allExternals[^1]) + treeStyle.YScale / 2;
+                yTop = CalcY1(allExternals[0]) - CalcYScale(clade) / 2;
+                yBottom = CalcY1(allExternals[^1]) + CalcYScale(clade) / 2;
                 y = (yTop + yBottom) / 2 + height / 2;
             }
 
@@ -558,7 +597,7 @@ namespace TreeMage.Core.Drawing
         public TMPoint CalcScaleBarOffset()
         {
             TMSize textSize = CalcTextSize(treeStyle.ScaleBarValue.ToString(), treeStyle.ScaleBarFontSize);
-            double y = indexTable.Count * treeStyle.YScale + 30 + textSize.Height;
+            double y = allExternalNodes.Sum(CalcYScale) + 30 + textSize.Height;
 
             return new TMPoint(50 + textSize.Width / 2, 20 + y);
         }
@@ -607,13 +646,14 @@ namespace TreeMage.Core.Drawing
             public double Y1;
             public double Y2;
             public double TotalLength;
+            public double YScale;
 
             /// <summary>
             /// <see cref="PositionInfo"/>の新しいインスタンスを初期化します。
             /// </summary>
             public PositionInfo()
             {
-                X1 = X2 = Y1 = Y2 = TotalLength = double.NaN;
+                X1 = X2 = Y1 = Y2 = TotalLength = YScale = double.NaN;
             }
         }
     }
