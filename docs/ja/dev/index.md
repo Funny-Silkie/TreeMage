@@ -38,7 +38,7 @@ electronize build /custom "osx-arm64;osx" /electron-arch arm64 # osx-arm64
 
 `src` ディレクトリで以下のコマンドを実行
 ```sh
-dotnet test
+dotnet test -c TEST
 ```
 
 ### デバッグ
