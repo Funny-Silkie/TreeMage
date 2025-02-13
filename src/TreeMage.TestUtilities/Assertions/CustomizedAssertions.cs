@@ -268,7 +268,8 @@ namespace TreeMage.TestUtilities.Assertions
                             () => Assert.Equal(expected.MainWindowHeight, actual.MainWindowHeight),
                             () => Assert.Equal(expected.IsMaximized, actual.IsMaximized),
                             () => Assert.Equal(expected.BranchColoring, actual.BranchColoring),
-                            () => Assert.Equal(expected.AutoOrderingMode, actual.AutoOrderingMode));
+                            () => Assert.Equal(expected.AutoOrderingMode, actual.AutoOrderingMode),
+                            () => Assert.Equal(expected.Culture, actual.Culture));
         }
 
         /// <summary>

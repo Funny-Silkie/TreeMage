@@ -3,5 +3,6 @@
   "MainWindowHeight": 720,
   "IsMaximized": false,
   "BranchColoring": 0,
-  "AutoOrderingMode": 2
+  "AutoOrderingMode": 2,
+  "Culture": "ja-JP"
 }
