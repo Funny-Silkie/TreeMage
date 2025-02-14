@@ -61,6 +61,330 @@ namespace TreeMage.Resources {
         }
         
         /// <summary>
+        ///   Branch decorations に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_BRANCH_DECORATIONS {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_BRANCH_DECORATIONS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Branch thickness に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_BRANCH_THICKNESS {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_BRANCH_THICKNESS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Branch values に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_BRANCH_VALUES {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_BRANCH_VALUES", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Clade labels に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_CLADE_LABELS {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_CLADE_LABELS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Collapse type に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Width に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE_WIDTH {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE_WIDTH", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Color に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_COLOR {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_COLOR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Default branch length に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_DEFAULT_BRANCH_LENGTH {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_DEFAULT_BRANCH_LENGTH", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Font size に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_FONTSIZE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_FONTSIZE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Hide pattern に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_HIDE_PATTERN {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_HIDE_PATTERN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Layout に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_LAYOUT {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_LAYOUT", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Leaf labels に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_LEAF_LABELS {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_LEAF_LABELS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Line thiclness に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_LINE_THICKNESS {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_LINE_THICKNESS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Node values に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_NODE_VALUES {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_NODE_VALUES", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Pattern に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_PATTERN {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_PATTERN", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Scale bar に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_SCALEBAR {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_SCALEBAR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Bar thickness に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_SCALEBAR_THICKNESS {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_SCALEBAR_THICKNESS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Value に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_SCALEBAR_VALUE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_SCALEBAR_VALUE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Search に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_SEARCH {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_SEARCH", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ignore case に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_SEARCH_IGNORE_CASE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_SEARCH_IGNORE_CASE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Target に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_SEARCH_TARGET {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_SEARCH_TARGET", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Use regex に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_SEARCH_USE_REGEX {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_SEARCH_USE_REGEX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Shape に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_SHAPE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_SHAPE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Size に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_SIZE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_SIZE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Tree に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_TREE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_TREE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Value に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_VALUE_TYPE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_VALUE_TYPE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   X scale に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_XSCALE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_XSCALE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Y scale に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_EDITSIDEBAR_YSCALE {
+            get {
+                return ResourceManager.GetString("COMPONENT_EDITSIDEBAR_YSCALE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Branch color に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_STYLESIDEBAR_BRANCH_COLOR {
+            get {
+                return ResourceManager.GetString("COMPONENT_STYLESIDEBAR_BRANCH_COLOR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Clade label に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_STYLESIDEBAR_CLADE_LABEL {
+            get {
+                return ResourceManager.GetString("COMPONENT_STYLESIDEBAR_CLADE_LABEL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Leaf color に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_STYLESIDEBAR_LEAF_COLOR {
+            get {
+                return ResourceManager.GetString("COMPONENT_STYLESIDEBAR_LEAF_COLOR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Leaf label に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_STYLESIDEBAR_LEAF_LABEL {
+            get {
+                return ResourceManager.GetString("COMPONENT_STYLESIDEBAR_LEAF_LABEL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Shade color に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_STYLESIDEBAR_SHADE_COLOR {
+            get {
+                return ResourceManager.GetString("COMPONENT_STYLESIDEBAR_SHADE_COLOR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Support value に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_STYLESIDEBAR_SUPPORT_VALUE {
+            get {
+                return ResourceManager.GetString("COMPONENT_STYLESIDEBAR_SUPPORT_VALUE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Properties に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_STYLESIDEBAR_TITLE {
+            get {
+                return ResourceManager.GetString("COMPONENT_STYLESIDEBAR_TITLE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Y scale に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string COMPONENT_STYLESIDEBAR_YSCALE {
+            get {
+                return ResourceManager.GetString("COMPONENT_STYLESIDEBAR_YSCALE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Cancel に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string DIALOG_BUTTON_CANCEL {
@@ -372,6 +696,42 @@ namespace TreeMage.Resources {
         internal static string MENU_WINDOW {
             get {
                 return ResourceManager.GetString("MENU_WINDOW", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Auto ordering に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string PAGECONTENT_EDIT_CONFIG_AUTO_ORDERING {
+            get {
+                return ResourceManager.GetString("PAGECONTENT_EDIT_CONFIG_AUTO_ORDERING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Branch coloring に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string PAGECONTENT_EDIT_CONFIG_BRANCH_COLORING {
+            get {
+                return ResourceManager.GetString("PAGECONTENT_EDIT_CONFIG_BRANCH_COLORING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Developer に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string PAGECONTENT_VERSIONS_DEVELOPER {
+            get {
+                return ResourceManager.GetString("PAGECONTENT_VERSIONS_DEVELOPER", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Version に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string PAGECONTENT_VERSIONS_VERSION {
+            get {
+                return ResourceManager.GetString("PAGECONTENT_VERSIONS_VERSION", resourceCulture);
             }
         }
         

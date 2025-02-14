@@ -1,13 +1,13 @@
 @inject StyleSidebarViewModel ViewModel
 
 <RadzenStack Orientation="Orientation.Vertical">
-    <RadzenText TextStyle="TextStyle.DisplayH6">Properties</RadzenText>
+    <RadzenText TextStyle="TextStyle.DisplayH6">@SR.COMPONENT_STYLESIDEBAR_TITLE</RadzenText>
     @if (ViewModel.IsEnable.Value && ViewModel.FocusedCount.Value > 0 && ViewModel.FirstSelectedElement.Value.Clade is not null)
     {
         Clade clade = ViewModel.FirstSelectedElement.Value.Clade;
         <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
             <RadzenColumn>
-                <RadzenText class="style-sidebar-label">Branch color:</RadzenText>
+                <RadzenText class="style-sidebar-label">@SR.COMPONENT_STYLESIDEBAR_BRANCH_COLOR:</RadzenText>
             </RadzenColumn>
             <RadzenColumn>
                 <RadzenColorPicker @bind-Value="ViewModel.BranchColor.Value" />
@@ -17,7 +17,7 @@
         {
             <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
                 <RadzenColumn>
-                    <RadzenText class="style-sidebar-label">Leaf color:</RadzenText>
+                    <RadzenText class="style-sidebar-label">@SR.COMPONENT_STYLESIDEBAR_LEAF_COLOR:</RadzenText>
                 </RadzenColumn>
                 <RadzenColumn>
                     <RadzenColorPicker @bind-Value="ViewModel.LeafColor.Value" />
@@ -28,7 +28,7 @@
         {
             <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
                 <RadzenColumn>
-                    <RadzenText class="style-sidebar-label">Clade label:</RadzenText>
+                    <RadzenText class="style-sidebar-label">@SR.COMPONENT_STYLESIDEBAR_CLADE_LABEL:</RadzenText>
                 </RadzenColumn>
                 <RadzenColumn>
                     <RadzenTextBox class="style-sidebar-value" @bind-Value="ViewModel.CladeLabel.Value" />
@@ -36,7 +36,7 @@
             </RadzenRow>
             <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
                 <RadzenColumn>
-                    <RadzenText class="style-sidebar-label">Shade color:</RadzenText>
+                    <RadzenText class="style-sidebar-label">@SR.COMPONENT_STYLESIDEBAR_SHADE_COLOR:</RadzenText>
                 </RadzenColumn>
                 <RadzenColumn>
                     <RadzenColorPicker @bind-Value="ViewModel.ShadeColor.Value" />
@@ -46,7 +46,7 @@
             {
                 <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
                     <RadzenColumn>
-                        <RadzenText class="style-sidebar-label">Leaf label:</RadzenText>
+                        <RadzenText class="style-sidebar-label">@SR.COMPONENT_STYLESIDEBAR_LEAF_LABEL:</RadzenText>
                     </RadzenColumn>
                     <RadzenColumn>
                         <RadzenTextBox class="style-sidebar-value" @bind-Value="ViewModel.LeafLabel.Value" />
@@ -57,7 +57,7 @@
             {
                 <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
                     <RadzenColumn>
-                        <RadzenText class="style-sidebar-label">Support value:</RadzenText>
+                        <RadzenText class="style-sidebar-label">@SR.COMPONENT_STYLESIDEBAR_SUPPORT_VALUE:</RadzenText>
                     </RadzenColumn>
                     <RadzenColumn>
                         <RadzenTextBox class="style-sidebar-value" @bind-Value="ViewModel.Supports.Value" />
@@ -65,7 +65,7 @@
                 </RadzenRow>
                 <RadzenRow AlignItems="AlignItems.Center" Gap="10px">
                     <RadzenColumn>
-                        <RadzenText class="style-sidebar-label">Y scale:</RadzenText>
+                        <RadzenText class="style-sidebar-label">@SR.COMPONENT_STYLESIDEBAR_YSCALE:</RadzenText>
                     </RadzenColumn>
                     <RadzenColumn>
                         <RadzenNumeric TValue="double" class="style-sidebar-value" Min="0" Step="0.1" @bind-Value="ViewModel.YScale.Value" />

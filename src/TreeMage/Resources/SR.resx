@@ -211,4 +211,124 @@
   <data name="ERROR_MULTIPLE_PROJECT_FILES_SPECIFIED" xml:space="preserve">
     <value>Multiple project files are specified.</value>
   </data>
+  <data name="PAGECONTENT_EDIT_CONFIG_BRANCH_COLORING" xml:space="preserve">
+    <value>Branch coloring</value>
+  </data>
+  <data name="PAGECONTENT_EDIT_CONFIG_AUTO_ORDERING" xml:space="preserve">
+    <value>Auto ordering</value>
+  </data>
+  <data name="PAGECONTENT_VERSIONS_VERSION" xml:space="preserve">
+    <value>Version</value>
+  </data>
+  <data name="PAGECONTENT_VERSIONS_DEVELOPER" xml:space="preserve">
+    <value>Developer</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_TITLE" xml:space="preserve">
+    <value>Properties</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_BRANCH_COLOR" xml:space="preserve">
+    <value>Branch color</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_LEAF_COLOR" xml:space="preserve">
+    <value>Leaf color</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_CLADE_LABEL" xml:space="preserve">
+    <value>Clade label</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_SHADE_COLOR" xml:space="preserve">
+    <value>Shade color</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_LEAF_LABEL" xml:space="preserve">
+    <value>Leaf label</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_SUPPORT_VALUE" xml:space="preserve">
+    <value>Support value</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_YSCALE" xml:space="preserve">
+    <value>Y scale</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_LAYOUT" xml:space="preserve">
+    <value>Layout</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE" xml:space="preserve">
+    <value>Collapse type</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE_WIDTH" xml:space="preserve">
+    <value>Width</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_TREE" xml:space="preserve">
+    <value>Tree</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_XSCALE" xml:space="preserve">
+    <value>X scale</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_YSCALE" xml:space="preserve">
+    <value>Y scale</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_BRANCH_THICKNESS" xml:space="preserve">
+    <value>Branch thickness</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_DEFAULT_BRANCH_LENGTH" xml:space="preserve">
+    <value>Default branch length</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH_TARGET" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH_IGNORE_CASE" xml:space="preserve">
+    <value>Ignore case</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH_USE_REGEX" xml:space="preserve">
+    <value>Use regex</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_LEAF_LABELS" xml:space="preserve">
+    <value>Leaf labels</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_FONTSIZE" xml:space="preserve">
+    <value>Font size</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_CLADE_LABELS" xml:space="preserve">
+    <value>Clade labels</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_LINE_THICKNESS" xml:space="preserve">
+    <value>Line thiclness</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_NODE_VALUES" xml:space="preserve">
+    <value>Node values</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_VALUE_TYPE" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_BRANCH_VALUES" xml:space="preserve">
+    <value>Branch values</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_HIDE_PATTERN" xml:space="preserve">
+    <value>Hide pattern</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_BRANCH_DECORATIONS" xml:space="preserve">
+    <value>Branch decorations</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_PATTERN" xml:space="preserve">
+    <value>Pattern</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SHAPE" xml:space="preserve">
+    <value>Shape</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SIZE" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_COLOR" xml:space="preserve">
+    <value>Color</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SCALEBAR" xml:space="preserve">
+    <value>Scale bar</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SCALEBAR_VALUE" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SCALEBAR_THICKNESS" xml:space="preserve">
+    <value>Bar thickness</value>
+  </data>
 </root>

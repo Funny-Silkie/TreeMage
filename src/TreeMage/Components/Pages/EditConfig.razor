@@ -1,20 +1,20 @@
-﻿@page "/edit-config"
+@page "/edit-config"
 @rendermode InteractiveServer
 @inject EditConfigViewModel ViewModel
 
 <div style="margin: 20px; user-select: none">
     <RadzenStack Orientation="Orientation.Vertical">
         <RadzenRow JustifyContent="JustifyContent.Stretch" AlignItems="AlignItems.Center">
-            <RadzenText>Branch coloring:</RadzenText>
+            <RadzenText>@SR.PAGECONTENT_EDIT_CONFIG_BRANCH_COLORING:</RadzenText>
             <RadzenDropDown TValue="BranchColoringType" Data="Enum.GetValues<BranchColoringType>()" @bind-Value="ViewModel.BranchColoring.Value" />
         </RadzenRow>
         <RadzenRow JustifyContent="JustifyContent.Stretch" AlignItems="AlignItems.Center">
-            <RadzenText>Auto ordering:</RadzenText>
+            <RadzenText>@SR.PAGECONTENT_EDIT_CONFIG_AUTO_ORDERING:</RadzenText>
             <RadzenDropDown TValue="AutoOrderingMode" Data="Enum.GetValues<AutoOrderingMode>()" @bind-Value="ViewModel.AutoOrderingMode.Value" />
         </RadzenRow>
         <RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="2rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="OK" Click="ViewModel.CloseCommand.ToDelegate(true)" />
-            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Close" Click="ViewModel.CloseCommand.ToDelegate(false)" />
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="@SR.DIALOG_BUTTON_OK" Click="ViewModel.CloseCommand.ToDelegate(true)" />
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="@SR.DIALOG_BUTTON_CANCEL" Click="ViewModel.CloseCommand.ToDelegate(false)" />
         </RadzenRow>
     </RadzenStack>
 </div>

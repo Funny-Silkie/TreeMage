@@ -231,4 +231,124 @@
   <data name="ERROR_MULTIPLE_PROJECT_FILES_SPECIFIED" xml:space="preserve">
     <value>プロジェクトファイルが二つ以上指定されています</value>
   </data>
+  <data name="PAGECONTENT_EDIT_CONFIG_BRANCH_COLORING" xml:space="preserve">
+    <value>枝の色付け</value>
+  </data>
+  <data name="PAGECONTENT_EDIT_CONFIG_AUTO_ORDERING" xml:space="preserve">
+    <value>枝の自動並び替え</value>
+  </data>
+  <data name="PAGECONTENT_VERSIONS_VERSION" xml:space="preserve">
+    <value>バージョン</value>
+  </data>
+  <data name="PAGECONTENT_VERSIONS_DEVELOPER" xml:space="preserve">
+    <value>開発者</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_TITLE" xml:space="preserve">
+    <value>プロパティ</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_BRANCH_COLOR" xml:space="preserve">
+    <value>枝の色</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_LEAF_COLOR" xml:space="preserve">
+    <value>系統名の色</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_CLADE_LABEL" xml:space="preserve">
+    <value>クレード名</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_SHADE_COLOR" xml:space="preserve">
+    <value>背景色</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_LEAF_LABEL" xml:space="preserve">
+    <value>系統名</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_SUPPORT_VALUE" xml:space="preserve">
+    <value>サポート値</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_YSCALE" xml:space="preserve">
+    <value>Y拡大率</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_LAYOUT" xml:space="preserve">
+    <value>レイアウト</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE" xml:space="preserve">
+    <value>折りたたみタイプ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE_WIDTH" xml:space="preserve">
+    <value>横幅</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_TREE" xml:space="preserve">
+    <value>ツリー</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_XSCALE" xml:space="preserve">
+    <value>X拡大率</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_YSCALE" xml:space="preserve">
+    <value>Y拡大率</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_BRANCH_THICKNESS" xml:space="preserve">
+    <value>枝の太さ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_DEFAULT_BRANCH_LENGTH" xml:space="preserve">
+    <value>デフォルトの枝長</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH" xml:space="preserve">
+    <value>検索</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH_TARGET" xml:space="preserve">
+    <value>検索対象</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH_IGNORE_CASE" xml:space="preserve">
+    <value>大/小文字の無視</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH_USE_REGEX" xml:space="preserve">
+    <value>正規表現を使用</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_LEAF_LABELS" xml:space="preserve">
+    <value>系統名</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_FONTSIZE" xml:space="preserve">
+    <value>フォントサイズ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_CLADE_LABELS" xml:space="preserve">
+    <value>クレード名</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_LINE_THICKNESS" xml:space="preserve">
+    <value>線の太さ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_NODE_VALUES" xml:space="preserve">
+    <value>結節点の値</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_VALUE_TYPE" xml:space="preserve">
+    <value>表示値</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_BRANCH_VALUES" xml:space="preserve">
+    <value>枝の値</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_HIDE_PATTERN" xml:space="preserve">
+    <value>非表示パターン</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_BRANCH_DECORATIONS" xml:space="preserve">
+    <value>枝の装飾</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_PATTERN" xml:space="preserve">
+    <value>パターン</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SHAPE" xml:space="preserve">
+    <value>図形</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SIZE" xml:space="preserve">
+    <value>サイズ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_COLOR" xml:space="preserve">
+    <value>色</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SCALEBAR" xml:space="preserve">
+    <value>スケールバー</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SCALEBAR_VALUE" xml:space="preserve">
+    <value>縮尺</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SCALEBAR_THICKNESS" xml:space="preserve">
+    <value>線の太さ</value>
+  </data>
 </root>

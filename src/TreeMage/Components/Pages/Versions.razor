@@ -1,4 +1,4 @@
-﻿@using System.Diagnostics;
+@using System.Diagnostics;
 @using System.Reflection;
 @page "/versions"
 @inject VersionViewModel ViewModel
@@ -7,11 +7,11 @@
     <RadzenStack Orientation="Orientation.Vertical" Gap="0px">
         <RadzenText>@Assembly.GetExecutingAssembly().GetName().Name</RadzenText>
         <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-            <RadzenText>Version:</RadzenText>
+            <RadzenText>@SR.PAGECONTENT_VERSIONS_VERSION:</RadzenText>
             <RadzenText>1.1.0-dev</RadzenText>
         </RadzenRow>
         <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
-            <RadzenText>Author:</RadzenText>
+            <RadzenText>@SR.PAGECONTENT_VERSIONS_DEVELOPER:</RadzenText>
             <RadzenText>Funny_Silkie</RadzenText>
         </RadzenRow>
         <RadzenRow JustifyContent="JustifyContent.SpaceBetween" AlignItems="AlignItems.Center">
