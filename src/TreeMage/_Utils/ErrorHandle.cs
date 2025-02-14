@@ -46,7 +46,7 @@ namespace TreeMage
                 Console.Error.WriteLine(e.ToString());
             }
 
-            service?.ShowErrorMessageAsync(exception).Wait();
+            service?.ShowErrorMessageAsync(exception);
         }
 
         /// <inheritdoc cref="OutputError(Exception?, IElectronService?)"/>
