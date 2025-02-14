@@ -331,4 +331,13 @@
   <data name="COMPONENT_EDITSIDEBAR_SCALEBAR_THICKNESS" xml:space="preserve">
     <value>Bar thickness</value>
   </data>
+  <data name="PAGECONTENT_EDIT_CONFIG_LANGUAGE" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="DIALOG_TITLE_WARNING" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="WARNING_LANGUAGE_APPLYING" xml:space="preserve">
+    <value>Language change will be applied after closing the application.</value>
+  </data>
 </root>

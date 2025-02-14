@@ -42,7 +42,7 @@ namespace TreeMage.Window
                 Show = false,
                 Title = SR.WINDOW_TITLE_EDIT_CONFIG,
                 Width = 360,
-                Height = 200,
+                Height = 250,
             }, CreateUrl("edit-config"));
 
             parent.OnFocus += ModalFocus;

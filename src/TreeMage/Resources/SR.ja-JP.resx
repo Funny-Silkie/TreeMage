@@ -351,4 +351,13 @@
   <data name="COMPONENT_EDITSIDEBAR_SCALEBAR_THICKNESS" xml:space="preserve">
     <value>線の太さ</value>
   </data>
+  <data name="PAGECONTENT_EDIT_CONFIG_LANGUAGE" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="DIALOG_TITLE_WARNING" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="WARNING_LANGUAGE_APPLYING" xml:space="preserve">
+    <value>言語の変更はアプリケーション再起動時に反映されます</value>
+  </data>
 </root>

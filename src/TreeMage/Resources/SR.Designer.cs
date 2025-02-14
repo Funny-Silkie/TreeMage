@@ -439,6 +439,15 @@ namespace TreeMage.Resources {
         }
         
         /// <summary>
+        ///   Warning に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string DIALOG_TITLE_WARNING {
+            get {
+                return ResourceManager.GetString("DIALOG_TITLE_WARNING", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   The tree format is invalid. に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string ERROR_INVALID_TREE_FORMAT {
@@ -718,6 +727,15 @@ namespace TreeMage.Resources {
         }
         
         /// <summary>
+        ///   Language に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string PAGECONTENT_EDIT_CONFIG_LANGUAGE {
+            get {
+                return ResourceManager.GetString("PAGECONTENT_EDIT_CONFIG_LANGUAGE", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Developer に類似しているローカライズされた文字列を検索します。
         /// </summary>
         internal static string PAGECONTENT_VERSIONS_DEVELOPER {
@@ -732,6 +750,15 @@ namespace TreeMage.Resources {
         internal static string PAGECONTENT_VERSIONS_VERSION {
             get {
                 return ResourceManager.GetString("PAGECONTENT_VERSIONS_VERSION", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Language change will be applied after closing the application. に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string WARNING_LANGUAGE_APPLYING {
+            get {
+                return ResourceManager.GetString("WARNING_LANGUAGE_APPLYING", resourceCulture);
             }
         }
         

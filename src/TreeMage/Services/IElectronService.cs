@@ -56,6 +56,13 @@ namespace TreeMage.Services
         Task<bool> ShowVerifyDialogAsync(string message, string? title = null, string[]? buttons = null);
 
         /// <summary>
+        /// 警告ダイアログを表示します。
+        /// </summary>
+        /// <param name="message">メッセージ</param>
+        /// <param name="title">タイトル</param>
+        Task ShowWarningAsync(string message, string? title = null);
+
+        /// <summary>
         /// 単一のファイルを開くダイアログを開きます。
         /// </summary>
         /// <param name="filters">拡張子のフィルター</param>
@@ -120,6 +127,17 @@ namespace TreeMage.Services
             });
 
             return result.Response == 0;
+        }
+
+        /// <inheritdoc/>
+        public async Task ShowWarningAsync(string message, string? title)
+        {
+            await Electron.Dialog.ShowMessageBoxAsync(window.Window, new MessageBoxOptions(message)
+            {
+                Title = title ?? SR.DIALOG_TITLE_WARNING,
+                Buttons = [SR.DIALOG_BUTTON_OK],
+                NoLink = true,
+            });
         }
 
         /// <inheritdoc/>

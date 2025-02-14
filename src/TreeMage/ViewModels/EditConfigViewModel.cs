@@ -1,7 +1,9 @@
 ﻿using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using System.Globalization;
 using TreeMage.Core.Drawing;
 using TreeMage.Data;
+using TreeMage.Resources;
 using TreeMage.Services;
 using TreeMage.Settings;
 
@@ -26,6 +28,11 @@ namespace TreeMage.ViewModels
         public ReactivePropertySlim<AutoOrderingMode> AutoOrderingMode { get; }
 
         /// <summary>
+        /// 使用言語のプロパティを取得します。
+        /// </summary>
+        public ReactivePropertySlim<CultureInfo> Language { get; }
+
+        /// <summary>
         /// ウィンドウを閉じるコマンドを取得します。
         /// </summary>
         public AsyncReactiveCommand<bool> CloseCommand { get; }
@@ -43,6 +50,11 @@ namespace TreeMage.ViewModels
                                                                                                 .AddTo(Disposables);
             AutoOrderingMode = new ReactivePropertySlim<AutoOrderingMode>(config.AutoOrderingMode).WithSubscribe(x => config.AutoOrderingMode = x)
                                                                                                   .AddTo(Disposables);
+            Language = new ReactivePropertySlim<CultureInfo>(config.Culture, ReactivePropertyMode.Default & ~ReactivePropertyMode.RaiseLatestValueOnSubscribe).WithSubscribe(x =>
+            {
+                config.Culture = x;
+                this.electronService.ShowWarningAsync(SR.WARNING_LANGUAGE_APPLYING);
+            }).AddTo(Disposables);
 
             CloseCommand = new AsyncReactiveCommand<bool>().WithSubscribe(Close)
                                                            .AddTo(Disposables);
