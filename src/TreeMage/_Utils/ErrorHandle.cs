@@ -30,7 +30,6 @@ namespace TreeMage
         /// <param name="service">Electron用サービス</param>
         public static void OutputError(Exception? exception, IElectronService? service)
         {
-            Console.WriteLine("Start");
             if (exception is null) return;
 
             Console.Error.WriteLine(exception.ToString());

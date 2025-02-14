@@ -1,5 +1,6 @@
 ﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
+using TreeMage.Resources;
 using TreeMage.ViewModels;
 
 namespace TreeMage.Window
@@ -30,7 +31,7 @@ namespace TreeMage.Window
             {
                 Modal = true,
                 Show = false,
-                Title = "Versions",
+                Title = SR.WINDOW_TITLE_VERSIONS,
                 Width = 390,
                 Height = 180,
                 Resizable = false,
@@ -41,7 +42,7 @@ namespace TreeMage.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "Exit(&X)",
+                    Label = SR.MENU_EXIT,
                     Click = Close,
                     Accelerator = "Esc",
                 },

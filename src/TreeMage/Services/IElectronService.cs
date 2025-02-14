@@ -1,6 +1,7 @@
 ﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
 using TreeMage.Models;
+using TreeMage.Resources;
 using TreeMage.ViewModels;
 using TreeMage.Window;
 
@@ -102,7 +103,7 @@ namespace TreeMage.Services
         {
             await Electron.Dialog.ShowMessageBoxAsync(window.Window, new MessageBoxOptions(message)
             {
-                Title = "Error",
+                Title = SR.DIALOG_TITLE_ERROR,
                 Type = MessageBoxType.error,
             });
         }
@@ -113,8 +114,8 @@ namespace TreeMage.Services
             MessageBoxResult result = await Electron.Dialog.ShowMessageBoxAsync(window.Window, new MessageBoxOptions(message)
             {
                 Message = message,
-                Buttons = buttons ?? ["Ok", "Cancel"],
-                Title = title ?? "Verifying",
+                Buttons = buttons ?? [SR.DIALOG_BUTTON_OK, SR.DIALOG_BUTTON_CANCEL],
+                Title = title ?? SR.DIALOG_TITLE_VERIFYING,
                 NoLink = true,
             });
 

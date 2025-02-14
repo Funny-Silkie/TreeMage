@@ -1,5 +1,6 @@
 ﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
+using TreeMage.Resources;
 using TreeMage.ViewModels;
 
 namespace TreeMage.Window
@@ -39,7 +40,7 @@ namespace TreeMage.Window
             {
                 Modal = true,
                 Show = false,
-                Title = "Edit Configurations",
+                Title = SR.WINDOW_TITLE_EDIT_CONFIG,
                 Width = 360,
                 Height = 200,
             }, CreateUrl("edit-config"));
@@ -55,7 +56,7 @@ namespace TreeMage.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "Exit(&X)",
+                    Label =SR.MENU_EXIT,
                     Click = Close,
                     Accelerator = "Esc",
                 },

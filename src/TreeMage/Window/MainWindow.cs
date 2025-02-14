@@ -3,6 +3,7 @@ using ElectronNET.API.Entities;
 using System.Diagnostics;
 using TreeMage.Core.Exporting;
 using TreeMage.Core.Trees.Parsers;
+using TreeMage.Resources;
 using TreeMage.Settings;
 using TreeMage.ViewModels;
 
@@ -84,34 +85,34 @@ namespace TreeMage.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "&File",
+                    Label = SR.MENU_FILE,
                     Accelerator = "Alt+F",
                     Submenu = [
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "New(&N)",
+                            Label = SR.MENU_NEW,
                             Click = () => ViewModel.CreateNewCommand.Execute(),
                             Accelerator = "Ctrl+N",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Open Project(&O)",
+                            Label = SR.MENU_OPEN,
                             Click = () => ViewModel.OpenProjectCommand.Execute(),
                             Accelerator = "Ctrl+O",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Save Project(&S)",
+                            Label = SR.MENU_SAVE,
                             Click = () => ViewModel.SaveProjectCommand.Execute(false),
                             Accelerator = "Ctrl+S",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Save as New Project(&A)",
+                            Label = SR.MENU_SAVE_AS,
                             Click = () => ViewModel.SaveProjectCommand.Execute(true),
                             Accelerator = "Ctrl+Shift+S",
                         },
@@ -122,7 +123,7 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Import Tree(&I)",
+                            Label = SR.MENU_IMPORT_TREE,
                             Submenu = [
                                 new MenuItem()
                                 {
@@ -147,7 +148,7 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Export(&E)",
+                            Label = SR.MENU_EXPORT,
                             Submenu = [
                                 new MenuItem()
                                 {
@@ -201,7 +202,7 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Exit(&X)",
+                            Label = SR.MENU_EXIT,
                             Click = Close,
                             Accelerator = "Ctrl+W",
                         },
@@ -212,19 +213,19 @@ namespace TreeMage.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "&Edit",
+                    Label = SR.MENU_EDIT,
                     Submenu = [
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Undo(&U)",
+                            Label = SR.MENU_UNDO,
                             Click = () => ViewModel.UndoCommand.Execute(),
                             Accelerator = "Ctrl+Z",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Redo(&R)",
+                            Label = SR.MENU_REDO,
                             Click = () => ViewModel.RedoCommand.Execute(),
                             Accelerator = "Ctrl+Shift+Z",
                         },
@@ -235,19 +236,19 @@ namespace TreeMage.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "&Tree",
+                    Label = SR.MENU_TREE,
                     Submenu = [
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Focus all",
+                            Label = SR.MENU_FOCUS_ALL,
                             Click = () => ViewModel.FocusAllCommand.Execute(),
                             Accelerator = "Ctrl+A",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Unfocus all",
+                            Label = SR.MENU_UNFOCUS_ALL,
                             Click = () => ViewModel.UnfocusAllCommand.Execute(),
                             Accelerator = "Esc",
                         },
@@ -258,22 +259,22 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Collapse",
+                            Label = SR.MENU_COLLAPSE,
                             Click = () => ViewModel.CollapseCommand.Execute(),
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Order by branch length",
+                            Label = SR.MENU_ORDER_BY_BRANCH_LENGTH,
                             Submenu = [
                                 new MenuItem(){
                                     Type = MenuType.normal,
-                                    Label = "Ascending",
+                                    Label = SR.MENU_ASCENDING,
                                     Click = () => ViewModel.OrderByBranchLengthCommand.Execute(false),
                                 },
                                 new MenuItem(){
                                     Type = MenuType.normal,
-                                    Label = "Descending",
+                                    Label = SR.MENU_DESCENDING,
                                     Click = () => ViewModel.OrderByBranchLengthCommand.Execute(true),
                                 },
                             ],
@@ -281,13 +282,13 @@ namespace TreeMage.Window
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Clear branch lenghes",
+                            Label = SR.MENU_CLEAR_BRANCH_LENGTH,
                             Click = () => ViewModel.ClearBranchLenghesCommand.Execute(),
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Clear support values",
+                            Label = SR.MENU_CLEAR_SUPPORT_VALUE,
                             Click = () => ViewModel.ClearSupportsCommand.Execute(),
                         },
                     ],
@@ -297,12 +298,12 @@ namespace TreeMage.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "&Window",
+                    Label = SR.MENU_WINDOW,
                     Submenu = [
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Edit configuration(&C)",
+                            Label = SR.MENU_EDIT_CONFIGURATION,
                             Click = () => ShowConfigWindow().Wait(),
                         },
                     ],
@@ -312,19 +313,19 @@ namespace TreeMage.Window
                 new MenuItem()
                 {
                     Type = MenuType.normal,
-                    Label = "&Help",
+                    Label = SR.MENU_HELP,
                     Submenu = [
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Show Help(&H)",
+                            Label = SR.MENU_SHOW_HELP,
                             Click = ShowHelp,
                             Accelerator = "F1",
                         },
                         new MenuItem()
                         {
                             Type = MenuType.normal,
-                            Label = "Version Information(&A)",
+                            Label = SR.MENU_VERSION_INFORMATION,
                             Click = () => ShowVersionWindow().Wait(),
                         },
                     ],
@@ -333,7 +334,7 @@ namespace TreeMage.Window
                 // Debug
                 new MenuItem()
                 {
-                    Label = "&Debug",
+                    Label = SR.MENU_DEBUG,
                     Submenu = [
                         new MenuItem()
                         {
