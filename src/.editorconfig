@@ -41,3 +41,6 @@ dotnet_diagnostic.CS8619.severity = error
 
 # CS8774: 終了時にメンバーには null 以外の値が含まれている必要があります。
 dotnet_diagnostic.CS8774.severity = error
+
+# IDE0305: コレクションの初期化を簡略化します
+dotnet_diagnostic.IDE0305.severity = none
