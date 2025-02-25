@@ -56,6 +56,29 @@ namespace TreeMage.Core.Drawing
         }
 
         [Fact]
+        public void GetAllExternalDescendants_WithNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => DrawingExtensions.GetAllExternalDescendants(null!));
+        }
+
+        [Fact]
+        public void GetAllExternalDescendants_AsPositive_OnNoCladeCollapsed()
+        {
+            IEnumerable<Clade> clades = tree.Root.GetAllExternalDescendants();
+
+            Assert.Equal([leafA, leafBAA, leafBAB, leafBBAA, leafBBAB, leafBBB, leafC], clades);
+        }
+
+        [Fact]
+        public void GetAllExternalDescendants_AsPositive_OnCladeCollapsed()
+        {
+            cladeBB.Style.Collapsed = true;
+            IEnumerable<Clade> clades = tree.Root.GetAllExternalDescendants();
+
+            Assert.Equal([leafA, leafBAA, leafBAB, cladeBB, leafC], clades);
+        }
+
+        [Fact]
         public void GetIsHidden_WithNull()
         {
             Assert.Throws<ArgumentNullException>(() => DrawingExtensions.GetIsHidden(null!));
