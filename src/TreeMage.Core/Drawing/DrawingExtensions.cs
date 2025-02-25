@@ -56,6 +56,19 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <summary>
+        /// 子孫の全ての外部ノードを取得します。
+        /// </summary>
+        /// <param name="clade">対象のクレード</param>
+        /// <returns>全ての外部ノード</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="clade"/>が<see langword="null"/></exception>
+        public static IEnumerable<Clade> GetAllExternalDescendants(this Clade clade)
+        {
+            ArgumentNullException.ThrowIfNull(clade);
+
+            return GetAllExternalNodesOnClade(clade);
+        }
+
+        /// <summary>
         /// 描画されないクレードであるかどうかを表す値を取得します。
         /// </summary>
         /// <param name="clade">対象のクレード</param>

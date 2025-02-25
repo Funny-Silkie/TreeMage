@@ -300,6 +300,8 @@ namespace TreeMage.Core.Drawing
                 if (clade.IsLeaf) xRight = CalcXRight(clade);
                 else
                 {
+                    Debug.Assert(clade.ChildrenInternal.Count > 0);
+
                     double maxLength = clade.GetDescendants()
                                             .Where(x => x.IsLeaf)
                                             .Max(CalcTotalBranchLength);
@@ -312,8 +314,7 @@ namespace TreeMage.Core.Drawing
             }
             else
             {
-                Clade[] externals = clade.GetDescendants()
-                                         .Where(x => x.GetIsExternal())
+                Clade[] externals = clade.GetAllExternalDescendants()
                                          .ToArray();
                 xRight = externals.Max(CalcXRight);
                 yTop = CalcY1(externals[0]) - halfLeafHeight;
@@ -438,8 +439,7 @@ namespace TreeMage.Core.Drawing
             {
                 (_, double height) = CalcTextSize(clade.Style.CladeLabel, treeStyle.CladeLabelsFontSize);
 
-                Clade[] allExternals = clade.GetDescendants()
-                                            .Where(x => x.GetIsExternal())
+                Clade[] allExternals = clade.GetAllExternalDescendants()
                                             .ToArray();
                 x = allExternals.Max(x =>
                 {
