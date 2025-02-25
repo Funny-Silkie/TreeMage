@@ -25,3 +25,12 @@
 .style-sidebar-value {
     width: 100%;
 }
+
+.edit-config-label {
+    width: 150px;
+    text-align: end;
+}
+
+.edit-config-value {
+    width: 150px;
+}

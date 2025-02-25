@@ -117,7 +117,7 @@ namespace TreeMage.Core.Drawing
 
             if (lineThickness > 0)
             {
-                drawingInfo.Graphics.DrawLine(new XPen(XBrushes.Black, lineThickness),
+                drawingInfo.Graphics.DrawLine(TMColor.Black.ToPdfPen(lineThickness),
                                               lineBegin,
                                               lineEnd);
             }
@@ -205,7 +205,7 @@ namespace TreeMage.Core.Drawing
                                     Alignment = XStringAlignment.Center,
                                     LineAlignment = XLineAlignment.BaseLine,
                                 });
-            graphics.DrawLine(new XPen(XBrushes.Black, lineThickness),
+            graphics.DrawLine(TMColor.Black.ToPdfPen(lineThickness),
                               lineBegin,
                               lineEnd);
         }

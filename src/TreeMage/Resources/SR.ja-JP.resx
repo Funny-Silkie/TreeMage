@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="WARNING_UNSAVED_CHANGES" xml:space="preserve">
+    <value>未保存の変更が見つかりました。破棄してもよろしいですか？</value>
+  </data>
+  <data name="DIALOG_FILETYPE_TREEPRJ" xml:space="preserve">
+    <value>TreeMageプロジェクトファイル</value>
+  </data>
+  <data name="ERROR_INVALID_TREE_FORMAT" xml:space="preserve">
+    <value>ツリーのフォーマットが無効です</value>
+  </data>
+  <data name="ERROR_SUPPORTED_ONLY_WINDOWS" xml:space="preserve">
+    <value>この操作はWindows版のみ有効です</value>
+  </data>
+  <data name="DIALOG_BUTTON_CLOSE_ANYWAY" xml:space="preserve">
+    <value>保存せずに閉じる</value>
+  </data>
+  <data name="DIALOG_BUTTON_CANCEL" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="DIALOG_BUTTON_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="DIALOG_TITLE_ERROR" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="DIALOG_TITLE_VERIFYING" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="WINDOW_TITLE_VERSIONS" xml:space="preserve">
+    <value>バージョン情報</value>
+  </data>
+  <data name="MENU_EXIT" xml:space="preserve">
+    <value>終了(&amp;X)</value>
+  </data>
+  <data name="MENU_FILE" xml:space="preserve">
+    <value>ファイル(&amp;F)</value>
+  </data>
+  <data name="MENU_NEW" xml:space="preserve">
+    <value>新規作成(&amp;N)</value>
+  </data>
+  <data name="MENU_OPEN" xml:space="preserve">
+    <value>プロジェクトを開く(&amp;O)</value>
+  </data>
+  <data name="MENU_SAVE" xml:space="preserve">
+    <value>プロジェクトを保存(&amp;S)</value>
+  </data>
+  <data name="MENU_SAVE_AS" xml:space="preserve">
+    <value>名前を付けてプロジェクトを保存(&amp;A)</value>
+  </data>
+  <data name="MENU_IMPORT_TREE" xml:space="preserve">
+    <value>ツリーをインポート(&amp;I)</value>
+  </data>
+  <data name="MENU_EXPORT" xml:space="preserve">
+    <value>エクスポート(&amp;E)</value>
+  </data>
+  <data name="MENU_EDIT" xml:space="preserve">
+    <value>編集(&amp;E)</value>
+  </data>
+  <data name="MENU_UNDO" xml:space="preserve">
+    <value>元に戻す(&amp;U)</value>
+  </data>
+  <data name="MENU_REDO" xml:space="preserve">
+    <value>やり直す(&amp;R)</value>
+  </data>
+  <data name="MENU_FOCUS_ALL" xml:space="preserve">
+    <value>全てを選択</value>
+  </data>
+  <data name="MENU_UNFOCUS_ALL" xml:space="preserve">
+    <value>選択を解除</value>
+  </data>
+  <data name="MENU_COLLAPSE" xml:space="preserve">
+    <value>折りたたみ</value>
+  </data>
+  <data name="MENU_TREE" xml:space="preserve">
+    <value>ツリー(&amp;T)</value>
+  </data>
+  <data name="MENU_ORDER_BY_BRANCH_LENGTH" xml:space="preserve">
+    <value>枝長で並び替え</value>
+  </data>
+  <data name="MENU_ASCENDING" xml:space="preserve">
+    <value>昇順</value>
+  </data>
+  <data name="MENU_DESCENDING" xml:space="preserve">
+    <value>降順</value>
+  </data>
+  <data name="MENU_CLEAR_BRANCH_LENGTH" xml:space="preserve">
+    <value>枝長を削除</value>
+  </data>
+  <data name="MENU_CLEAR_SUPPORT_VALUE" xml:space="preserve">
+    <value>サポート値を削除</value>
+  </data>
+  <data name="MENU_WINDOW" xml:space="preserve">
+    <value>ウィンドウ(&amp;W)</value>
+  </data>
+  <data name="MENU_EDIT_CONFIGURATION" xml:space="preserve">
+    <value>設定(&amp;C)</value>
+  </data>
+  <data name="MENU_HELP" xml:space="preserve">
+    <value>ヘルプ(&amp;H)</value>
+  </data>
+  <data name="MENU_SHOW_HELP" xml:space="preserve">
+    <value>ヘルプを表示(&amp;H)</value>
+  </data>
+  <data name="MENU_VERSION_INFORMATION" xml:space="preserve">
+    <value>バージョン情報(&amp;A)</value>
+  </data>
+  <data name="MENU_DEBUG" xml:space="preserve">
+    <value>デバッグ(&amp;D)</value>
+  </data>
+  <data name="WINDOW_TITLE_EDIT_CONFIG" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="ERROR_MULTIPLE_PROJECT_FILES_SPECIFIED" xml:space="preserve">
+    <value>プロジェクトファイルが二つ以上指定されています</value>
+  </data>
+  <data name="PAGECONTENT_EDIT_CONFIG_BRANCH_COLORING" xml:space="preserve">
+    <value>枝の色付け</value>
+  </data>
+  <data name="PAGECONTENT_EDIT_CONFIG_AUTO_ORDERING" xml:space="preserve">
+    <value>枝の自動並び替え</value>
+  </data>
+  <data name="PAGECONTENT_VERSIONS_VERSION" xml:space="preserve">
+    <value>バージョン</value>
+  </data>
+  <data name="PAGECONTENT_VERSIONS_DEVELOPER" xml:space="preserve">
+    <value>開発者</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_TITLE" xml:space="preserve">
+    <value>プロパティ</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_BRANCH_COLOR" xml:space="preserve">
+    <value>枝の色</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_LEAF_COLOR" xml:space="preserve">
+    <value>系統名の色</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_CLADE_LABEL" xml:space="preserve">
+    <value>クレード名</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_SHADE_COLOR" xml:space="preserve">
+    <value>背景色</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_LEAF_LABEL" xml:space="preserve">
+    <value>系統名</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_SUPPORT_VALUE" xml:space="preserve">
+    <value>サポート値</value>
+  </data>
+  <data name="COMPONENT_STYLESIDEBAR_YSCALE" xml:space="preserve">
+    <value>Y拡大率</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_LAYOUT" xml:space="preserve">
+    <value>レイアウト</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE" xml:space="preserve">
+    <value>折りたたみタイプ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_COLLAPSE_TYPE_WIDTH" xml:space="preserve">
+    <value>横幅</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_TREE" xml:space="preserve">
+    <value>ツリー</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_XSCALE" xml:space="preserve">
+    <value>X拡大率</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_YSCALE" xml:space="preserve">
+    <value>Y拡大率</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_BRANCH_THICKNESS" xml:space="preserve">
+    <value>枝の太さ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_DEFAULT_BRANCH_LENGTH" xml:space="preserve">
+    <value>デフォルトの枝長</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH" xml:space="preserve">
+    <value>検索</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH_TARGET" xml:space="preserve">
+    <value>検索対象</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH_IGNORE_CASE" xml:space="preserve">
+    <value>大/小文字の無視</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SEARCH_USE_REGEX" xml:space="preserve">
+    <value>正規表現を使用</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_LEAF_LABELS" xml:space="preserve">
+    <value>系統名</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_FONTSIZE" xml:space="preserve">
+    <value>フォントサイズ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_CLADE_LABELS" xml:space="preserve">
+    <value>クレード名</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_LINE_THICKNESS" xml:space="preserve">
+    <value>線の太さ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_NODE_VALUES" xml:space="preserve">
+    <value>結節点の値</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_VALUE_TYPE" xml:space="preserve">
+    <value>表示値</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_BRANCH_VALUES" xml:space="preserve">
+    <value>枝の値</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_HIDE_PATTERN" xml:space="preserve">
+    <value>非表示パターン</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_BRANCH_DECORATIONS" xml:space="preserve">
+    <value>枝の装飾</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_PATTERN" xml:space="preserve">
+    <value>パターン</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SHAPE" xml:space="preserve">
+    <value>図形</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SIZE" xml:space="preserve">
+    <value>サイズ</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_COLOR" xml:space="preserve">
+    <value>色</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SCALEBAR" xml:space="preserve">
+    <value>スケールバー</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SCALEBAR_VALUE" xml:space="preserve">
+    <value>縮尺</value>
+  </data>
+  <data name="COMPONENT_EDITSIDEBAR_SCALEBAR_THICKNESS" xml:space="preserve">
+    <value>線の太さ</value>
+  </data>
+  <data name="PAGECONTENT_EDIT_CONFIG_LANGUAGE" xml:space="preserve">
+    <value>言語</value>
+  </data>
+  <data name="DIALOG_TITLE_WARNING" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="WARNING_LANGUAGE_APPLYING" xml:space="preserve">
+    <value>言語の変更はアプリケーション再起動時に反映されます</value>
+  </data>
+</root>

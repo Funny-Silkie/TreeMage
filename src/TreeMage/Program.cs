@@ -1,7 +1,9 @@
 using ElectronNET.API;
 using Radzen;
+using System.Globalization;
 using TreeMage.Models;
 using TreeMage.Services;
+using TreeMage.Settings;
 using TreeMage.ViewModels;
 using TreeMage.Window;
 
@@ -11,6 +13,9 @@ namespace TreeMage
     {
         private static async Task Main(string[] args)
         {
+#if TEST
+            throw new NotSupportedException("Not supported on this configuration.");
+#endif
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
             builder.WebHost.UseElectron(args);
@@ -19,6 +24,8 @@ namespace TreeMage
             builder.Services.AddRazorComponents()
                             .AddInteractiveServerComponents();
             builder.Services.AddRadzenComponents();
+            builder.Services.AddLocalization();
+
             builder.Services.AddScoped<MainModel>();
             builder.Services.AddScoped<StyleSidebarModel>();
             builder.Services.AddScoped<IElectronService>(_ => new ElectronService(MainWindow.Instance));
@@ -29,7 +36,17 @@ namespace TreeMage
             builder.Services.AddTransient<EditConfigViewModel>();
             builder.Services.AddTransient<VersionViewModel>();
 
+            Configurations config = await Configurations.LoadOrCreateAsync();
+            CultureInfo.CurrentCulture = config.Culture;
+            CultureInfo.CurrentUICulture = config.Culture;
+
+            string[] supportedCultures = ["ja-JP", "en-US"];
+            RequestLocalizationOptions localizationOptions = new RequestLocalizationOptions().SetDefaultCulture(config.Culture.Name)
+                                                                                             .AddSupportedCultures(supportedCultures)
+                                                                                             .AddSupportedUICultures(supportedCultures);
+
             WebApplication app = builder.Build();
+            app.UseRequestLocalization(localizationOptions);
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())

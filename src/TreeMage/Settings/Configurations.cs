@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using TreeMage.Core.Drawing;
 using TreeMage.Core.Exporting;
 using TreeMage.Data;
+using TreeMage.Json;
 
 namespace TreeMage.Settings
 {
@@ -49,6 +51,11 @@ namespace TreeMage.Settings
         public AutoOrderingMode AutoOrderingMode { get; set; } = AutoOrderingMode.Descending;
 
         /// <summary>
+        /// 使用するカルチャを取得または設定します。
+        /// </summary>
+        public CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
+
+        /// <summary>
         /// <see cref="Configurations"/>の静的リソースを初期化します。
         /// </summary>
         static Configurations()
@@ -64,6 +71,8 @@ namespace TreeMage.Settings
             Debug.Assert(directory is not null);
 
             Location = Path.Combine(directory, "config.json");
+
+            options.Converters.Add(new CultureInfoConverter());
         }
 
         /// <summary>

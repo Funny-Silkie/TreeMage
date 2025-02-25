@@ -1,24 +1,48 @@
-﻿@page "/edit-config"
+﻿@using System.Globalization
+@page "/edit-config"
 @rendermode InteractiveServer
 @inject EditConfigViewModel ViewModel
 
 <div style="margin: 20px; user-select: none">
     <RadzenStack Orientation="Orientation.Vertical">
         <RadzenRow JustifyContent="JustifyContent.Stretch" AlignItems="AlignItems.Center">
-            <RadzenText>Branch coloring:</RadzenText>
-            <RadzenDropDown TValue="BranchColoringType" Data="Enum.GetValues<BranchColoringType>()" @bind-Value="ViewModel.BranchColoring.Value" />
+            <RadzenColumn>
+                <RadzenText class="edit-config-label">@SR.PAGECONTENT_EDIT_CONFIG_BRANCH_COLORING:</RadzenText>
+            </RadzenColumn>
+            <RadzenColumn>
+                <RadzenDropDown class="edit-config-value" TValue="BranchColoringType" Data="Enum.GetValues<BranchColoringType>()" @bind-Value="ViewModel.BranchColoring.Value" />
+            </RadzenColumn>
         </RadzenRow>
         <RadzenRow JustifyContent="JustifyContent.Stretch" AlignItems="AlignItems.Center">
-            <RadzenText>Auto ordering:</RadzenText>
-            <RadzenDropDown TValue="AutoOrderingMode" Data="Enum.GetValues<AutoOrderingMode>()" @bind-Value="ViewModel.AutoOrderingMode.Value" />
+            <RadzenColumn>
+                <RadzenText class="edit-config-label">@SR.PAGECONTENT_EDIT_CONFIG_AUTO_ORDERING:</RadzenText>
+            </RadzenColumn>
+            <RadzenColumn>
+                <RadzenDropDown class="edit-config-value" TValue="AutoOrderingMode" Data="Enum.GetValues<AutoOrderingMode>()" @bind-Value="ViewModel.AutoOrderingMode.Value" />
+            </RadzenColumn>
+        </RadzenRow>
+        <RadzenRow JustifyContent="JustifyContent.Stretch" AlignItems="AlignItems.Center">
+            <RadzenColumn>
+                <RadzenText class="edit-config-label">@SR.PAGECONTENT_EDIT_CONFIG_LANGUAGE:</RadzenText>
+            </RadzenColumn>
+            <RadzenColumn>
+                <RadzenDropDown class="edit-config-value" Data="cultures.Keys" @bind-Value="ViewModel.Language.Value">
+                    <Template>
+                        @(cultures[(CultureInfo)context])
+                    </Template>
+                </RadzenDropDown>
+            </RadzenColumn>
         </RadzenRow>
         <RadzenRow JustifyContent="JustifyContent.Center" AlignItems="AlignItems.Center" Gap="2rem">
-            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="OK" Click="ViewModel.CloseCommand.ToDelegate(true)" />
-            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="Close" Click="ViewModel.CloseCommand.ToDelegate(false)" />
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="@SR.DIALOG_BUTTON_OK" Click="ViewModel.CloseCommand.ToDelegate(true)" />
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Text="@SR.DIALOG_BUTTON_CANCEL" Click="ViewModel.CloseCommand.ToDelegate(false)" />
         </RadzenRow>
     </RadzenStack>
 </div>
 
 @code {
-
+    private readonly Dictionary<CultureInfo, string> cultures = new(){
+        { CultureInfo.GetCultureInfo("en-US"), "English" },
+        { CultureInfo.GetCultureInfo("ja-JP"), "日本語" },
+    };
 }

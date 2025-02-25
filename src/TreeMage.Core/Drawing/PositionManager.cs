@@ -263,7 +263,9 @@ namespace TreeMage.Core.Drawing
             if (treeStyle.ShowCladeLabels && allExternalNodes.Length > 0)
             {
                 Clade root = allExternalNodes[0].FindRoot();
-                double maxLength = root.GetDescendants().Prepend(root).Max(x => CalcTextSize(x.Style.CladeLabel, treeStyle.CladeLabelsFontSize).Width);
+                double maxLength = root.GetDescendants()
+                                       .Prepend(root)
+                                       .Max(x => CalcTextSize(x.Style.CladeLabel, treeStyle.CladeLabelsFontSize).Width);
                 if (maxLength > 0) width += maxLength + treeStyle.CladeLabelsLineThickness + 20;
             }
 
@@ -436,7 +438,9 @@ namespace TreeMage.Core.Drawing
             {
                 (_, double height) = CalcTextSize(clade.Style.CladeLabel, treeStyle.CladeLabelsFontSize);
 
-                Clade[] allExternals = clade.GetDescendants().Where(x => x.GetIsExternal()).ToArray();
+                Clade[] allExternals = clade.GetDescendants()
+                                            .Where(x => x.GetIsExternal())
+                                            .ToArray();
                 x = allExternals.Max(x =>
                 {
                     double result = CalcTotalBranchLength(x) * treeStyle.XScale;

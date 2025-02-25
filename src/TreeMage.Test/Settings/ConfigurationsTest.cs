@@ -1,4 +1,5 @@
-﻿using TreeMage.Core.Drawing;
+﻿using System.Globalization;
+using TreeMage.Core.Drawing;
 using TreeMage.Core.Exporting;
 using TreeMage.TestUtilities.Assertions;
 
@@ -27,6 +28,7 @@ namespace TreeMage.Settings
                 Assert.False(config.IsMaximized);
                 Assert.Equal(BranchColoringType.Both, config.BranchColoring);
                 Assert.Equal(Data.AutoOrderingMode.Descending, config.AutoOrderingMode);
+                Assert.Equal(CultureInfo.CurrentCulture, config.Culture);
             });
         }
 

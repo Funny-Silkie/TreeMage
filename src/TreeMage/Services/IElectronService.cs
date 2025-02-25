@@ -1,6 +1,7 @@
 ﻿using ElectronNET.API;
 using ElectronNET.API.Entities;
 using TreeMage.Models;
+using TreeMage.Resources;
 using TreeMage.ViewModels;
 using TreeMage.Window;
 
@@ -55,6 +56,13 @@ namespace TreeMage.Services
         Task<bool> ShowVerifyDialogAsync(string message, string? title = null, string[]? buttons = null);
 
         /// <summary>
+        /// 警告ダイアログを表示します。
+        /// </summary>
+        /// <param name="message">メッセージ</param>
+        /// <param name="title">タイトル</param>
+        Task ShowWarningAsync(string message, string? title = null);
+
+        /// <summary>
         /// 単一のファイルを開くダイアログを開きます。
         /// </summary>
         /// <param name="filters">拡張子のフィルター</param>
@@ -102,7 +110,7 @@ namespace TreeMage.Services
         {
             await Electron.Dialog.ShowMessageBoxAsync(window.Window, new MessageBoxOptions(message)
             {
-                Title = "Error",
+                Title = SR.DIALOG_TITLE_ERROR,
                 Type = MessageBoxType.error,
             });
         }
@@ -113,12 +121,23 @@ namespace TreeMage.Services
             MessageBoxResult result = await Electron.Dialog.ShowMessageBoxAsync(window.Window, new MessageBoxOptions(message)
             {
                 Message = message,
-                Buttons = buttons ?? ["Ok", "Cancel"],
-                Title = title ?? "Verifying",
+                Buttons = buttons ?? [SR.DIALOG_BUTTON_OK, SR.DIALOG_BUTTON_CANCEL],
+                Title = title ?? SR.DIALOG_TITLE_VERIFYING,
                 NoLink = true,
             });
 
             return result.Response == 0;
+        }
+
+        /// <inheritdoc/>
+        public async Task ShowWarningAsync(string message, string? title)
+        {
+            await Electron.Dialog.ShowMessageBoxAsync(window.Window, new MessageBoxOptions(message)
+            {
+                Title = title ?? SR.DIALOG_TITLE_WARNING,
+                Buttons = [SR.DIALOG_BUTTON_OK],
+                NoLink = true,
+            });
         }
 
         /// <inheritdoc/>

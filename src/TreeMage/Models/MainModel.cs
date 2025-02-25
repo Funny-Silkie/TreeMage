@@ -8,6 +8,7 @@ using TreeMage.Core.ProjectData;
 using TreeMage.Core.Trees;
 using TreeMage.Core.Trees.Parsers;
 using TreeMage.Data;
+using TreeMage.Resources;
 using TreeMage.Services;
 using TreeMage.Settings;
 
@@ -581,7 +582,7 @@ namespace TreeMage.Models
 
             string[] projectPathes = pathes.Where(x => x.EndsWith(".treeprj", StringComparison.OrdinalIgnoreCase))
                                            .ToArray();
-            if (projectPathes.Length > 1) throw new ModelException("プロジェクトファイルが二つ以上指定されています");
+            if (projectPathes.Length > 1) throw new ModelException(SR.ERROR_MULTIPLE_PROJECT_FILES_SPECIFIED);
             if (projectPathes.Length == 1) await OpenProject(projectPathes[0]);
             foreach (string importedTree in pathes.Where(x => !x.EndsWith(".treeprj", StringComparison.OrdinalIgnoreCase)))
             {

@@ -7,6 +7,7 @@ using TreeMage.Core.Trees;
 using TreeMage.Core.Trees.Parsers;
 using TreeMage.Data;
 using TreeMage.Models;
+using TreeMage.Resources;
 using TreeMage.Services;
 
 namespace TreeMage.ViewModels
@@ -94,7 +95,7 @@ namespace TreeMage.ViewModels
         {
             if (!model.Saved.Value)
             {
-                bool allowDiscard = await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure to discard these changes?");
+                bool allowDiscard = await electronService.ShowVerifyDialogAsync(SR.WARNING_UNSAVED_CHANGES);
                 if (!allowDiscard) return;
             }
 
@@ -116,12 +117,12 @@ namespace TreeMage.ViewModels
         /// <inheritdoc cref="MainModel.OpenProject(string)"/>
         private async Task OpenProject()
         {
-            string? path = await electronService.ShowSingleFileOpenDialogAsync((["treeprj"], "Tree viewer project file"));
+            string? path = await electronService.ShowSingleFileOpenDialogAsync((["treeprj"], SR.DIALOG_FILETYPE_TREEPRJ));
             if (path is null) return;
 
             if (!model.Saved.Value)
             {
-                bool allowDiscard = await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure to discard these changes?");
+                bool allowDiscard = await electronService.ShowVerifyDialogAsync(SR.WARNING_UNSAVED_CHANGES);
                 if (!allowDiscard) return;
             }
 
@@ -146,7 +147,7 @@ namespace TreeMage.ViewModels
             string path;
             if (asNew || model.ProjectPath.Value is null)
             {
-                string? selectedPath = await electronService.ShowFileSaveDialogAsync((["treeprj"], "Tree viewer project file"));
+                string? selectedPath = await electronService.ShowFileSaveDialogAsync((["treeprj"], SR.DIALOG_FILETYPE_TREEPRJ));
 
                 if (selectedPath is null) return;
                 path = selectedPath;
@@ -183,7 +184,7 @@ namespace TreeMage.ViewModels
             }
             catch (TreeFormatException)
             {
-                await electronService.ShowErrorMessageAsync("ツリーのフォーマットが無効です");
+                await electronService.ShowErrorMessageAsync(SR.ERROR_INVALID_TREE_FORMAT);
                 return;
             }
             catch (Exception e)
@@ -229,7 +230,7 @@ namespace TreeMage.ViewModels
         {
             if (exportType is ExportType.Png && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                await electronService.ShowErrorMessageAsync("この操作は現在Windows版のみ有効です");
+                await electronService.ShowErrorMessageAsync(SR.ERROR_SUPPORTED_ONLY_WINDOWS);
                 return;
             }
 
@@ -466,7 +467,7 @@ namespace TreeMage.ViewModels
         public async Task<bool> VerifyCanClose()
         {
             if (model.Saved.Value) return true;
-            return await electronService.ShowVerifyDialogAsync("Unsaved changes are detected. Are you sure?", buttons: ["Close anyway", "Cancel"]);
+            return await electronService.ShowVerifyDialogAsync(SR.WARNING_UNSAVED_CHANGES, buttons: [SR.DIALOG_BUTTON_CLOSE_ANYWAY, SR.DIALOG_BUTTON_CANCEL]);
         }
 
         /// <summary>
