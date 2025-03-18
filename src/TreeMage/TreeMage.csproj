@@ -17,13 +17,13 @@
 
   <ItemGroup>
     <PackageReference Include="ElectronNET.API" Version="23.6.2" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.2" />
-    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.7.1">
+    <PackageReference Include="Microsoft.Extensions.Localization" Version="9.0.3" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="5.8.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Radzen.Blazor" Version="5.7.2" />
-    <PackageReference Include="ReactiveProperty.Blazor" Version="9.6.0" />
+    <PackageReference Include="ReactiveProperty.Blazor" Version="9.7.0" />
   </ItemGroup>
 
   <ItemGroup>
