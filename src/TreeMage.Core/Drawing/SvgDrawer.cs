@@ -256,7 +256,8 @@ namespace TreeMage.Core.Drawing
                     break;
 
                 default: throw new InvalidOperationException($"装飾の種類'{style.DecorationType}'が無効です");
-            };
+            }
+
             decorationSvg.AddTo(drawingInfo.BranchDecorationsGroup);
         }
 

@@ -1111,11 +1111,11 @@ namespace TreeMage.Models
             Assert.True(File.Exists(destPath));
         }
 
+#if WINDOWS
+
         [Fact]
         public async Task ExportWithExporter_OnTreeExisting_AsPng()
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) return;
-
             string destPath = "test.png";
             File.Delete(destPath);
 
@@ -1123,6 +1123,8 @@ namespace TreeMage.Models
 
             Assert.True(File.Exists(destPath));
         }
+
+#endif
 
         #endregion Instance Methods
     }

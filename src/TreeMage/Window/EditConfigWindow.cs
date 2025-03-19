@@ -41,7 +41,7 @@ namespace TreeMage.Window
                 Modal = true,
                 Show = false,
                 Title = SR.WINDOW_TITLE_EDIT_CONFIG,
-                Width = 360,
+                Width = 380,
                 Height = 250,
             }, CreateUrl("edit-config"));
 

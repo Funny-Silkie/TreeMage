@@ -273,11 +273,10 @@ namespace TreeMage.Core.Drawing
 
             Assert.Multiple(() =>
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Assert.Equal(459.2, svg.Width, 0.1);
-                    Assert.Equal(348, svg.Height, 0.1);
-                }
+#if WINDOWS
+                Assert.Equal(459.2, svg.Width, 0.1);
+                Assert.Equal(348, svg.Height, 0.1);
+#endif
 
                 SvgElement? shadesGroup = svg.GetElementById("shades");
                 Assert.NotNull(shadesGroup);

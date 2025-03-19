@@ -49,6 +49,7 @@ namespace TreeMage.Components.Shared
 
                      .branch-value {{
                          font-size: {tree.Style.BranchValueFontSize}px;
+                         text-anchor: middle;
                      }}
 
                      .branch {{
