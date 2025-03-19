@@ -1,4 +1,4 @@
-﻿using SixLabors.Fonts;
+using SixLabors.Fonts;
 using System.Diagnostics;
 using TreeMage.Core.Drawing.Styles;
 using TreeMage.Core.Trees;
@@ -161,10 +161,14 @@ namespace TreeMage.Core.Drawing
             if (clade.GetIsExternal())
             {
                 int index = indexTable[clade];
-                if (index == 0) return 0;
-                Clade prevClade = allExternalNodes[index - 1];
-                double prevYScale = CalcYScale(prevClade);
-                double result = CalcY1(prevClade) + (prevClade.Style.Collapsed ? prevYScale / 2 : prevYScale);
+                double result;
+                if (index == 0) result = 0;
+                else
+                {
+                    Clade prevClade = allExternalNodes[index - 1];
+                    double prevYScale = CalcYScale(prevClade);
+                    result = CalcY1(prevClade) + (prevClade.Style.Collapsed ? prevYScale / 2 : prevYScale);
+                }
                 if (clade.Style.Collapsed) result += CalcYScale(clade) / 2;
                 return result;
             }
@@ -276,7 +280,7 @@ namespace TreeMage.Core.Drawing
         }
 
         /// <summary>
-        ///シェードの座標を算出します。
+        /// シェードの座標を算出します。
         /// </summary>
         /// <param name="clade">対象のクレード</param>
         /// <returns><paramref name="clade"/>のシェードの座標</returns>
@@ -376,9 +380,10 @@ namespace TreeMage.Core.Drawing
             }
 
             (double xLeft, double y, _, _) = CalcLeafPosition(clade);
+            xLeft -= 5;
             xRightTop = xRightTop * treeStyle.XScale + xLeft;
             xRightBottom = xRightBottom * treeStyle.XScale + xLeft;
-            double yOffset = CalcYScale(clade) / 2d;
+            double yOffset = Math.Max(CalcYScale(clade) / 2d - 7, 0);
 
             return (new TMPoint(xLeft, y), new TMPoint(xRightTop, y - yOffset), new TMPoint(xRightBottom, y + yOffset));
         }
