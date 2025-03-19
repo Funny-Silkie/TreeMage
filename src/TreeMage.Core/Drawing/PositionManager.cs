@@ -262,7 +262,16 @@ namespace TreeMage.Core.Drawing
         /// <returns>ドキュメントのサイズ</returns>
         public TMSize CalcDocumentSize()
         {
-            double width = allExternalNodes.Select(CalcTotalBranchLength).Max() * treeStyle.XScale + 100;
+            double width;
+            if (allExternalNodes.Length == 0) width = 0;
+            else
+            {
+                width = allExternalNodes[0].FindRoot()
+                                           .GetDescendants()
+                                           .Where(x => x.IsLeaf)
+                                           .Max(CalcTotalBranchLength) * treeStyle.XScale + 100;
+            }
+
             if (treeStyle.ShowLeafLabels) width += allExternalNodes.Select(x => CalcTextSize(x.Taxon, treeStyle.LeafLabelsFontSize).Width).Max();
             if (treeStyle.ShowCladeLabels && allExternalNodes.Length > 0)
             {
