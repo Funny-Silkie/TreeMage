@@ -43,6 +43,7 @@
     <EmbeddedResource Remove="obj\**" />
     <None Remove="obj\**" />
     <TypeScriptCompile Remove="obj\**" />
+    <None Remove="**\*.razor.js" />
   </ItemGroup>
 
   <ItemGroup>
