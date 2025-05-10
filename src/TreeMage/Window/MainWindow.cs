@@ -50,9 +50,16 @@ namespace TreeMage.Window
                 Title = "TreeMage",
             });
             await result.WebContents.Session.ClearCacheAsync();
+
+            bool reloaded = false;
             result.OnReadyToShow += () =>
             {
                 result.Show();
+                if (!reloaded)
+                {
+                    result.LoadURL(CreateUrl("/"));
+                    reloaded = true;
+                }
                 if (config.IsMaximized) result.Maximize();
             };
             result.OnResize += () => Task.Run(async () =>
